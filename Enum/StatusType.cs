@@ -7,5 +7,6 @@
         Berserk = 3,
         Strength = 4,
         Dexterity = 5,
+        PenNibDoubleDamage = 6,
     }
 }

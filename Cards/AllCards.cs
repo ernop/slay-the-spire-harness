@@ -15,6 +15,7 @@ namespace StS
             cards["Defend"] = new Defend();
             cards["Inflame"] = new Inflame();
             cards["LimitBreak"] = new LimitBreak();
+            cards["Footwork"] = new Footwork();
             return cards;
         }
     }

@@ -9,6 +9,7 @@ namespace StS
         static void Main(string[] args)
         {
             StS.Test.RunTests(true);
+            Console.ReadLine();
         }
     }
 }

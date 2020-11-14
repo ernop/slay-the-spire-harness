@@ -8,9 +8,12 @@ namespace StS
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
+
         public override CardType CardType => CardType.Attack;
 
-        public override void Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override ActionTarget ActionTarget => ActionTarget.Enemy;
+
+        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
             int amount;
             if (upgradeCount == 0)
@@ -22,9 +25,9 @@ namespace StS
                 amount = 9;
             }
 
-            amount = player.AdjustDealtDamage(amount);
-
-            enemy.ApplyDamage(amount);
+            var ef = new EffectSet();
+            ef.EnemyReceivesDamage.Add((_) => amount);
+            return ef;
         }
     }
 }

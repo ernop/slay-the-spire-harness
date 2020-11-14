@@ -8,7 +8,9 @@ namespace StS
         public override CharacterType CharacterType => CharacterType.IronClad;
         public override CardType CardType => CardType.Skill;
 
-        public override void Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override ActionTarget ActionTarget => ActionTarget.Player;
+
+        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
             int amount;
             if (upgradeCount == 0)
@@ -20,13 +22,9 @@ namespace StS
                 amount = 6;
             }
 
-            foreach (var status in player.Statuses)
-            {
-                status.GainsBlock(amount);
-            }
-
-
-            player.ApplyBlock(amount);
+            var ef = new EffectSet();
+            ef.PlayerGainBlock.Add((_) => amount);
+            return ef;
         }
     }
 }

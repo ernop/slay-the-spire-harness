@@ -6,9 +6,17 @@
 
         public override StatusType StatusType => StatusType.Strength;
 
-        public override int AdjustDealtDamage(int amount, int duration, int intensity)
+        internal override void Apply(EffectSet set, int intensity)
         {
-            return amount + intensity;
+            set.EnemyReceivesDamage.Add((el) =>
+            {
+                if (el > 0)
+                {
+                    return el + intensity;
+                }
+                return 0;
+            });
+            
         }
     }
 }

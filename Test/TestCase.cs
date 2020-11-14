@@ -12,6 +12,7 @@ namespace StS
         public int PostCardsPlayerHp { get; set; }
         public string TestName { get; set; }
         public string EnemyName { get; set; } = "Enemy";
+        public int PlayerBlock { get; set; }
 
         public void Run()
         {
@@ -21,7 +22,7 @@ namespace StS
             var enemy = new Enemy(EnemyName, gc, EnemyHP, EnemyHP);
             foreach (var ci in CardsToPlay)
             {
-                ci.Play(player, enemy, null);
+                gc.PlayCard(ci, player, enemy, null);
             }
             if (Helpers.PrintDetails)
             {
@@ -37,6 +38,10 @@ namespace StS
             {
                 throw new Exception($"{TestName} Enemy hp={enemy.HP} expected to be={PostCardsEnemyHp}");
             }
+            if (player.Block != PlayerBlock) {
+                throw new Exception($"PlayerBlock expected:{PlayerBlock} actual:{player.Block}");
+            }
+
             Console.WriteLine($"====Testcase {TestName} is valid\n");
         }
     }

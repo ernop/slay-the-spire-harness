@@ -11,7 +11,7 @@ namespace StS
 
         public static bool IsVulnerable(Entity entity)
         {
-            var exi = entity.Statuses.SingleOrDefault(el => el.Status.StatusType == StatusType.Vulnerable);
+            var exi = entity.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Vulnerable);
             if (exi != null)
             {
                 return true;

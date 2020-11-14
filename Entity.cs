@@ -24,7 +24,8 @@ namespace StS
         public int HPMax { get; set; }
         public int Block { get; set; }
 
-        public List<StatusInstance> Statuses { get; set; } = new List<StatusInstance>();
+        public List<StatusInstance> StatusInstances { get; set; } = new List<StatusInstance>();
+        public List<Relic> relics { get; set; } = new List<Relic>();
 
         /// <summary>
         /// Add duration (if not infinite).
@@ -33,10 +34,10 @@ namespace StS
         /// <param name="statusInstance"></param>
         public void ApplyStatus(StatusInstance statusInstance)
         {
-            var exiStatus = Statuses.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
+            var exiStatus = StatusInstances.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
             if (exiStatus == null)
             {
-                Statuses.Add(statusInstance);
+                StatusInstances.Add(statusInstance);
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\tGained {statusInstance}");
@@ -60,27 +61,8 @@ namespace StS
             //check for applying damage on status addition.
         }
 
-        public int AdjustDealtDamage(int amount)
-        {
-            foreach (var si in Statuses)
-            {
-                amount = si.AdjustDealtDamage(amount);
-            }
-            return amount;
-        }
-
-        private int _AdjustReceivedDamage(int amount)
-        {
-            foreach (var si in Statuses)
-            {
-                amount = si.AdjustReceivedDamage(amount);
-            }
-            return amount;
-        }
-
         public void ApplyDamage(int amount)
         {
-            amount = _AdjustReceivedDamage(amount);
             if (amount >= HP)
             {
                 _Die();
@@ -95,6 +77,10 @@ namespace StS
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\t{Name} took {amount} Damage");
+                    if (amount == 0)
+                    {
+                        var ae = 3;
+                    }
                 }
             }
         }
@@ -115,7 +101,7 @@ namespace StS
 
         public override string ToString()
         {
-            var statuses = string.Join(",", Statuses.Select(el => el.ToString()));
+            var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
             return $"{EntityType} '{Name}' HP: {HP}/{HPMax} Block:{Block} {statuses}";
         }
     }

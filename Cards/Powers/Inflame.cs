@@ -12,7 +12,9 @@ namespace StS
 
         public override CardType CardType => CardType.Power;
 
-        public override void Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override ActionTarget ActionTarget => ActionTarget.Player;
+
+        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
             var amt = 0;
             if (upgradeCount == 0)
@@ -23,7 +25,11 @@ namespace StS
             {
                 amt = 3;
             }
-            player.ApplyStatus(new StatusInstance(new Strength(), int.MaxValue, amt));
+
+            var ef = new EffectSet();
+            ef.PlayerStatus.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
+
+            return ef;
         }
     }
 }

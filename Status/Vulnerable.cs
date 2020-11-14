@@ -8,9 +8,21 @@ namespace StS
 
         public override string Name => nameof(Vulnerable);
 
-        public override int AdjustReceivedDamage(int amount, int duration, int intensity)
+        internal override void Apply(EffectSet set, int intensity)
         {
-            return (int)Math.Floor(amount * 1.5);
+            if (set.EnemyReceivesDamage != null)
+            {
+
+                set.EnemyReceivesDamage.Add((el) =>
+                {
+                    if (el > 0)
+                    {
+                        return (int)Math.Floor(el * 1.5);
+                    }
+                    return 0;
+                });
+            }
         }
     }
+
 }

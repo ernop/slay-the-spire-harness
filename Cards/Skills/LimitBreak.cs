@@ -11,9 +11,12 @@ namespace StS
 
         public override CardType CardType => CardType.Skill;
 
-        public override void Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override ActionTarget ActionTarget => ActionTarget.Player;
+
+        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
-            var exi = player.Statuses.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
+            var ef = new EffectSet();
+            var exi = player.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             if (exi == null)
             {
 
@@ -22,8 +25,10 @@ namespace StS
             {
                 //we could just double this in place but cleaner to reapply the same status
                 var statusCopy = new StatusInstance(exi.Status, exi.Duration, exi.Intensity);
-                player.ApplyStatus(statusCopy);
+                ef.PlayerStatus.Add(statusCopy);
             }
+
+            return ef;
         }
     }
 }
