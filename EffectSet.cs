@@ -14,7 +14,7 @@ namespace StS
         public List<Func<int, int>> PlayerGainBlock { get; set; } = new List<Func<int, int>>();
         public List<Func<int, int>> PlayerReceivesDamage { get; set; } = new List<Func<int, int>>();
         public List<StatusInstance> PlayerStatus { get; set; } = new List<StatusInstance>();
-        public Func<int, int> EnemyBlock { get; set; }
+        public List<Func<int, int>> EnemyGainsBlock { get; set; } = new List<Func<int, int>>();
         public List<Func<int, int>> EnemyReceivesDamage { get; set; } = new List<Func<int, int>>();
         public List<StatusInstance> EnemyStatus { get; set; } = new List<StatusInstance>();
     }

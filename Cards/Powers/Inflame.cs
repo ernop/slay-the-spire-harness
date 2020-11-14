@@ -12,8 +12,6 @@ namespace StS
 
         public override CardType CardType => CardType.Power;
 
-        public override ActionTarget ActionTarget => ActionTarget.Player;
-
         internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
             var amt = 0;

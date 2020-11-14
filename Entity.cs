@@ -47,31 +47,40 @@ namespace StS
             }
             else
             {
-                if (exiStatus.Duration != int.MaxValue)
-                {
-                    exiStatus.Duration += statusInstance.Duration;
-                }
-                if (exiStatus.Intensity != int.MaxValue)
-                {
-                    exiStatus.Intensity += statusInstance.Intensity;
-                }
-                if (Helpers.PrintDetails)
-                {
-                    Console.WriteLine($"\tStatus changed to: {exiStatus}");
-                }
-                
-                //remove pen nib when it's called, for example.
-                //or remove strength when it reaches zero
-                if (exiStatus.Duration == 0 || exiStatus.Intensity==0)
+                if (statusInstance.Duration == int.MinValue)
                 {
                     StatusInstances.Remove(exiStatus);
                 }
+                else
+                {
+                    //more sensible application for permanent statuses: int.minvalue means nuke it.
+                    if (exiStatus.Duration != int.MaxValue)
+                    {
+                        exiStatus.Duration += statusInstance.Duration;
+                    }
+                    if (exiStatus.Intensity != int.MaxValue)
+                    {
+                        exiStatus.Intensity += statusInstance.Intensity;
+                    }
+                    if (Helpers.PrintDetails)
+                    {
+                        Console.WriteLine($"\tStatus changed to: {exiStatus}");
+                    }
 
-                //todo some statuses can have negative intensity but others can't.
+                    //remove pen nib when it's called, for example.
+                    //or remove strength when it reaches zero
+                    if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
+                    {
+                        StatusInstances.Remove(exiStatus);
+                    }
+                }
             }
-            //check for applying damage on status addition.
         }
 
+        /// <summary>
+        /// block not accounted for.
+        /// </summary>
+        /// <param name="amount"></param>
         public void ApplyDamage(int amount)
         {
             if (amount >= HP)

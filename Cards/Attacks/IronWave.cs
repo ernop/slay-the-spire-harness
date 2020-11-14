@@ -1,33 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace StS
 {
-    public class Bash : Card
+    public class IronWave : Card
     {
-        public override string Name => "Bash";
+        public override string Name => nameof(IronWave);
+
         public override CharacterType CharacterType => CharacterType.IronClad;
+
         public override CardType CardType => CardType.Attack;
+
         internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
-            int amt;
-            StatusInstance si;
+            int dmg;
+            int block;
             if (upgradeCount == 0)
             {
-                amt = 8;
-                si = new StatusInstance(new Vulnerable(), 2, int.MaxValue);
+                dmg = 5;
+                block = 5;
             }
             else
             {
-                amt = 12;
-                si = new StatusInstance(new Vulnerable(), 3, int.MaxValue);
+                dmg = 7;
+                block = 7;
             }
 
-
             var ef = new EffectSet();
-            ef.EnemyReceivesDamage.Add((_) => amt);
-            ef.EnemyStatus.Add(si);
-
+            ef.EnemyReceivesDamage.Add((_) => dmg);
+            ef.PlayerGainBlock.Add((_) => block);
             return ef;
         }
     }

@@ -12,18 +12,23 @@ namespace StS
     {
         public static Dictionary<string,Card> CardList = GetAllCards();
 
-        public static TestCase CreateTestCase(string name, int pl, int pl2, int en, int en2, List<CardInstance> cardInstances, int playerBlock = 0, List<Relic> relics = null)
+        public static TestCase CreateTestCase(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50, int enbl = 0, List<CardInstance> cis = null,
+            int finalPlayerblock = 0, int finalEnemyBlock = 0,
+            List<Relic> relics = null, List<StatusInstance> enemyStatuses = null)
         {
             var tc = new TestCase()
             {
-                EnemyHP = en,
-                PostCardsEnemyHp = en2,
-                PlayerHP = pl,
-                PostCardsPlayerHp = pl2,
+                EnemyHp = en,
+                EnemyBlock = enbl,
+                FinalEnemyHp = en2,
+                PlayerHp = pl,
+                FinalPlayerHp = pl2,
                 TestName = name,
-                CardsToPlay = cardInstances,
-                PlayerBlock = playerBlock,
-                Relics = relics
+                CardsToPlay = cis,
+                FinalPlayerBlock = finalPlayerblock,
+                FinalEnemyBlock = finalEnemyBlock,
+                Relics = relics,
+                EnemyStatuses = enemyStatuses
             };
             return tc;
         }
@@ -48,27 +53,30 @@ namespace StS
 
         public static void BasicTests(List<TestCase> tcs)
         {
-            tcs.Add(CreateTestCase("Defend", 50, 50, 50, 50, GetCi("Defend"), 5));
-            tcs.Add(CreateTestCase("FootDefend", 50, 50, 50, 50, GetCi("Footwork", "Defend"), 7));
-            tcs.Add(CreateTestCase("Foot+Defend", 50, 50, 50, 50, GetCi("Footwork+", "Defend"), 8));
-            tcs.Add(CreateTestCase("FootFoot+Defend", 50, 50, 50, 50, GetCi("Footwork", "Footwork+", "Defend"), 10));
-            tcs.Add(CreateTestCase("Strike works", 50, 50, 50, 44, GetCi("Strike")));
-            tcs.Add(CreateTestCase("Strike, Strike+ works", 50, 50, 50, 35, GetCi("Strike", "Strike+")));
+            tcs.Add(CreateTestCase("Defend", cis: GetCi("Defend"), finalPlayerblock: 5));
+            tcs.Add(CreateTestCase("FootDefend", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 7));
+            tcs.Add(CreateTestCase("Foot+Defend", cis: GetCi("Footwork+", "Defend"), finalPlayerblock: 8));
+            tcs.Add(CreateTestCase("FootFoot+Defend", cis: GetCi("Footwork", "Footwork+", "Defend"), finalPlayerblock: 10));
+            tcs.Add(CreateTestCase("Strike works", en2:44, cis: GetCi("Strike")));
+            tcs.Add(CreateTestCase("Strike, Strike+ works", en2: 35, cis: GetCi("Strike", "Strike+")));
 
 
-            tcs.Add(CreateTestCase("Bashing", 50, 50, 50, 19, GetCi("Strike", "Bash+", "Strike+")));
-            tcs.Add(CreateTestCase("Inflame", 50, 50, 50, 35, GetCi("Strike", "Inflame+", "Strike")));
-            tcs.Add(CreateTestCase("Inflame+Bash", 50, 50, 50, 39, GetCi("Inflame+", "Bash")));
-            tcs.Add(CreateTestCase("Inflame+Bash+strike", 50, 50, 50, 26, GetCi("Inflame+", "Bash", "Strike")));
-            tcs.Add(CreateTestCase("Inflame+LimitBreak", 50, 50, 50, 32, GetCi("Strike", "Inflame+", "LimitBreak", "Strike")));
-            tcs.Add(CreateTestCase("Inflame+LimitBreak+bash", 50, 50, 50, 8, GetCi("Strike", "Inflame+", "LimitBreak", "Bash", "Strike+")));
+            tcs.Add(CreateTestCase("Bashing", en2: 19, cis: GetCi("Strike", "Bash+", "Strike+")));
+            tcs.Add(CreateTestCase("Inflame", en2: 35, cis: GetCi("Strike", "Inflame+", "Strike")));
+            tcs.Add(CreateTestCase("Inflame+Bash", en2: 39, cis: GetCi("Inflame+", "Bash"))); ;
+            tcs.Add(CreateTestCase("Inflame+Bash+strike", en2: 26, cis: GetCi("Inflame+", "Bash", "Strike")));
+            tcs.Add(CreateTestCase("Inflame+LimitBreak", en2: 32, cis: GetCi("Strike", "Inflame+", "LimitBreak", "Strike")));
+            tcs.Add(CreateTestCase("Inflame+LimitBreak+bash", en2: 8, cis: GetCi("Strike", "Inflame+", "LimitBreak", "Bash", "Strike+")));
+
+            tcs.Add(CreateTestCase("BashIronwave", en2: 32, cis: GetCi("Bash", "IronWave+"), finalPlayerblock : 7));
+            tcs.Add(CreateTestCase("BashInflameIronwave", en2:27, cis: GetCi("Bash", "Inflame+", "IronWave+"), finalPlayerblock: 7));
         }
 
         public static void RelicTests(List<TestCase> tcs)
         {
             var varjaOne = new Varja { Intensity = 1 };
-            tcs.Add(CreateTestCase("Strike, Strike+ works", 50, 50, 50, 33, GetCi("Strike", "Strike+"), 0,
-                new List<Relic>() { varjaOne }));
+            tcs.Add(CreateTestCase("Strike, Strike+ works", en2: 33, cis: GetCi("Strike", "Strike+"),
+                relics: new List<Relic>() { varjaOne }));
         }
 
         public static void PenNibTests(List<TestCase> tcs)
@@ -76,18 +84,34 @@ namespace StS
             var penNib = new PenNib();
             penNib.AttackCount = 8;
 
-            tcs.Add(CreateTestCase("PenNib toggles-untoggles", 50, 50, 50, 20, GetCi("Strike", "Strike+", "Strike"), 0, new List<Relic>() { penNib }));
+            tcs.Add(CreateTestCase("PenNib toggles-untoggles", en2: 20, cis: GetCi("Strike", "Strike+", "Strike"), relics: new List<Relic>() { penNib }));
 
             var penNib2 = new PenNib();
             penNib2.AttackCount = 2;
 
-            tcs.Add(CreateTestCase("PenNib-Nonfunctional", 50, 50, 50, 35, GetCi("Strike", "Strike+"), 0, new List<Relic>() { penNib2 }));
+            tcs.Add(CreateTestCase("PenNib-Nonfunctional", en2: 35, cis: GetCi("Strike", "Strike+"), relics: new List<Relic>() { penNib2 }));
 
 
             var penNib3 = new PenNib();
             penNib3.AttackCount = 8;
 
-            tcs.Add(CreateTestCase("PenNib-Inflame", 50, 50, 50, 20, GetCi("Strike", "Inflame+", "Strike+"), 0, new List<Relic>() { penNib3 }));
+            tcs.Add(CreateTestCase("PenNib-Inflame", en2: 20, cis: GetCi("Strike", "Inflame+", "Strike+"), relics: new List<Relic>() { penNib3 }));
+        }
+
+        public static void EnemyBehaviorTests(List<TestCase> tcs)
+        {
+            var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), int.MaxValue, 4) };
+            tcs.Add(CreateTestCase("Louse-Aggressive", en2: 41, cis: GetCi("Strike+"), enemyStatuses: si, finalEnemyBlock: 4));
+
+            var si2 = new List<StatusInstance>() { new StatusInstance(new Aggressive(), int.MaxValue, 4) };
+            tcs.Add(CreateTestCase("Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCi("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0));
+        }
+
+        public static void DamageBlockTests(List<TestCase> tcs)
+        {
+            tcs.Add(CreateTestCase("ClearingEnemyBlock", en2: 34, enbl:10, cis: GetCi("Strike+", "Bash", "Strike"), finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("FullBlocked", en2: 50, enbl: 26, cis: GetCi("Strike+", "Bash", "Strike"), finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("VulnBreakThrough", en2: 49, enbl: 16, cis: GetCi("Bash", "Strike"), finalEnemyBlock: 0));
         }
 
         public static void RunTests(bool print)
@@ -98,9 +122,11 @@ namespace StS
 
             if (true)
             {
+                DamageBlockTests(tcs);
                 BasicTests(tcs);
                 RelicTests(tcs);
-                PenNibTests(tcs);                
+                PenNibTests(tcs);
+                EnemyBehaviorTests(tcs);
             }
 
             foreach (var testCase in tcs)

@@ -29,11 +29,5 @@ namespace StS
             var upgrade = UpgradeCount > 0 ? "+" : "";
             return $"{Card}{upgrade}";
         }
-
-        internal ActionTarget GetActionTarget()
-        {
-            //here determine if we are AOE or not;
-            return Card.ActionTarget;
-        }
     }
 }

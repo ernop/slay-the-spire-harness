@@ -11,8 +11,6 @@ namespace StS
 
         public override CardType CardType => CardType.Attack;
 
-        public override ActionTarget ActionTarget => ActionTarget.Enemy;
-
         internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
         {
             int amount;

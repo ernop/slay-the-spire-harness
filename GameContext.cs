@@ -91,35 +91,64 @@ namespace StS
                 }
             }            
 
-            if (ef.EnemyBlock != null)
-            {
-                enemy.Block += ef.EnemyBlock(0);
-            }
 
             if (ef.EnemyReceivesDamage != null && ef.EnemyReceivesDamage.Any())
             {
-                var val = 0;
+                var damageAmount = 0;
                 foreach (var fcn in ef.EnemyReceivesDamage)
+                {
+                    damageAmount = fcn(damageAmount);
+                }
+                if (damageAmount > 0)
+                {
+                    //handle block here.
+                    if (enemy.Block > 0)
+                    {
+                        if (damageAmount > enemy.Block)
+                        {
+                            damageAmount = damageAmount - enemy.Block;
+                            enemy.Block = 0;
+                        }
+                        else
+                        {
+                            enemy.Block -= damageAmount;
+                            damageAmount = 0;
+                        }
+                    }
+                    if (damageAmount > 0)
+                    {
+                        enemy.ApplyDamage(damageAmount);
+                    }
+                }
+            }
+
+            //Aggressive triggers block based on new status.
+
+            if (ef.EnemyGainsBlock != null && ef.EnemyGainsBlock.Any())
+            {
+                var val = 0;
+                foreach (var fcn in ef.EnemyGainsBlock)
                 {
                     val = fcn(val);
                 }
                 if (val > 0)
                 {
-                    enemy.ApplyDamage(val);
+                    enemy.ApplyBlock(val);
                 }
             }
 
             //We resolve damage after dealing with statuses the player may just have gained.
             //i.e. we don't apply pen nib to the player til after attack is resolved.
 
-            if (ef.PlayerStatus != null)
+            if (ef.PlayerStatus != null && ef.PlayerStatus.Any())
             {
                 foreach (var status in ef.PlayerStatus)
                 {
                     player.ApplyStatus(status);
                 }
             }
-            Console.WriteLine($"Player now: {player}");
+            Console.WriteLine($"Player:{player}");
+            Console.WriteLine($"Enemy:{enemy}");
 
             if (ef.EnemyStatus != null && ef.EnemyStatus.Any())
             {

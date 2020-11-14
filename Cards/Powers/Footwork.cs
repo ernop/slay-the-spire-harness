@@ -6,8 +6,6 @@ namespace StS
     {
         public override string Name => nameof(Footwork);
 
-        public override ActionTarget ActionTarget => ActionTarget.Player;
-
         public override CharacterType CharacterType => CharacterType.Silent;
 
         public override CardType CardType => CardType.Power;

@@ -1,5 +1,6 @@
 ﻿namespace StS
 {
+
     public class Dexterity : Status
     {
         public override string Name => nameof(Dexterity);

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StS
 {
-    public class PinNibDoubleDamage : Status
+    public class PenNibDoubleDamage : Status
     {
         public override string Name => "Double Damage from Pen Nib";
 
@@ -20,11 +20,11 @@ namespace StS
                     if (intensity > 0)
                     {
                         //removal of pen nib whenever we play an attack.
-                        var negativePinNib = new StatusInstance(new PinNibDoubleDamage(), -1, int.MaxValue);
+                        var negativePenNib = new StatusInstance(new PenNibDoubleDamage(), int.MinValue, 0);
 
                         //whoah, this will be applied when the attack is actually resolved.
                         //since here we're 
-                        ef.PlayerStatus.Add(negativePinNib);
+                        ef.PlayerStatus.Add(negativePenNib);
 
                         if (el > 0)
                         {

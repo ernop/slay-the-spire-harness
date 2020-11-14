@@ -10,7 +10,6 @@ namespace StS
     {
         public abstract string Name { get;}
         public string Text { get;}
-        public abstract ActionTarget ActionTarget { get; }
         public abstract CharacterType CharacterType { get; }
         public abstract CardType CardType { get; }
         internal abstract EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount);

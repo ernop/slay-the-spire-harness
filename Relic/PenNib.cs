@@ -13,7 +13,7 @@ namespace StS
                 AttackCount = (AttackCount + 1) % 10;
                 if (AttackCount == 9)
                 {
-                    ef.PlayerStatus.Add(new StatusInstance(new PinNibDoubleDamage(), 1, int.MaxValue));
+                    ef.PlayerStatus.Add(new StatusInstance(new PenNibDoubleDamage(), 1, int.MaxValue));
                 }
             }
         }
