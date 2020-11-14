@@ -7,7 +7,7 @@ namespace StS
         public static Dictionary<string, Relic> GetAllRelics()
         {
             var relics = new Dictionary<string, Relic>();
-            //relics["Pen Nib"] = new PinNib();
+            relics["Pen Nib"] = new PenNib();
             return relics;
         }
     }

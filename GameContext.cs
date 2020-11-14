@@ -44,11 +44,11 @@ namespace StS
             //generate an effect containing all the changes that will happen.
             foreach (var si in player.StatusInstances)
             {
-                si.Apply(ef);
+                si.Apply(cardInstance.Card, ef);
             }
             foreach (var si in enemy.StatusInstances)
             {
-                si.Apply(ef);
+                si.Apply(cardInstance.Card, ef);
             }
             if (enemyList != null)
             {
@@ -56,21 +56,14 @@ namespace StS
                 {
                     foreach (var si in oneEnemy.StatusInstances)
                     {
-                        si.Apply(ef);
+                        si.Apply(cardInstance.Card, ef);
                     }
                 }
             }
-
-            //apply all the changes.
-
-            if (ef.PlayerStatus != null)
+            foreach (var relic in player.relics)
             {
-                foreach (var status in ef.PlayerStatus)
-                {
-                    player.ApplyStatus(status);
-                }
+                relic.CardPlayed(cardInstance.Card, ef);
             }
-            Console.WriteLine($"Player now: {player}");
             
             if (ef.PlayerGainBlock != null && ef.PlayerGainBlock.Any())
             {
@@ -115,6 +108,18 @@ namespace StS
                     enemy.ApplyDamage(val);
                 }
             }
+
+            //We resolve damage after dealing with statuses the player may just have gained.
+            //i.e. we don't apply pen nib to the player til after attack is resolved.
+
+            if (ef.PlayerStatus != null)
+            {
+                foreach (var status in ef.PlayerStatus)
+                {
+                    player.ApplyStatus(status);
+                }
+            }
+            Console.WriteLine($"Player now: {player}");
 
             if (ef.EnemyStatus != null && ef.EnemyStatus.Any())
             {

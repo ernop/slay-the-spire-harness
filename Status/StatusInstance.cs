@@ -29,6 +29,18 @@ namespace StS
             Duration = duration;
             Intensity = intensity;
         }
+
+        public void NewTurnStarted()
+        {
+            if (Duration != int.MaxValue)
+            {
+                Duration--;
+            }
+            if (Duration == 0)
+            {
+                //remove the status.
+            }
+        }
         
         public override string ToString()
         {
@@ -37,9 +49,9 @@ namespace StS
             return $"{Status.Name}{dur}{amt}";
         }
 
-        public void Apply(EffectSet ef)
+        public void Apply(Card card, EffectSet ef)
         {
-            Status.Apply(ef, Intensity);
+            Status.Apply(card, ef, Intensity);
         }
     }
 }

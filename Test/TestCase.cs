@@ -13,12 +13,17 @@ namespace StS
         public string TestName { get; set; }
         public string EnemyName { get; set; } = "Enemy";
         public int PlayerBlock { get; set; }
+        public List<Relic> Relics { get; set; }
 
         public void Run()
         {
             Console.WriteLine($"====Testcase {TestName}");
             var gc = new GameContext();
             var player = new Player(gc, PlayerHP, PlayerHP);
+            if (Relics != null)
+            {
+                player.relics = Relics;
+            }
             var enemy = new Enemy(EnemyName, gc, EnemyHP, EnemyHP);
             foreach (var ci in CardsToPlay)
             {
@@ -43,6 +48,11 @@ namespace StS
             }
 
             Console.WriteLine($"====Testcase {TestName} is valid\n");
+        }
+
+        public override string ToString()
+        {
+            return $"TC:{TestName}";
         }
     }
 }

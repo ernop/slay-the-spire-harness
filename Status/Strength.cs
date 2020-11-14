@@ -6,17 +6,25 @@
 
         public override StatusType StatusType => StatusType.Strength;
 
-        internal override void Apply(EffectSet set, int intensity)
+        internal override void Apply(Card card, EffectSet set, int intensity)
         {
-            set.EnemyReceivesDamage.Add((el) =>
+            if (card.CardType == CardType.Attack)
             {
-                if (el > 0)
+                if (set.EnemyReceivesDamage.Count == 0)
                 {
-                    return el + intensity;
+                    throw new System.Exception("Why am i calculating strength without having a base damage?");
                 }
-                return 0;
-            });
-            
+
+                //strength always calculated immediately after initial damage.
+                set.EnemyReceivesDamage.Insert(1, (el) =>
+                {
+                    if (el > 0)
+                    {
+                        return el + intensity;
+                    }
+                    return 0;
+                });
+            }            
         }
     }
 }

@@ -6,6 +6,6 @@ namespace StS
     {
         public abstract string Name { get; }
         public abstract StatusType StatusType { get; }
-        internal abstract void Apply(EffectSet set, int intensity);
+        internal abstract void Apply(Card card, EffectSet set, int intensity);
     }
 }

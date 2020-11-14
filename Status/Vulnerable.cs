@@ -8,11 +8,10 @@ namespace StS
 
         public override string Name => nameof(Vulnerable);
 
-        internal override void Apply(EffectSet set, int intensity)
+        internal override void Apply(Card card, EffectSet set, int intensity)
         {
-            if (set.EnemyReceivesDamage != null)
+            if (card.CardType == CardType.Attack)
             {
-
                 set.EnemyReceivesDamage.Add((el) =>
                 {
                     if (el > 0)
@@ -24,5 +23,4 @@ namespace StS
             }
         }
     }
-
 }

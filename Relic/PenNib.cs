@@ -6,15 +6,31 @@ namespace StS
     public class PenNib : Relic
     {
         public int AttackCount { get; set; } = 0;
-        public override EffectSet CardPlayed(Card card)
+        public override void CardPlayed(Card card, EffectSet ef)
         {
-            var es = new EffectSet();
             if (card.CardType == CardType.Attack)
             {
                 AttackCount = (AttackCount + 1) % 10;
-                es.PlayerStatus.Add(new StatusInstance(new PinNibDoubleDamage(),int.MaxValue, int.MaxValue));
+                if (AttackCount == 9)
+                {
+                    ef.PlayerStatus.Add(new StatusInstance(new PinNibDoubleDamage(), 1, int.MaxValue));
+                }
             }
-            return es;
+        }
+
+        public override void FightStarted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void NewTurn()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return $"PenNib:{AttackCount}";
         }
     }
 }

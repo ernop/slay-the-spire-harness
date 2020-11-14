@@ -25,6 +25,8 @@ namespace StS
         public int Block { get; set; }
 
         public List<StatusInstance> StatusInstances { get; set; } = new List<StatusInstance>();
+        
+        //unlike statuses and cards which have abstract Card and instances, relics are just relics
         public List<Relic> relics { get; set; } = new List<Relic>();
 
         /// <summary>
@@ -57,6 +59,15 @@ namespace StS
                 {
                     Console.WriteLine($"\tStatus changed to: {exiStatus}");
                 }
+                
+                //remove pen nib when it's called, for example.
+                //or remove strength when it reaches zero
+                if (exiStatus.Duration == 0 || exiStatus.Intensity==0)
+                {
+                    StatusInstances.Remove(exiStatus);
+                }
+
+                //todo some statuses can have negative intensity but others can't.
             }
             //check for applying damage on status addition.
         }

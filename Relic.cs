@@ -6,6 +6,8 @@ namespace StS
 {
     public abstract class Relic
     {
-        public abstract EffectSet CardPlayed(Card card);
+        public abstract void CardPlayed(Card card, EffectSet ef);
+        public abstract void FightStarted();
+        public abstract void NewTurn();
     }
 }
