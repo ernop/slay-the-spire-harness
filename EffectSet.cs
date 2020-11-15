@@ -8,14 +8,20 @@ namespace StS
     /// Example: pen nib returns a damage doubler
     /// 
     /// Current assumption: only one enemy
+    /// 
+    /// Real StS separates out extra damage from enemy multiattacks which this would all combine.
+    /// PlayerReceivesDamage is combining implementation with the product request
     /// </summary>
     public class EffectSet
     {
-        public List<Func<int, int>> PlayerGainBlock { get; set; } = new List<Func<int, int>>();
-        public List<Func<int, int>> PlayerReceivesDamage { get; set; } = new List<Func<int, int>>();
-        public List<StatusInstance> PlayerStatus { get; set; } = new List<StatusInstance>();
-        public List<Func<int, int>> EnemyGainsBlock { get; set; } = new List<Func<int, int>>();
-        public List<Func<int, int>> EnemyReceivesDamage { get; set; } = new List<Func<int, int>>();
-        public List<StatusInstance> EnemyStatus { get; set; } = new List<StatusInstance>();
+        public IndividualEffect SourceEffect = new IndividualEffect();
+        public IndividualEffect TargetEffect = new IndividualEffect();
+    }
+
+    public class IndividualEffect
+    {
+        public List<Progression> GainBlock { get; set; } = new List<Progression>();
+        public List<Progression> ReceiveDamage { get; set; } = new List<Progression> ();
+        public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
     }
 }

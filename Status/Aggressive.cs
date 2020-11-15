@@ -10,28 +10,29 @@
 
         public override StatusType StatusType => StatusType.Aggressive;
 
-        internal override void Apply(Card card, EffectSet ef, int intensity)
+        /// <summary>
+        /// someone played a card against an entity with aggro status.  Is it safe to assume I'm always target here as far as ef is concerned?
+        /// Question: someone playing strike with -6 strength; does it trigger aggressive?  probably shouldn't.
+        /// </summary>
+        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {
-            if (card.CardType == CardType.Attack)
+            if (card.CardType == CardType.Attack && statusIsTargeted)
             {
-                ef.EnemyReceivesDamage.Add((el) =>
+                if (intensity > 0)
                 {
-                    if (intensity > 0)
+                    //actually this should be a check of the value.
+                    if (targetSet.ReceiveDamage != null)
                     {
-                        if (el > 0)
-                        {
-                            //removal of pen nib whenever we play an attack.
-                            var negativeAggressiveStatus = new StatusInstance(new Aggressive(), int.MinValue, 0);
+                        //removal of pen nib whenever we get attacked.
+                        var negativeAggressiveStatus = new StatusInstance(new Aggressive(), int.MinValue, 0);
 
-                            //whoah, this will be applied when the attack is actually resolved.
-                            //since here we're 
-                            ef.EnemyStatus.Add(negativeAggressiveStatus);
+                        //whoah, this will be applied when the attack is actually resolved.
+                        //since here we're 
+                        targetSet.Status.Add(negativeAggressiveStatus);
 
-                            ef.EnemyGainsBlock.Add((el) => intensity);
-                        }
+                        targetSet.GainBlock.Add(new Progression("AggroStatus", (el) => intensity));
                     }
-                    return el;
-                });
+                }
             }
         }
     }

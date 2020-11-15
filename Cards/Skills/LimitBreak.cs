@@ -10,11 +10,24 @@ namespace StS
         public override CharacterType CharacterType => CharacterType.IronClad;
 
         public override CardType CardType => CardType.Skill;
+        public override TargetType TargetType => TargetType.Player;
 
-        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override bool Ethereal(int upgradeCount)
+        {
+            return false;
+        }
+
+        public override bool Exhausts(int upgradeCount) {
+            if (upgradeCount == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             var ef = new EffectSet();
-            var exi = player.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
+            var exi = target.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             if (exi == null)
             {
 
@@ -23,7 +36,7 @@ namespace StS
             {
                 //we could just double this in place but cleaner to reapply the same status
                 var statusCopy = new StatusInstance(exi.Status, exi.Duration, exi.Intensity);
-                ef.PlayerStatus.Add(statusCopy);
+                ef.TargetEffect.Status.Add(statusCopy);
             }
 
             return ef;

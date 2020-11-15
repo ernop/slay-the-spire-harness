@@ -11,11 +11,11 @@ namespace StS
         public override StatusType StatusType => StatusType.PenNibDoubleDamage;
 
 
-        internal override void Apply(Card card, EffectSet ef, int intensity)
+        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {
-            if (card.CardType == CardType.Attack)
+            if (card.CardType == CardType.Attack && !statusIsTargeted)
             {
-                ef.EnemyReceivesDamage.Add((el) =>
+                targetSet.ReceiveDamage.Add(new Progression("PenNibDD", (el) =>
                 {
                     if (intensity > 0)
                     {
@@ -24,7 +24,7 @@ namespace StS
 
                         //whoah, this will be applied when the attack is actually resolved.
                         //since here we're 
-                        ef.PlayerStatus.Add(negativePenNib);
+                        sourceSet.Status.Add(negativePenNib);
 
                         if (el > 0)
                         {
@@ -32,7 +32,7 @@ namespace StS
                         }
                     }
                     return el;
-                });
+                }));
             }
         }
 

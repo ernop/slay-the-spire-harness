@@ -2,15 +2,17 @@
 
 namespace StS
 {
-    public class IronWave : Card
+    public class IronWave : AttackCard
     {
         public override string Name => nameof(IronWave);
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
-        public override CardType CardType => CardType.Attack;
+        public override bool Ethereal(int upgradeCount) => false;
 
-        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override bool Exhausts(int upgradeCount) => false;
+
+        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             int dmg;
             int block;
@@ -26,8 +28,8 @@ namespace StS
             }
 
             var ef = new EffectSet();
-            ef.EnemyReceivesDamage.Add((_) => dmg);
-            ef.PlayerGainBlock.Add((_) => block);
+            ef.TargetEffect.ReceiveDamage.Add(new Progression("IronWaveDamage", (_) => dmg));
+            ef.SourceEffect.GainBlock.Add(new Progression("IronWaveBlock", (_) => block));
             return ef;
         }
     }

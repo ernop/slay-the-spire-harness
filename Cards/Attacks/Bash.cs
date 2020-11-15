@@ -3,12 +3,16 @@ using System.Collections.Generic;
 
 namespace StS
 {
-    public class Bash : Card
+    public class Bash : AttackCard
     {
-        public override string Name => "Bash";
+        public override string Name => nameof(Bash);
         public override CharacterType CharacterType => CharacterType.IronClad;
-        public override CardType CardType => CardType.Attack;
-        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        
+        public override bool Ethereal(int upgradeCount) => false;
+
+        public override bool Exhausts(int upgradeCount) => false;
+
+        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             int amt;
             StatusInstance si;
@@ -25,8 +29,8 @@ namespace StS
 
 
             var ef = new EffectSet();
-            ef.EnemyReceivesDamage.Add((_) => amt);
-            ef.EnemyStatus.Add(si);
+            ef.TargetEffect.ReceiveDamage.Add(new Progression("Bash", (_) => amt));
+            ef.TargetEffect.Status.Add(si);
 
             return ef;
         }

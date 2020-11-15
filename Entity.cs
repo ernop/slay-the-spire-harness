@@ -43,6 +43,7 @@ namespace StS
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\tGained {statusInstance}");
+                    Console.WriteLine(this);
                 }
             }
             else

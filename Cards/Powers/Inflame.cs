@@ -4,15 +4,18 @@ using System.Text;
 
 namespace StS
 {
-    public class Inflame : Card
+    public class Inflame : PowerCard
     {
         public override string Name => nameof(Inflame);
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
         public override CardType CardType => CardType.Power;
+        public override TargetType TargetType => TargetType.Player;
+        public override bool Ethereal(int upgradeCount) => false;
+        public override bool Exhausts(int upgradeCount) => false;
 
-        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             var amt = 0;
             if (upgradeCount == 0)
@@ -25,7 +28,7 @@ namespace StS
             }
 
             var ef = new EffectSet();
-            ef.PlayerStatus.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
+            ef.TargetEffect.Status.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
 
             return ef;
         }

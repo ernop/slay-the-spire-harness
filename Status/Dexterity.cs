@@ -7,20 +7,21 @@
 
         public override StatusType StatusType => StatusType.Dexterity;
 
-        internal override void Apply(Card card, EffectSet set, int intensity)
+        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {
-            //you will have an old pgb like (_) = 5;
-            if (card.CardType == CardType.Skill)
+            //TODO: it would be better if this was a running total of defense so we could directly compare.
+            if (card.CardType == CardType.Skill && statusIsTargeted)
             {
-                set.PlayerGainBlock.Add(
+                targetSet.GainBlock.Add(new Progression("DexEffect",
                     (el) =>
                     {
-                        if (el > 0)
+                        var blockGain = el + intensity;
+                        if (blockGain >= 0)
                         {
-                            return el + intensity;
+                            return blockGain;
                         }
                         return 0;
-                    });
+                    }));
             }
         }
     }

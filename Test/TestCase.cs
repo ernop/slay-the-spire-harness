@@ -8,14 +8,17 @@ namespace StS
         public string TestName { get; set; }
         public string EnemyName { get; set; } = "Enemy";
         public List<CardInstance> CardsToPlay = new List<CardInstance>();
+        public int PlayerBlock { get; set; }
         public int EnemyBlock { get; set; }
         public int EnemyHp { get; set; }
         public int PlayerHp { get; set; }
+        public List<StatusInstance> PlayerStatuses { get; set; }
         public List<StatusInstance> EnemyStatuses { get; set; }
         public int FinalEnemyHp { get; set; }
         public int FinalEnemyBlock { get; set; }
         public int FinalPlayerHp { get; set; }
         public int FinalPlayerBlock { get; set; }
+        public List<CardInstance> EnemyCards { get; set; } = new List<CardInstance>();
         public List<Relic> Relics { get; set; }
         
         public void Run()
@@ -23,10 +26,18 @@ namespace StS
             Console.WriteLine($"====Testcase {TestName}");
             var gc = new GameContext();
             var player = new Player(gc, PlayerHp, PlayerHp);
+            
             if (Relics != null)
             {
                 player.relics = Relics;
+                foreach (var relic in player.relics)
+                {
+                    relic.Player = player;
+                }
             }
+            player.StatusInstances = PlayerStatuses;
+            player.Block = PlayerBlock;
+
             var enemy = new Enemy(EnemyName, gc, EnemyHp, EnemyHp);
             enemy.Block = EnemyBlock;
 
@@ -40,8 +51,21 @@ namespace StS
 
             foreach (var ci in CardsToPlay)
             {
-                gc.PlayCard(ci, player, enemy, null);
+                gc.PlayCard(ci, player, enemy);
+
+                Console.WriteLine($"Player:{player}");
+                Console.WriteLine($"Enemy:{enemy}");
             }
+
+            foreach (var ci in EnemyCards)
+            {
+                //For now no targeting for enemy cards.
+                gc.EnemyPlayCard(ci, enemy, player, player, enemy);
+
+                Console.WriteLine($"Player:{player}");
+                Console.WriteLine($"Enemy:{enemy}");
+            }
+
             if (Helpers.PrintDetails)
             {
                 Console.WriteLine("\tFinal State:");

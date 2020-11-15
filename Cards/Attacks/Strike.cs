@@ -2,16 +2,16 @@
 
 namespace StS
 {
-    public class Strike : Card
+    public class Strike : AttackCard
     {
         public override string Name => nameof(Strike);
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
+        public override bool Ethereal(int upgradeCount) => false;
 
-        public override CardType CardType => CardType.Attack;
-
-        internal override EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public override bool Exhausts(int upgradeCount) => false;
+        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             int amount;
             if (upgradeCount == 0)
@@ -24,7 +24,7 @@ namespace StS
             }
 
             var ef = new EffectSet();
-            ef.EnemyReceivesDamage.Add((_) => amount);
+            ef.TargetEffect.ReceiveDamage.Add(new Progression("Strike", (_) => amount));
             return ef;
         }
     }

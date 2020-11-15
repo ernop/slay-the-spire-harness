@@ -49,9 +49,9 @@ namespace StS
             return $"{Status.Name}{dur}{amt}";
         }
 
-        public void Apply(Card card, EffectSet ef)
+        public void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, bool statusIsTargeted)
         {
-            Status.Apply(card, ef, Intensity);
+            Status.Apply(card, sourceSet, targetSet, Intensity, statusIsTargeted);
         }
     }
 }

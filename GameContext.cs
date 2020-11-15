@@ -16,7 +16,7 @@ namespace StS
             Player = new Player(this, 100, 100);
         }
 
-        
+
         public void Died(Entity entity)
         {
             switch (entity.EntityType)
@@ -37,126 +37,166 @@ namespace StS
             Console.WriteLine("Died");
         }
 
-        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy, List<Enemy> enemyList)
+        public void GainBlock(Entity entity, IndividualEffect ef)
         {
-            var ef = cardInstance.Apply(player, enemy, enemyList, cardInstance.UpgradeCount);
+            if (ef.GainBlock != null && ef.GainBlock.Any())
+            {
+                var val = 0;
+                foreach (var prog in ef.GainBlock)
+                {
+                    val = prog.Fun(val);
+                }
+                if (val > 0)
+                {
+                    entity.Block += val;
+                }
+            }
+        }
+
+        public void ReceiveDamage(Entity entity, IndividualEffect ef)
+        {
+
+            if (ef.ReceiveDamage != null && ef.ReceiveDamage.Any())
+            {
+                var val = 0;
+                foreach (var prog in ef.ReceiveDamage)
+                {
+                    val = prog.Fun(val);
+                }
+
+
+                if (val > 0)
+                {
+                    //handle block here.
+                    if (entity.Block > 0)
+                    {
+                        if (val > entity.Block)
+                        {
+                            val = val - entity.Block;
+                            entity.Block = 0;
+                        }
+                        else
+                        {
+                            entity.Block -= val;
+                            val = 0;
+                        }
+                    }
+                    if (val > 0)
+                    {
+                        entity.ApplyDamage(val);
+                    }
+                }
+            }
+        }
+
+        public IndividualEffect Combine(IndividualEffect ef1, IndividualEffect ef2)
+        {
+            var combined = new IndividualEffect();
+            combined.ReceiveDamage.AddRange(ef1.ReceiveDamage);
+            combined.ReceiveDamage.AddRange(ef2.ReceiveDamage);
+            combined.GainBlock.AddRange(ef1.GainBlock);
+            combined.GainBlock.AddRange(ef2.GainBlock);
+            combined.Status.AddRange(ef1.Status);
+            combined.Status.AddRange(ef2.Status);
+            return combined;
+        }
+
+        public void ApplyStatus(Entity entity, IndividualEffect ef)
+        {
+            foreach (var status in ef.Status)
+            {
+                entity.ApplyStatus(status);
+            }
+        }
+
+
+        public void EnemyPlayCard(CardInstance cardInstance, Entity source, Entity target, Player player, Enemy enemy)
+        {
+            var ef = cardInstance.Apply(player, enemy, cardInstance.UpgradeCount);
+
+            foreach (var si in source.StatusInstances)
+            {
+                var statusIsTargeted = enemy == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+            }
+            foreach (var si in target.StatusInstances)
+            {
+                var statusIsTargeted = player == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+            }
+
+            //this won't be right for Torii for example.
+            foreach (var relic in player.relics)
+            {
+                relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
+            }
+
+            GainBlock(player, ef.TargetEffect);
+            GainBlock(enemy, ef.SourceEffect);
+            ReceiveDamage(player, ef.TargetEffect);
+            ReceiveDamage(enemy, ef.SourceEffect);
+        }
+
+        /// <summary>
+        /// From monster POV, player is the enemy.
+        /// </summary>
+        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy)
+        {
+            Entity target;
+            switch (cardInstance.Card.TargetType)
+            {
+                case TargetType.Player:
+                    target = player;
+                    break;
+                case TargetType.Enemy:
+                    target = enemy;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            var ef = cardInstance.Apply(player, target, cardInstance.UpgradeCount);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in player.StatusInstances)
             {
-                si.Apply(cardInstance.Card, ef);
+                var statusIsTargeted = player == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
             }
             foreach (var si in enemy.StatusInstances)
             {
-                si.Apply(cardInstance.Card, ef);
+                var statusIsTargeted = enemy == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
             }
-            if (enemyList != null)
-            {
-                foreach (var oneEnemy in enemyList)
-                {
-                    foreach (var si in oneEnemy.StatusInstances)
-                    {
-                        si.Apply(cardInstance.Card, ef);
-                    }
-                }
-            }
+
             foreach (var relic in player.relics)
             {
-                relic.CardPlayed(cardInstance.Card, ef);
-            }
-            
-            if (ef.PlayerGainBlock != null && ef.PlayerGainBlock.Any())
-            {
-                var val = 0;
-                foreach (var fcn in ef.PlayerGainBlock)
-                {
-                    val = fcn(val);
-                }
-                if (val > 0)
-                {
-                    player.Block += val;
-                }
+                relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
             }
 
-            if (ef.PlayerReceivesDamage != null && ef.PlayerReceivesDamage.Any())
+            //TODO not clear if this order is the most sensible really or not.
+            //complex effects like afterImage + playing defend with neg dex.
+            if (player == target)
             {
-                var val = 0;
-                foreach (var fcn in ef.PlayerReceivesDamage)
-                {
-                    val = fcn(val);
-                }
-                if (val > 0)
-                {
-                    player.ApplyDamage(val);
-                }
-            }            
-
-
-            if (ef.EnemyReceivesDamage != null && ef.EnemyReceivesDamage.Any())
-            {
-                var damageAmount = 0;
-                foreach (var fcn in ef.EnemyReceivesDamage)
-                {
-                    damageAmount = fcn(damageAmount);
-                }
-                if (damageAmount > 0)
-                {
-                    //handle block here.
-                    if (enemy.Block > 0)
-                    {
-                        if (damageAmount > enemy.Block)
-                        {
-                            damageAmount = damageAmount - enemy.Block;
-                            enemy.Block = 0;
-                        }
-                        else
-                        {
-                            enemy.Block -= damageAmount;
-                            damageAmount = 0;
-                        }
-                    }
-                    if (damageAmount > 0)
-                    {
-                        enemy.ApplyDamage(damageAmount);
-                    }
-                }
+                var combined = Combine(ef.SourceEffect, ef.TargetEffect);
+                GainBlock(player, combined);
+                ReceiveDamage(player, combined);
+                ApplyStatus(player, combined);
             }
-
-            //Aggressive triggers block based on new status.
-
-            if (ef.EnemyGainsBlock != null && ef.EnemyGainsBlock.Any())
+            else
             {
-                var val = 0;
-                foreach (var fcn in ef.EnemyGainsBlock)
-                {
-                    val = fcn(val);
-                }
-                if (val > 0)
-                {
-                    enemy.ApplyBlock(val);
-                }
+                GainBlock(player, ef.SourceEffect);
+                ReceiveDamage(target, ef.TargetEffect);
+
+                GainBlock(target, ef.TargetEffect);
+                ReceiveDamage(player, ef.SourceEffect);
+
+                ApplyStatus(player, ef.SourceEffect);
+                ApplyStatus(target, ef.TargetEffect);
             }
 
             //We resolve damage after dealing with statuses the player may just have gained.
             //i.e. we don't apply pen nib to the player til after attack is resolved.
-
-            if (ef.PlayerStatus != null && ef.PlayerStatus.Any())
-            {
-                foreach (var status in ef.PlayerStatus)
-                {
-                    player.ApplyStatus(status);
-                }
-            }
-            Console.WriteLine($"Player:{player}");
-            Console.WriteLine($"Enemy:{enemy}");
-
-            if (ef.EnemyStatus != null && ef.EnemyStatus.Any())
-            {
-                foreach (var status in ef.EnemyStatus)
-                {
-                    enemy.ApplyStatus(status);
-                }
-            }
         }
     }
 }

@@ -6,8 +6,13 @@ namespace StS
 {
     public abstract class Relic
     {
-        public abstract void CardPlayed(Card card, EffectSet ef);
-        public abstract void FightStarted();
-        public abstract void NewTurn();
+        public abstract string Name { get; }
+        public abstract void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy);
+        public Entity Player { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Name}";
+        }
     }
 }

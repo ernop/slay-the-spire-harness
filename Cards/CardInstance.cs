@@ -14,13 +14,13 @@ namespace StS
             UpgradeCount = upgradeCount;
         }
 
-        public EffectSet Apply(Player player, Enemy enemy, List<Enemy> enemyList, int upgradeCount)
+        public EffectSet Apply(Entity source, Entity target, int upgradeCount)
         {
             if (Helpers.PrintDetails)
             {
-                Console.WriteLine($"\tplaying card {this}");
+                Console.WriteLine($"\t playing card {this}");
             }
-            var ef = Card.Apply(player, enemy, enemyList, UpgradeCount);
+            var ef = Card.Apply(source, target, UpgradeCount);
             return ef;
         }
 
