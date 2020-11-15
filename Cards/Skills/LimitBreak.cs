@@ -12,21 +12,14 @@ namespace StS
         public override CardType CardType => CardType.Skill;
         public override TargetType TargetType => TargetType.Player;
 
-        public override bool Ethereal(int upgradeCount)
-        {
-            return false;
-        }
+        public override bool Ethereal(int upgradeCount) => false;
 
-        public override bool Exhausts(int upgradeCount) {
-            if (upgradeCount == 0)
-            {
-                return true;
-            }
-            return false;
-        }
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        public override bool Exhausts(int upgradeCount) => upgradeCount==0 ? true : false;
+        public override int EnergyCost(int upgradeCount) => 1;
+
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            var ef = new EffectSet();
+    
             var exi = target.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             if (exi == null)
             {
@@ -38,8 +31,6 @@ namespace StS
                 var statusCopy = new StatusInstance(exi.Status, exi.Duration, exi.Intensity);
                 ef.TargetEffect.Status.Add(statusCopy);
             }
-
-            return ef;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace StS
+﻿using System.Linq;
+
+namespace StS
 {
     public class Torii : Relic
     {
@@ -8,18 +10,10 @@
         {
             if (card.CardType == CardType.Attack)
             {
-                if (ef.TargetEffect.ReceiveDamage != null)
+                if (ef.TargetEffect.DamageAdjustments != null)
                 {
-                    ef.TargetEffect.ReceiveDamage.Add(
-                        new Progression("ToriiReduction",
-                            (el) =>
-                                {
-                                    if (el > 0 && el <= 5)
-                                    {
-                                        return 1;
-                                    }
-                                    return el;
-                                }));
+                    ef.TargetEffect.DamageAdjustments.Add(
+                        new AttackProgression("ToriiReduction", (el) => el.Select(qq => qq <= 5 && qq > 0 ? 1 : qq).ToList()));
                 }
             }
         }

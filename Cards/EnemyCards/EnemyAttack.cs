@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using static StS.Helpers;
 
 namespace StS
 {
@@ -11,20 +13,24 @@ namespace StS
         public override bool Ethereal(int upgradeCount) => false;
         public override bool Exhausts(int upgradeCount) => false;
         public int Amount { get; set; }
+        public int Count { get; set; }
 
         public override TargetType TargetType => TargetType.Player;
 
-        public EnemyAttack(int amount)
+        public EnemyAttack(int amount, int count)
         {
             Amount = amount;
+            Count = count;
         }
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            var ef = new EffectSet();
-            ef.TargetEffect.ReceiveDamage.Add(new Progression("EnemyDamage", el => el + Amount));
-            
-            return ef;
+            ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
+        }
+
+        public override int EnergyCost(int upgradeCount)
+        {
+            return 0;
         }
     }
 }

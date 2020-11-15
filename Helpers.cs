@@ -62,5 +62,16 @@ namespace StS
             return true;
         }
 
+        public static List<int> Repeat(int num, int count)
+        {
+            var ii = 0;
+            var res = new List<int>();
+            while (ii < count)
+            {
+                res.Add(num);
+                ii++;
+            }
+            return res;
+        }
     }
 }

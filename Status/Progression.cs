@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StS
 {
@@ -14,6 +15,26 @@ namespace StS
         {
             Desc = desc;
             Fun = fun;
+        }
+
+        public override string ToString()
+        {
+            return $"Prog:{Desc}";
+        }
+    }
+
+    /// <summary>
+    /// Allowing for multiattack.
+    /// </summary>
+    public class AttackProgression
+    {
+        public string Desc { get; set; }
+        public Func<List<int>, List<int>> Fun { get; set; }
+
+        public AttackProgression(string desc, Func<List<int>,List<int>> func)
+        {
+            Desc = desc;
+            Fun = func;
         }
 
         public override string ToString()

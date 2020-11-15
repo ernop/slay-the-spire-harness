@@ -11,8 +11,9 @@ namespace StS
 
         public override bool Ethereal(int upgradeCount) => false;
         public override bool Exhausts(int upgradeCount) => false;
+        public override int EnergyCost(int upgradeCount) => 1;
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             int amount;
             if (upgradeCount == 0)
@@ -24,9 +25,7 @@ namespace StS
                 amount = 6;
             }
 
-            var ef = new EffectSet();
-            ef.TargetEffect.GainBlock.Add(new Progression("Defend", (_) => amount));
-            return ef;
+            ef.TargetEffect.BlockAdjustments.Add(new Progression("Defend", (_) => amount));
         }
     }
 }

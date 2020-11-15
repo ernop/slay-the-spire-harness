@@ -20,7 +20,7 @@
             //TODO: it would be better if this was a running total of defense so we could directly compare.
             if (card.CardType == CardType.Skill && statusIsTargeted)
             {
-                targetSet.GainBlock.Add(new Progression("DexEffect",
+                targetSet.BlockAdjustments.Add(new Progression("DexEffect",
                     (el) =>
                     {
                         var blockGain = el + intensity;

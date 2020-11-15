@@ -9,20 +9,15 @@ namespace StS
         public override CharacterType CharacterType => CharacterType.IronClad;
 
         public override TargetType TargetType => TargetType.Enemy;
+        public override int EnergyCost(int upgradeCount) => 1;
 
-        public override bool Ethereal(int upgradeCount)
-        {
-            return false;
-        }
+        public override bool Ethereal(int upgradeCount) => false;
 
-        public override bool Exhausts(int upgradeCount)
-        {
-            return true;
-        }
+        public override bool Exhausts(int upgradeCount) => true;
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            int amt = 0;
+            int amt;
             if (upgradeCount == 0)
             {
                 amt = -2;
@@ -31,9 +26,8 @@ namespace StS
             {
                 amt = -3;
             }
-            var ef = new EffectSet();
+            
             ef.TargetEffect.Status.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
-            return ef;
         }
     }
 }

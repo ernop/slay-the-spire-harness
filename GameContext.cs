@@ -39,10 +39,10 @@ namespace StS
 
         public void GainBlock(Entity entity, IndividualEffect ef)
         {
-            if (ef.GainBlock != null && ef.GainBlock.Any())
+            if (ef.InitialBlock != null)
             {
-                var val = 0;
-                foreach (var prog in ef.GainBlock)
+                var val = ef.InitialBlock;
+                foreach (var prog in ef.BlockAdjustments)
                 {
                     val = prog.Fun(val);
                 }
@@ -56,34 +56,38 @@ namespace StS
         public void ReceiveDamage(Entity entity, IndividualEffect ef)
         {
 
-            if (ef.ReceiveDamage != null && ef.ReceiveDamage.Any())
+            if (ef.InitialDamage!= null)
             {
-                var val = 0;
-                foreach (var prog in ef.ReceiveDamage)
+                var val = ef.InitialDamage;
+                foreach (var prog in ef.DamageAdjustments)
                 {
                     val = prog.Fun(val);
                 }
 
 
-                if (val > 0)
+                foreach (var el in val)
                 {
-                    //handle block here.
-                    if (entity.Block > 0)
+                    var elCopy = el;
+                    if (elCopy > 0)
                     {
-                        if (val > entity.Block)
+                        //handle block here.
+                        if (entity.Block > 0)
                         {
-                            val = val - entity.Block;
-                            entity.Block = 0;
+                            if (elCopy > entity.Block)
+                            {
+                                elCopy = elCopy - entity.Block;
+                                entity.Block = 0;
+                            }
+                            else
+                            {
+                                entity.Block -= el;
+                                elCopy = 0;
+                            }
                         }
-                        else
+                        if (elCopy > 0)
                         {
-                            entity.Block -= val;
-                            val = 0;
+                            entity.ApplyDamage(elCopy);
                         }
-                    }
-                    if (val > 0)
-                    {
-                        entity.ApplyDamage(val);
                     }
                 }
             }
@@ -92,10 +96,10 @@ namespace StS
         public IndividualEffect Combine(IndividualEffect ef1, IndividualEffect ef2)
         {
             var combined = new IndividualEffect();
-            combined.ReceiveDamage.AddRange(ef1.ReceiveDamage);
-            combined.ReceiveDamage.AddRange(ef2.ReceiveDamage);
-            combined.GainBlock.AddRange(ef1.GainBlock);
-            combined.GainBlock.AddRange(ef2.GainBlock);
+            combined.DamageAdjustments.AddRange(ef1.DamageAdjustments);
+            combined.DamageAdjustments.AddRange(ef2.DamageAdjustments);
+            combined.BlockAdjustments.AddRange(ef1.BlockAdjustments);
+            combined.BlockAdjustments.AddRange(ef2.BlockAdjustments);
             combined.Status.AddRange(ef1.Status);
             combined.Status.AddRange(ef2.Status);
             return combined;
@@ -112,7 +116,8 @@ namespace StS
 
         public void EnemyPlayCard(CardInstance cardInstance, Entity source, Entity target, Player player, Enemy enemy)
         {
-            var ef = cardInstance.Apply(player, enemy, cardInstance.UpgradeCount);
+            var ef = new EffectSet();
+            cardInstance.Apply(ef, player, enemy, cardInstance.UpgradeCount);
 
             foreach (var si in source.StatusInstances)
             {
@@ -155,7 +160,9 @@ namespace StS
                     throw new NotImplementedException();
             }
 
-            var ef = cardInstance.Apply(player, target, cardInstance.UpgradeCount);
+            //set the initial effect, or status.
+            var ef = new EffectSet();
+            cardInstance.Apply(ef, player, target, cardInstance.UpgradeCount);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in player.StatusInstances)

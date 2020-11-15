@@ -11,8 +11,9 @@ namespace StS
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => false;
+        public override int EnergyCost(int upgradeCount) => 2;
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             int amt;
             StatusInstance si;
@@ -28,11 +29,8 @@ namespace StS
             }
 
 
-            var ef = new EffectSet();
-            ef.TargetEffect.ReceiveDamage.Add(new Progression("Bash", (_) => amt));
+            ef.TargetEffect.InitialDamage = new List<int>() { amt };
             ef.TargetEffect.Status.Add(si);
-
-            return ef;
         }
     }
 }

@@ -14,10 +14,11 @@ namespace StS
         public override TargetType TargetType => TargetType.Player;
         public override bool Ethereal(int upgradeCount) => false;
         public override bool Exhausts(int upgradeCount) => false;
+        public override int EnergyCost(int upgradeCount) => 1;
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            var amt = 0;
+            int amt;
             if (upgradeCount == 0)
             {
                 amt = 2;
@@ -27,10 +28,7 @@ namespace StS
                 amt = 3;
             }
 
-            var ef = new EffectSet();
             ef.TargetEffect.Status.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
-
-            return ef;
         }
     }
 }

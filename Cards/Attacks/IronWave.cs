@@ -8,11 +8,13 @@ namespace StS
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
+        public override int EnergyCost(int upgradeCount) => 1;
+
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => false;
 
-        internal override EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             int dmg;
             int block;
@@ -27,10 +29,8 @@ namespace StS
                 block = 7;
             }
 
-            var ef = new EffectSet();
-            ef.TargetEffect.ReceiveDamage.Add(new Progression("IronWaveDamage", (_) => dmg));
-            ef.SourceEffect.GainBlock.Add(new Progression("IronWaveBlock", (_) => block));
-            return ef;
+            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.SourceEffect.InitialBlock = block;
         }
     }
 }

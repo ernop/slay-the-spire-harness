@@ -20,8 +20,10 @@ namespace StS
 
     public class IndividualEffect
     {
-        public List<Progression> GainBlock { get; set; } = new List<Progression>();
-        public List<Progression> ReceiveDamage { get; set; } = new List<Progression> ();
+        public int InitialBlock { get; set; }
+        public List<int> InitialDamage { get; set; }
+        public List<Progression> BlockAdjustments { get; set; } = new List<Progression>();
+        public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression> ();
         public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
     }
 }

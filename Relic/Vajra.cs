@@ -1,4 +1,7 @@
-﻿namespace StS
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace StS
 {
     public class Vajra : Relic
     {
@@ -10,14 +13,7 @@
         {
             if (Intensity > 0 && card.CardType==CardType.Attack)
             {
-                ef.TargetEffect.ReceiveDamage.Add(new Progression("VajraEffect", (el) =>
-                {
-                    if (el > 0)
-                    {
-                        return el + Intensity;
-                    }
-                    return 0;
-                }));
+                ef.TargetEffect.DamageAdjustments.Add(new AttackProgression("VajraEffect", (el) => el.Select(qq => qq + Intensity).ToList()));
             }
             
         }

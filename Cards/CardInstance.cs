@@ -14,14 +14,13 @@ namespace StS
             UpgradeCount = upgradeCount;
         }
 
-        public EffectSet Apply(Entity source, Entity target, int upgradeCount)
+        public void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             if (Helpers.PrintDetails)
             {
                 Console.WriteLine($"\tplaying card {this}");
             }
-            var ef = Card.Apply(source, target, UpgradeCount);
-            return ef;
+            Card.Apply(ef, source, target, UpgradeCount);
         }
 
         public override string ToString()

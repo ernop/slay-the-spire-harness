@@ -61,7 +61,10 @@ namespace StS
 
         public static void BasicTests(List<TestCase> tcs)
         {
-            //tcs.Add(CreateTestCase("DefendNeg3", cis: GetCi("Footwork","Defend"), finalPlayerblock: 2, playerStatuses:new List<StatusInstance>() { new StatusInstance(new Dexterity(), int.MaxValue, -5) }));
+            tcs.Add(CreateTestCase("BashIronwave", en2: 32, cis: GetCi("Bash", "IronWave+"), finalPlayerblock: 7));
+            tcs.Add(CreateTestCase("BashInflameIronwave", en2: 27, cis: GetCi("Bash", "Inflame+", "IronWave+"), finalPlayerblock: 7));
+
+            tcs.Add(CreateTestCase("DefendNeg3", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), int.MaxValue, -5) }));
             tcs.Add(CreateTestCase("DefendNeg5", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), int.MaxValue, -7) }));
             tcs.Add(CreateTestCase("DefendNeg2", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 3, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), int.MaxValue, -4) }));
             tcs.Add(CreateTestCase("Defend", cis: GetCi("Defend"), finalPlayerblock: 5));
@@ -73,17 +76,25 @@ namespace StS
 
 
             tcs.Add(CreateTestCase("Bashing", en2: 19, cis: GetCi("Strike", "Bash+", "Strike+")));
+            tcs.Add(CreateTestCase("SwordBoomerang", en2: 41, cis: GetCi("SwordBoomerang")));
+            tcs.Add(CreateTestCase("SwordBoomerang+", en2: 38, cis: GetCi("SwordBoomerang+")));
+            tcs.Add(CreateTestCase("SwordBoomerang+ vs block1", en2: 39, cis: GetCi("SwordBoomerang+"), enbl: 1, finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("SwordBoomerang+ vs block2", en2: 40, cis: GetCi("SwordBoomerang+"), enbl: 2, finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("SwordBoomerang+ vs block3", en2: 41, cis: GetCi("SwordBoomerang+"), enbl: 3, finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("SwordBoomerang+ vs block4", en2: 42, cis: GetCi("SwordBoomerang+"), enbl: 4, finalEnemyBlock: 0));
+            tcs.Add(CreateTestCase("SwordBoomerang+ vs block13", cis: GetCi("SwordBoomerang+"), enbl: 13, finalEnemyBlock: 1));
+            tcs.Add(CreateTestCase("Inflamed SwordBoomerang+", en2: 30, cis: GetCi("Inflame", "SwordBoomerang+")));
+
             tcs.Add(CreateTestCase("Inflame", en2: 35, cis: GetCi("Strike", "Inflame+", "Strike")));
             tcs.Add(CreateTestCase("Inflame+Bash", en2: 39, cis: GetCi("Inflame+", "Bash"))); ;
             tcs.Add(CreateTestCase("Inflame+Bash+strike", en2: 26, cis: GetCi("Inflame+", "Bash", "Strike")));
             tcs.Add(CreateTestCase("Inflame+LimitBreak", en2: 32, cis: GetCi("Strike", "Inflame+", "LimitBreak", "Strike")));
             tcs.Add(CreateTestCase("Inflame+LimitBreak+bash", en2: 8, cis: GetCi("Strike", "Inflame+", "LimitBreak", "Bash", "Strike+")));
 
-            tcs.Add(CreateTestCase("BashIronwave", en2: 32, cis: GetCi("Bash", "IronWave+"), finalPlayerblock: 7));
-            tcs.Add(CreateTestCase("BashInflameIronwave", en2: 27, cis: GetCi("Bash", "Inflame+", "IronWave+"), finalPlayerblock: 7));
+
 
             tcs.Add(CreateTestCase("WeakPlayer", cis: GetCi("Strike"), en2: 46, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Weak(), 3, int.MaxValue) }));
-            tcs.Add(CreateTestCase("WeakenEnemy", cis: GetCi("Uppercut+"), en2: 37, 
+            tcs.Add(CreateTestCase("WeakenEnemy", cis: GetCi("Uppercut+"), en2: 37,
                 enemyFinalStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2, int.MaxValue), new StatusInstance(new Weak(), 2, int.MaxValue) }));
         }
 
@@ -94,21 +105,22 @@ namespace StS
                 relics: new List<Relic>() { vajraOne }));
 
             var torii = new Torii();
-            tcs.Add(CreateTestCase("Torii works", pl2: 42,
+            tcs.Add(CreateTestCase("Torii works", pl2: 47,
                 relics: new List<Relic>() { torii },
                 enemyCards: new List<CardInstance>() {
-                new CardInstance(new EnemyAttack(5), 0),
-                new CardInstance(new EnemyAttack(5), 0),
-                new CardInstance(new EnemyAttack(6), 0)}));
+                new CardInstance(new EnemyAttack(5,3), 0)}));
 
-            tcs.Add(CreateTestCase("Torii Strong Enemy", pl2: 32,
+            tcs.Add(CreateTestCase("Torii Strong Enemy", pl2: 10,
                 relics: new List<Relic>() { torii },
-                enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), int.MaxValue, 4)},
+                enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), int.MaxValue, 4) },
                 enemyCards: new List<CardInstance>() {
-                new CardInstance(new EnemyAttack(1), 0),
-                new CardInstance(new EnemyAttack(1), 0),
-                new CardInstance(new EnemyAttack(2), 0),
-                new CardInstance(new EnemyAttack(6), 0)}));
+                new CardInstance(new EnemyAttack(6,4),0)}));
+
+            tcs.Add(CreateTestCase("Torii Strong Enemy Weakest attakc", pl2: 46,
+                relics: new List<Relic>() { torii },
+                enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), int.MaxValue, 4) },
+                enemyCards: new List<CardInstance>() {
+                new CardInstance(new EnemyAttack(1,4),0)}));
         }
 
         public static void PenNibTests(List<TestCase> tcs)
@@ -128,15 +140,18 @@ namespace StS
             penNib3.AttackCount = 8;
 
             tcs.Add(CreateTestCase("PenNib-Inflame", en2: 20, cis: GetCi("Strike", "Inflame+", "Strike+"), relics: new List<Relic>() { penNib3 }));
+
+            var penNib4 = new PenNib();
+            penNib4.AttackCount = 8;
+            tcs.Add(CreateTestCase("Inflamed Nibbed SwordBoomerang+", en2: 4, cis: GetCi("Strike", "Inflame", "SwordBoomerang+"), relics: new List<Relic>() { penNib4 }));
         }
 
         public static void EnemyBehaviorTests(List<TestCase> tcs)
         {
-            tcs.Add(CreateTestCase("Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCi("Strike+", "Disarm+"), enemyCards: new List<CardInstance>() { new CardInstance(new EnemyAttack(10), 0) }));
+            tcs.Add(CreateTestCase("Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCi("Strike+", "Disarm+"), enemyCards: new List<CardInstance>() { new CardInstance(new EnemyAttack(10, 1), 0) }));
 
             tcs.Add(CreateTestCase("Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCi("Strike+"), enemyCards: new List<CardInstance>() {
-                new CardInstance(new EnemyAttack(10), 0),
-                new CardInstance(new EnemyAttack(10), 0)},
+                new CardInstance(new EnemyAttack(10, 2), 0) },
                 playerStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3, int.MaxValue) }));
 
             var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), int.MaxValue, 4) };
@@ -145,7 +160,7 @@ namespace StS
             var si2 = new List<StatusInstance>() { new StatusInstance(new Aggressive(), int.MaxValue, 4) };
             tcs.Add(CreateTestCase("Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCi("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0));
 
-            tcs.Add(CreateTestCase("Enemy-attacks", pl2: 40, en2: 41, cis: GetCi("Strike+"), enemyCards: new List<CardInstance>() { new CardInstance(new EnemyAttack(10), 0) }));
+            tcs.Add(CreateTestCase("Enemy-attacks", pl2: 40, en2: 41, cis: GetCi("Strike+"), enemyCards: new List<CardInstance>() { new CardInstance(new EnemyAttack(10, 1), 0) }));
 
 
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace StS
@@ -16,9 +17,9 @@ namespace StS
 
         internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {
-            if (card.CardType == CardType.Attack && !statusIsTargeted)
+            if (card.CardType == CardType.Attack && !statusIsTargeted && targetSet.InitialDamage!=null)
             {
-                targetSet.ReceiveDamage.Add(new Progression("PenNibDD", (el) =>
+                targetSet.DamageAdjustments.Add(new AttackProgression("PenNibDD", (el) =>
                 {
                     if (intensity > 0)
                     {
@@ -29,16 +30,11 @@ namespace StS
                         //since here we're 
                         sourceSet.Status.Add(negativePenNib);
 
-                        if (el > 0)
-                        {
-                            return el * 2;
-                        }
+                        return el.Select(qq=>qq>0?qq*2:0).ToList();
                     }
                     return el;
                 }));
             }
         }
-
-        
     }
 }

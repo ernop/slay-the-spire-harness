@@ -25,7 +25,7 @@
                 if (intensity > 0)
                 {
                     //actually this should be a check of the value.
-                    if (targetSet.ReceiveDamage != null)
+                    if (targetSet.DamageAdjustments != null)
                     {
                         //removal of pen nib whenever we get attacked.
                         var negativeAggressiveStatus = new StatusInstance(new Aggressive(), int.MinValue, 0);
@@ -34,7 +34,7 @@
                         //since here we're 
                         targetSet.Status.Add(negativeAggressiveStatus);
 
-                        targetSet.GainBlock.Add(new Progression("AggroStatus", (el) => intensity));
+                        targetSet.BlockAdjustments.Add(new Progression("AggroStatus", (el) => intensity));
                     }
                 }
             }

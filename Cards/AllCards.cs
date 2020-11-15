@@ -19,6 +19,7 @@ namespace StS
             cards["IronWave"] = new IronWave();
             cards["Disarm"] = new Disarm();
             cards["Uppercut"] = new Uppercut();
+            cards["SwordBoomerang"] = new SwordBoomerang();
             return cards;
         }
     }
