@@ -18,7 +18,7 @@ namespace StS
         {
             if (Helpers.PrintDetails)
             {
-                Console.WriteLine($"\t playing card {this}");
+                Console.WriteLine($"\tplaying card {this}");
             }
             var ef = Card.Apply(source, target, UpgradeCount);
             return ef;

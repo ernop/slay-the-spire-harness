@@ -10,8 +10,10 @@
         Strength = 4,
         Dexterity = 5,
         PenNibDoubleDamage = 6,
+        Weak = 7,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,
+        
     }
 }

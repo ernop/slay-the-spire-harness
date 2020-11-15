@@ -6,6 +6,10 @@
 
         public override StatusType StatusType => StatusType.Strength;
 
+        public override bool NegativeStatus => false;
+
+        public override bool Permanent => true;
+
         internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {
             //statusIsTargeted means thee target has the status.

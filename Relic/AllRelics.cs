@@ -8,6 +8,7 @@ namespace StS
         {
             var relics = new Dictionary<string, Relic>();
             relics["Pen Nib"] = new PenNib();
+            relics["Vajra"] = new Vajra();
             return relics;
         }
     }

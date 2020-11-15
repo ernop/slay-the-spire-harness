@@ -10,6 +10,9 @@ namespace StS
 
         public override StatusType StatusType => StatusType.PenNibDoubleDamage;
 
+        public override bool NegativeStatus => false;
+
+        public override bool Permanent => false;
 
         internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
         {

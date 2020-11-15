@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using static StS.Helpers;
+
 namespace StS
 {
     public class TestCase
@@ -12,12 +14,15 @@ namespace StS
         public int EnemyBlock { get; set; }
         public int EnemyHp { get; set; }
         public int PlayerHp { get; set; }
-        public List<StatusInstance> PlayerStatuses { get; set; }
-        public List<StatusInstance> EnemyStatuses { get; set; }
+        
         public int FinalEnemyHp { get; set; }
         public int FinalEnemyBlock { get; set; }
         public int FinalPlayerHp { get; set; }
         public int FinalPlayerBlock { get; set; }
+        public List<StatusInstance> PlayerStatuses { get; set; }
+        public List<StatusInstance> EnemyStatuses { get; set; }
+        public List<StatusInstance> PlayerFinalStatuses { get; set; }
+        public List<StatusInstance> EnemyFinalStatuses { get; set; }
         public List<CardInstance> EnemyCards { get; set; } = new List<CardInstance>();
         public List<Relic> Relics { get; set; }
         
@@ -84,6 +89,22 @@ namespace StS
             {
                 throw new Exception($"PlayerBlock expected:{FinalPlayerBlock} actual:{player.Block}");
             }
+            if (PlayerFinalStatuses.Count>0)
+            {
+                if (!CompareStatuses(PlayerFinalStatuses, player.StatusInstances, out var error))
+                {
+                    throw new Exception($"bad statuses. {error}");
+                }
+            }
+            if (EnemyFinalStatuses.Count>0)
+            {
+                if (!CompareStatuses(EnemyFinalStatuses, enemy.StatusInstances, out var error))
+                {
+                    throw new Exception($"bad statuses. {error}");
+                }
+            }
+            
+
 
             Console.WriteLine($"====Testcase {TestName} is valid\n");
         }

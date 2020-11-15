@@ -10,6 +10,10 @@
 
         public override StatusType StatusType => StatusType.Aggressive;
 
+        public override bool NegativeStatus => false;
+
+        public override bool Permanent => false;
+
         /// <summary>
         /// someone played a card against an entity with aggro status.  Is it safe to assume I'm always target here as far as ef is concerned?
         /// Question: someone playing strike with -6 strength; does it trigger aggressive?  probably shouldn't.
