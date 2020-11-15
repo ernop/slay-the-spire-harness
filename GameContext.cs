@@ -39,17 +39,14 @@ namespace StS
 
         public void GainBlock(Entity entity, IndividualEffect ef)
         {
-            if (ef.InitialBlock != null)
+            var val = ef.InitialBlock;
+            foreach (var prog in ef.BlockAdjustments)
             {
-                var val = ef.InitialBlock;
-                foreach (var prog in ef.BlockAdjustments)
-                {
-                    val = prog.Fun(val);
-                }
-                if (val > 0)
-                {
-                    entity.Block += val;
-                }
+                val = prog.Fun(val,entity);
+            }
+            if (val > 0)
+            {
+                entity.Block += val;
             }
         }
 
@@ -96,6 +93,20 @@ namespace StS
         public IndividualEffect Combine(IndividualEffect ef1, IndividualEffect ef2)
         {
             var combined = new IndividualEffect();
+            combined.InitialBlock = ef1.InitialBlock + ef2.InitialBlock;
+            var res = new List<int>();
+            if (ef1.InitialDamage != null || ef2.InitialDamage != null)
+            {
+                foreach (var ls in new List<IEnumerable<int>>() { ef1.InitialDamage, ef2.InitialDamage })
+                {
+                    foreach (var el in ls)
+                    {
+                        res.Add(el);
+                    }
+                }
+                combined.InitialDamage = res;
+            }
+
             combined.DamageAdjustments.AddRange(ef1.DamageAdjustments);
             combined.DamageAdjustments.AddRange(ef2.DamageAdjustments);
             combined.BlockAdjustments.AddRange(ef1.BlockAdjustments);

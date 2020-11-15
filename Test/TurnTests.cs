@@ -13,7 +13,7 @@ namespace StS
         public static Dictionary<string, Card> CardList = GetAllCards();
 
         public static void DoTest(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50,
-            int plbl = 0, int enbl = 0, int finalPlayerblock = 0, int finalEnemyBlock = 0,
+            int plbl = 0, int enbl = 0, int finalPlayerBlock = 0, int finalEnemyBlock = 0,
             List<Relic> relics = null, List<CardInstance> cis = null, List<CardInstance> enemyCards = null,
             List<StatusInstance> playerStatuses = null, List<StatusInstance> enemyStatuses = null,
             List<StatusInstance> playerFinalStatuses = null,
@@ -29,7 +29,7 @@ namespace StS
                 FinalPlayerHp = pl2,
                 TestName = name,
                 CardsToPlay = cis ?? new List<CardInstance>(),
-                FinalPlayerBlock = finalPlayerblock,
+                FinalPlayerBlock = finalPlayerBlock,
                 FinalEnemyBlock = finalEnemyBlock,
                 Relics = relics ?? new List<Relic>(),
                 PlayerStatuses = playerStatuses ?? new List<StatusInstance>(),
@@ -61,16 +61,16 @@ namespace StS
 
         public static void BasicTests()
         {
-            DoTest("BashIronwave", en2: 32, cis: GetCi("Bash", "IronWave+"), finalPlayerblock: 7);
-            DoTest("BashInflameIronwave", en2: 27, cis: GetCi("Bash", "Inflame+", "IronWave+"), finalPlayerblock: 7);
+            DoTest("BashIronwave", en2: 32, cis: GetCi("Bash", "IronWave+"), finalPlayerBlock: 7);
+            DoTest("BashInflameIronwave", en2: 27, cis: GetCi("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7);
 
-            DoTest("DefendNeg3", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(),-5) });
-            DoTest("DefendNeg5", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -7) });
-            DoTest("DefendNeg2", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 3, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -4) });
-            DoTest("Defend", cis: GetCi("Defend"), finalPlayerblock: 5);
-            DoTest("FootDefend", cis: GetCi("Footwork", "Defend"), finalPlayerblock: 7);
-            DoTest("Foot+Defend", cis: GetCi("Footwork+", "Defend"), finalPlayerblock: 8);
-            DoTest("FootFoot+Defend", cis: GetCi("Footwork", "Footwork+", "Defend"), finalPlayerblock: 10);
+            DoTest("DefendNeg3", cis: GetCi("Footwork", "Defend"), finalPlayerBlock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(),-5) });
+            DoTest("DefendNeg5", cis: GetCi("Footwork", "Defend"), finalPlayerBlock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -7) });
+            DoTest("DefendNeg2", cis: GetCi("Footwork", "Defend"), finalPlayerBlock: 3, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -4) });
+            DoTest("Defend", cis: GetCi("Defend"), finalPlayerBlock: 5);
+            DoTest("FootDefend", cis: GetCi("Footwork", "Defend"), finalPlayerBlock: 7);
+            DoTest("Foot+Defend", cis: GetCi("Footwork+", "Defend"), finalPlayerBlock: 8);
+            DoTest("FootFoot+Defend", cis: GetCi("Footwork", "Footwork+", "Defend"), finalPlayerBlock: 10);
             DoTest("Strike works", en2: 44, cis: GetCi("Strike"));
             DoTest("Strike, Strike+ works", en2: 35, cis: GetCi("Strike", "Strike+"));
 
@@ -94,6 +94,8 @@ namespace StS
             DoTest("WeakPlayer", cis: GetCi("Strike"), en2: 46, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Weak(), 3) });
             DoTest("WeakenEnemy", cis: GetCi("Uppercut+"), en2: 37,
                 enemyFinalStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2), new StatusInstance(new Weak(), 2) });
+
+            DoTest("Entrench", cis: GetCi("Footwork+", "Defend+", "Entrench", "Defend"), finalPlayerBlock:30);
         }
 
         public static void RelicTests()
@@ -165,18 +167,18 @@ namespace StS
 
         public static void DamageBlockTests()
         {
-            DoTest("FlameBarrier", pl2: 46, en2: 34, cis: GetCi("FlameBarrier"), finalEnemyBlock: 0, enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"),finalPlayerblock: 6, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-block2", pl2: 46, en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"), finalEnemyBlock: 0, enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-block3", pl2: 46, enbl: 41, finalEnemyBlock: 1, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-block3", pl2: 46, enbl: 39, en2: 49, finalEnemyBlock: 0, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier", pl2: 50, en2: 34, cis: GetCi("FlameBarrier"),finalPlayerBlock:8, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"),finalPlayerBlock: 22, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier-block2", pl2: 50, finalPlayerBlock:12,en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"), finalEnemyBlock: 0, enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24,finalEnemyBlock: 1, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24,finalEnemyBlock: 0, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
 
             DoTest("ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCi("Strike+", "Bash", "Strike"), finalEnemyBlock: 0);
             DoTest("FullBlocked", en2: 50, enbl: 26, cis: GetCi("Strike+", "Bash", "Strike"), finalEnemyBlock: 0);
             DoTest("VulnBreakThrough", en2: 49, enbl: 16, cis: GetCi("Bash", "Strike"), finalEnemyBlock: 0);
             
-            DoTest("double-FlameBarrier-block", pl2: 46, enbl: 0, en2: 10, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
-            DoTest("Combining statuses works", cis: GetCi("Inflame+", "Inflame", "FlameBarrier+", "FlameBarrier"), 
+            DoTest("double-FlameBarrier-block", pl2:50, finalPlayerBlock:24,enbl: 0, en2: 10, cis: GetCi("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
+            DoTest("Combining statuses works",finalPlayerBlock:28, cis: GetCi("Inflame+", "Inflame", "FlameBarrier+", "FlameBarrier"), 
                 playerFinalStatuses: new List<StatusInstance>() {
                     new StatusInstance(new Strength(), 5),
                     new StatusInstance(new FlameBarrierStatus(), 10)});

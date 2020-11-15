@@ -21,6 +21,7 @@ namespace StS
             cards["Uppercut"] = new Uppercut();
             cards["SwordBoomerang"] = new SwordBoomerang();
             cards["FlameBarrier"] = new FlameBarrier();
+            cards["Entrench"] = new Entrench();
             return cards;
         }
     }

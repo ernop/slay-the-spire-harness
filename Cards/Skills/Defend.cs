@@ -22,10 +22,10 @@ namespace StS
             }
             else
             {
-                amount = 6;
+                amount = 8;
             }
 
-            ef.TargetEffect.BlockAdjustments.Add(new Progression("Defend", (_) => amount));
+            ef.TargetEffect.InitialBlock = amount;
         }
     }
 }
