@@ -20,12 +20,12 @@ namespace StS
             if (upgradeCount == 0)
             {
                 amt = 8;
-                si = new StatusInstance(new Vulnerable(), 2, int.MaxValue);
+                si = new StatusInstance(new Vulnerable(), 2);
             }
             else
             {
                 amt = 12;
-                si = new StatusInstance(new Vulnerable(), 3, int.MaxValue);
+                si = new StatusInstance(new Vulnerable(), 3);
             }
 
 

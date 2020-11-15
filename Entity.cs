@@ -29,11 +29,6 @@ namespace StS
         //unlike statuses and cards which have abstract Card and instances, relics are just relics
         public List<Relic> relics { get; set; } = new List<Relic>();
 
-        /// <summary>
-        /// Add duration (if not infinite).
-        /// Seems that dexterity and strength are not really teh same as other statuses.
-        /// </summary>
-        /// <param name="statusInstance"></param>
         public void ApplyStatus(StatusInstance statusInstance)
         {
             var exiStatus = StatusInstances.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
@@ -48,32 +43,19 @@ namespace StS
             }
             else
             {
-                if (statusInstance.Duration == int.MinValue)
+                //combining statuses.  setting up the if this way avoids the ambiguity between flame barrier (scalable, impermanent) and pennib (unscalable, impermanent)
+                if (statusInstance.Status.Scalable)
                 {
-                    StatusInstances.Remove(exiStatus);
+                    exiStatus.Intensity += statusInstance.Intensity; //flame barrier, strength
                 }
                 else
                 {
-                    //more sensible application for permanent statuses: int.minvalue means nuke it.
-                    if (exiStatus.Duration != int.MaxValue)
-                    {
-                        exiStatus.Duration += statusInstance.Duration;
-                    }
-                    if (exiStatus.Intensity != int.MaxValue)
-                    {
-                        exiStatus.Intensity += statusInstance.Intensity;
-                    }
-                    if (Helpers.PrintDetails)
-                    {
-                        Console.WriteLine($"\tStatus changed to: {exiStatus}");
-                    }
-
-                    //remove pen nib when it's called, for example.
-                    //or remove strength when it reaches zero
-                    if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
-                    {
-                        StatusInstances.Remove(exiStatus);
-                    }
+                    //vuln
+                    exiStatus.Duration += statusInstance.Duration;  
+                }
+                if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
+                {
+                    StatusInstances.Remove(exiStatus);
                 }
             }
         }

@@ -29,9 +29,9 @@ namespace StS
     public class AttackProgression
     {
         public string Desc { get; set; }
-        public Func<List<int>, List<int>> Fun { get; set; }
+        public Func<IEnumerable<int>, IEnumerable<int>> Fun { get; set; }
 
-        public AttackProgression(string desc, Func<List<int>,List<int>> func)
+        public AttackProgression(string desc, Func<IEnumerable<int>, IEnumerable<int>> func)
         {
             Desc = desc;
             Fun = func;

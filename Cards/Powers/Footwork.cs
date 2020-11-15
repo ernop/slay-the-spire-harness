@@ -25,7 +25,7 @@ namespace StS
                 amt = 3;
             }
 
-            ef.TargetEffect.Status.Add(new StatusInstance(new Dexterity(), int.MaxValue, amt));
+            ef.TargetEffect.Status.Add(new StatusInstance(new Dexterity(), amt));
         }
     }
 }

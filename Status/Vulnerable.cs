@@ -11,9 +11,10 @@ namespace StS
 
         public override bool NegativeStatus => true;
 
-        public override bool Permanent => false;
+        internal override bool Permanent => false;
+        internal override bool Scalable => false;
 
-        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
+        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
         {
             if (card.CardType == CardType.Attack && statusIsTargeted)
             {

@@ -10,9 +10,10 @@ namespace StS
 
         public override bool NegativeStatus => false;
 
-        public override bool Permanent => true;
+        internal override bool Permanent => true;
+        internal override bool Scalable => true;
 
-        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted)
+        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
         {
             //statusIsTargeted means thee target has the status.
             //in this case we only care if the subject has the status.

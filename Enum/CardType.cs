@@ -14,6 +14,7 @@
         Power = 1,
         Skill = 2,
         Attack = 3,
-        Curse = 4
+        Curse = 4,
+        Status = 5,
     }
 }

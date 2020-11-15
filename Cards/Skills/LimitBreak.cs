@@ -28,7 +28,7 @@ namespace StS
             else
             {
                 //we could just double this in place but cleaner to reapply the same status
-                var statusCopy = new StatusInstance(exi.Status, exi.Duration, exi.Intensity);
+                var statusCopy = new StatusInstance(exi.Status, exi.Intensity);
                 ef.TargetEffect.Status.Add(statusCopy);
             }
         }

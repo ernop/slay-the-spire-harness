@@ -14,7 +14,7 @@ namespace StS
                 AttackCount = (AttackCount + 1) % 10;
                 if (AttackCount == 9)
                 {
-                    ef.SourceEffect.Status.Add(new StatusInstance(new PenNibDoubleDamage(), 1, int.MaxValue));
+                    ef.SourceEffect.Status.Add(new StatusInstance(new PenNibStatus(), 1));
                 }
             }
         }

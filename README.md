@@ -22,3 +22,7 @@ Stages
 Todos
 ==
 Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
+
+* unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
+	
+There is no reason for this to have two parameters; one which gets mapped is enough.

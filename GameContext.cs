@@ -55,7 +55,7 @@ namespace StS
 
         public void ReceiveDamage(Entity entity, IndividualEffect ef)
         {
-
+            //We don't actually want to 
             if (ef.InitialDamage!= null)
             {
                 var val = ef.InitialDamage;
@@ -122,12 +122,12 @@ namespace StS
             foreach (var si in source.StatusInstances)
             {
                 var statusIsTargeted = enemy == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
             }
             foreach (var si in target.StatusInstances)
             {
                 var statusIsTargeted = player == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
             }
 
             //this won't be right for Torii for example.
@@ -168,12 +168,12 @@ namespace StS
             foreach (var si in player.StatusInstances)
             {
                 var statusIsTargeted = player == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, true);
             }
             foreach (var si in enemy.StatusInstances)
             {
                 var statusIsTargeted = enemy == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted);
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, true);
             }
 
             foreach (var relic in player.relics)

@@ -9,8 +9,9 @@
         Berserk = 3,
         Strength = 4,
         Dexterity = 5,
-        PenNibDoubleDamage = 6,
+        PenNibStatus = 6,
         Weak = 7,
+        FlameBarrierStatus = 8,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

@@ -28,7 +28,7 @@ namespace StS
                 amt = 3;
             }
 
-            ef.TargetEffect.Status.Add(new StatusInstance(new Strength(), int.MaxValue, amt));
+            ef.TargetEffect.Status.Add(new StatusInstance(new Strength(), amt));
         }
     }
 }

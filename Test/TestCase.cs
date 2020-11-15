@@ -87,7 +87,7 @@ namespace StS
             }
             if (player.Block != FinalPlayerBlock)
             {
-                throw new Exception($"PlayerBlock expected:{FinalPlayerBlock} actual:{player.Block}");
+                throw new Exception($"{TestName} PlayerBlock expected:{FinalPlayerBlock} actual:{player.Block}");
             }
             if (PlayerFinalStatuses.Count>0)
             {

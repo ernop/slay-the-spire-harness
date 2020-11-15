@@ -10,48 +10,87 @@ namespace StS
         public Status Status { get; set; }
 
         /// <summary>
-        /// Should be autodecremented upon round advancement, unless infinite.
-        /// </summary>
-        public int Duration { get; set; }
-        
-        /// <summary>
-        /// The "strength" of the effect. If amount==int.maxint it's just "on" like you are vuln or not vuln, no scale.
-        /// strength 2 is a 2 intensity statusInstance
+        /// Extract these from num on creation
         /// </summary>
         public int Intensity { get; set; }
+        public int Duration { get; set; }
+        //public Entity Parent { get; set; }
         
         /// <summary>
         /// quite bad that intensity needs to be hardcoded when for some statuses it's actually just fixed.
         /// </summary>
-        public StatusInstance(Status status, int duration, int intensity)
+        public StatusInstance(Status status, int num)
         {
+            //Parent = parent ?? throw new ArgumentNullException("Parent");
             Status = status;
-            Duration = duration;
-            Intensity = intensity;
+            if (status.Scalable)
+            {
+                Intensity = num;
+                if (status.Permanent)
+                {
+                    Duration = int.MaxValue; //str
+                }
+                else
+                {
+                    Duration = 1; //flamebarrier, penNibDD
+                }
+            }
+            else
+            {
+                Intensity = 1;
+                if (status.Permanent)
+                {
+                    Duration = int.MaxValue; //will be taken care of with a temporary cancelling status.
+                }
+                else
+                {
+                    Duration = num; //vuln
+                    //pennib
+                }
+            }
         }
 
-        public void NewTurnStarted()
-        {
-            if (Duration != int.MaxValue)
-            {
-                Duration--;
-            }
-            if (Duration == 0)
-            {
-                //remove the status.
-            }
-        }
+        //public void NewTurnStarted()
+        //{
+        //    if (!Status.Permanent)
+        //    {
+        //        Duration--;
+        //    }
+        //    if (Duration == 0)
+        //    {
+        //        Parent.StatusInstances.Remove(this);
+        //    }
+        //    if (Duration < 0)
+        //    {
+        //        throw new Exception("Negative Duration");
+        //    }
+        //}
         
         public override string ToString()
         {
-            var dur = Duration == int.MaxValue ? "" : " :"+Duration.ToString();
-            var amt = Intensity == int.MaxValue ? "" : " :" + Intensity.ToString();
-            return $"{Status.Name}{dur}{amt}";
+            string explanation;
+            if (Status.Permanent)
+            {
+                explanation = " I:" + Intensity; //str
+            }
+            else
+            {
+                if (Status.Scalable)
+                {
+                    explanation = " I:" + Intensity; //flame barrier
+                }
+                else
+                {
+                    explanation = " D:" + Duration;
+                }
+            }
+
+            return $"{Status.Name}{explanation}";
         }
 
-        public void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, bool statusIsTargeted)
+        public void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, bool statusIsTargeted, bool playerAction)
         {
-            Status.Apply(card, sourceSet, targetSet, Intensity, statusIsTargeted);
+            Status.Apply(card, sourceSet, targetSet, Intensity, statusIsTargeted, playerAction);
         }
     }
 }

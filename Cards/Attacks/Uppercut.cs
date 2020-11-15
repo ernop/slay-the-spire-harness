@@ -28,8 +28,8 @@ namespace StS
                 vuln = 2;
             }
             ef.TargetEffect.InitialDamage = new List<int>() { 13 };
-            ef.TargetEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln, int.MaxValue));
-            ef.TargetEffect.Status.Add(new StatusInstance(new Weak(), weak, int.MaxValue));
+            ef.TargetEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln));
+            ef.TargetEffect.Status.Add(new StatusInstance(new Weak(), weak));
         }
     }
 }
