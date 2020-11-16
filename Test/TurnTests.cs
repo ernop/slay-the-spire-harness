@@ -167,6 +167,15 @@ namespace StS
 
         public static void DamageBlockTests()
         {
+
+            //TODO this needs fixing.  When the player is weak and target is vuln, do we math.floor both times? or just once at the end.
+            DoTest("Weak-Inflame-BodySlam-Vulned", en2: 30, finalPlayerBlock: 10, cis: GetCi("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerStatuses: GetStatuses(new Weak(), 2));
+
+            DoTest("BodySlam", en2:40, finalPlayerBlock:10, cis:  GetCi("Footwork", "Defend+", "BodySlam+"));
+            DoTest("BodySlam-Vulned", en2: 27, finalPlayerBlock: 10, cis: GetCi("Footwork", "Defend+", "Bash", "BodySlam+"));
+            DoTest("Inflame-BodySlam-Vulned", en2: 23, finalPlayerBlock: 10, cis: GetCi("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"));
+            
+
             DoTest("FlameBarrier", pl2: 50, en2: 34, cis: GetCi("FlameBarrier"),finalPlayerBlock:8, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
             DoTest("FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"),finalPlayerBlock: 22, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
             DoTest("FlameBarrier-block2", pl2: 50, finalPlayerBlock:12,en2: 36, enbl: 10, cis: GetCi("FlameBarrier+"), finalEnemyBlock: 0, enemyCards: Attack(1, 4));
@@ -184,6 +193,11 @@ namespace StS
                     new StatusInstance(new FlameBarrierStatus(), 10)});
         }
 
+        public static List<StatusInstance> GetStatuses(Status status, int num)
+        {
+            return new List<StatusInstance>() { new StatusInstance(status, num) };
+        }
+
         public static List<CardInstance> Attack(int amount, int count)
         {
             return new List<CardInstance>() { new CardInstance(new EnemyAttack(amount, count), 0) };
@@ -193,8 +207,8 @@ namespace StS
         {
             Helpers.PrintDetails = print;
 
-            BasicTests();
             DamageBlockTests();
+            BasicTests();
             RelicTests();
             PenNibTests();
             EnemyBehaviorTests();

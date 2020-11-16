@@ -18,7 +18,7 @@ namespace StS
         {
             if (card.CardType == CardType.Attack && !statusIsTargeted)
             {
-                targetSet.DamageAdjustments.Add(new AttackProgression("Weak", (el) => el.Select(qq => qq > 0 ? (int)Math.Floor(qq * 0.75) : 0).ToList()));
+                targetSet.DamageAdjustments.Add(new AttackProgression("Weak", (el) => el.Select(qq => qq > 0 ? qq * 0.75 : 0).ToList()));
             }
         }
     }

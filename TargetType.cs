@@ -4,5 +4,6 @@
     {
         Player = 1,
         Enemy = 2,
+        None = 3,
     }
 }

@@ -22,6 +22,9 @@ namespace StS
             cards["SwordBoomerang"] = new SwordBoomerang();
             cards["FlameBarrier"] = new FlameBarrier();
             cards["Entrench"] = new Entrench();
+            cards["BodySlam"] = new BodySlam();
+            cards["ShockWave"] = new ShockWave();
+            cards["Clothesline"] = new Clothesline();
             return cards;
         }
     }

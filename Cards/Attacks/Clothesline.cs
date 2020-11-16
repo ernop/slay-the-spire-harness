@@ -2,31 +2,35 @@
 
 namespace StS
 {
-
-    public class Defend : SkillCard
+    public class Clothesline : AttackCard
     {
-        public override string Name => nameof(Defend);
+        public override string Name => nameof(Clothesline);
+
         public override CharacterType CharacterType => CharacterType.IronClad;
 
-        public override TargetType TargetType => TargetType.Player;
+        public override int EnergyCost(int upgradeCount) => 2;
 
         public override bool Ethereal(int upgradeCount) => false;
+
         public override bool Exhausts(int upgradeCount) => false;
-        public override int EnergyCost(int upgradeCount) => 1;
 
         internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            int amount;
+
+            int dmg;
+            StatusInstance si;
             if (upgradeCount == 0)
             {
-                amount = 5;
+                dmg = 12;
+                si= new StatusInstance(new Weak(), 2);
             }
             else
             {
-                amount = 8;
+                dmg = 14;
+                si = new StatusInstance(new Weak(), 3);
             }
-
-            ef.TargetEffect.InitialBlock = amount;
+            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.TargetEffect.Status.Add(si);
         }
     }
 }

@@ -31,6 +31,8 @@ namespace StS
         public override CardType CardType => CardType.Skill;
     }
 
+
+
     public abstract class PowerCard : Card
     {
         public override TargetType TargetType => TargetType.Player;
@@ -46,7 +48,10 @@ namespace StS
         public override TargetType TargetType => TargetType.Enemy;
         public override CardType CardType => CardType.Attack;
     }
-
+    public abstract class StatusCard : Card
+    {
+        public override CardType CardType => CardType.Status;
+    }
     public abstract class EnemyCard : Card
     {
         public override CardType CardType => CardType.Attack;

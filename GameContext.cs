@@ -55,14 +55,14 @@ namespace StS
             //We don't actually want to 
             if (ef.InitialDamage!= null)
             {
-                var val = ef.InitialDamage;
+                var val = ef.InitialDamage.Select(el=>(double)el);
                 foreach (var prog in ef.DamageAdjustments)
                 {
                     val = prog.Fun(val);
                 }
 
-
-                foreach (var el in val)
+                var usingVal = val.Select(el => (int)Math.Floor(el));
+                foreach (var el in usingVal)
                 {
                     var elCopy = el;
                     if (elCopy > 0)
