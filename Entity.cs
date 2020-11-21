@@ -8,16 +8,14 @@ namespace StS
     public class Entity
     {
 
-        public Entity(string name, GameContext gameContext, EntityType entityType, int hpMax, int hp)
+        public Entity(string name, EntityType entityType, int hpMax, int hp)
         {
             Name = name;
             EntityType = entityType;
             HPMax = hpMax;
             HP = hp;
-            GameContext = gameContext;
         }
 
-        private GameContext GameContext { get; set; }
         public EntityType EntityType { get; set; }
         private string Name { get; set; }
         public int HP { get; set; }
@@ -61,18 +59,19 @@ namespace StS
         }
 
         /// <summary>
-        /// block not accounted for.
+        /// after block is accounted.
+        /// bool represents if they are still alive.
         /// </summary>
-        /// <param name="amount"></param>
-        public void ApplyDamage(int amount)
+        public bool ApplyDamage(int amount)
         {
             if (amount >= HP)
             {
-                _Die();
+                
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\t{Name} Died of overdamage.");
                 }
+                return false;
             }
             else
             {
@@ -85,6 +84,7 @@ namespace StS
                         var ae = 3;
                     }
                 }
+                return true;
             }
         }
 
@@ -95,11 +95,6 @@ namespace StS
             {
                 Console.WriteLine($"\t{Name} Gained {amount} block.");
             }
-        }
-
-        private void _Die()
-        {
-            GameContext.Died(this);
         }
 
         public override string ToString()

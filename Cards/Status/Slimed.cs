@@ -13,8 +13,9 @@
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => true;
+        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
 
-        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
         }
     }

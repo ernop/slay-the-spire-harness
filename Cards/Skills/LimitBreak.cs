@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace StS
 {
-    public class LimitBreak : Card
+    public class LimitBreak : SkillCard
     {
         public override string Name => "Limit Break";
 
@@ -16,10 +16,10 @@ namespace StS
 
         public override bool Exhausts(int upgradeCount) => upgradeCount==0 ? true : false;
         public override int EnergyCost(int upgradeCount) => 1;
+        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
 
-        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-    
             var exi = target.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             if (exi == null)
             {

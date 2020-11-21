@@ -23,7 +23,7 @@ namespace StS
             Count = count;
         }
 
-        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
         }

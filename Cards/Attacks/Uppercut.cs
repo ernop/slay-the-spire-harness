@@ -13,7 +13,7 @@ namespace StS
         public override bool Exhausts(int upgradeCount) => false;
         public override int EnergyCost(int upgradeCount) => 2;
 
-        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             int weak;
             int vuln;

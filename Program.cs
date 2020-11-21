@@ -1,6 +1,6 @@
 ﻿using System;
 
-using static StS.TurnTests;
+using static StS.Tests;
 
 namespace StS
 {
@@ -8,7 +8,7 @@ namespace StS
     {
         static void Main(string[] args)
         {
-            StS.TurnTests.RunTests(true);
+            StS.Tests.RunTests(true);
             Console.ReadLine();
         }
     }

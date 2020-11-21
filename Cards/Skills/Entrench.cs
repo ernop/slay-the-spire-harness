@@ -13,8 +13,9 @@
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => false;
+        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
 
-        internal override void Apply(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
             //is it as simple as this?
             ef.TargetEffect.BlockAdjustments.Add(new Progression("Entrench", (el, entity) => entity.Block));

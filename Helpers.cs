@@ -73,5 +73,31 @@ namespace StS
             }
             return res;
         }
+
+        public static IndividualEffect Combine(IndividualEffect ef1, IndividualEffect ef2)
+        {
+            var combined = new IndividualEffect();
+            combined.InitialBlock = ef1.InitialBlock + ef2.InitialBlock;
+            var res = new List<int>();
+            if (ef1.InitialDamage != null || ef2.InitialDamage != null)
+            {
+                foreach (var ls in new List<IEnumerable<int>>() { ef1.InitialDamage, ef2.InitialDamage })
+                {
+                    foreach (var el in ls)
+                    {
+                        res.Add(el);
+                    }
+                }
+                combined.InitialDamage = res;
+            }
+
+            combined.DamageAdjustments.AddRange(ef1.DamageAdjustments);
+            combined.DamageAdjustments.AddRange(ef2.DamageAdjustments);
+            combined.BlockAdjustments.AddRange(ef1.BlockAdjustments);
+            combined.BlockAdjustments.AddRange(ef2.BlockAdjustments);
+            combined.Status.AddRange(ef1.Status);
+            combined.Status.AddRange(ef2.Status);
+            return combined;
+        }
     }
 }

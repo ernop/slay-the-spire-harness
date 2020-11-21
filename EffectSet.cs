@@ -16,6 +16,14 @@ namespace StS
     {
         public IndividualEffect SourceEffect = new IndividualEffect();
         public IndividualEffect TargetEffect = new IndividualEffect();
+        public int PlayerMana { get; set; } = 0;
+        public HandEffect HandEffect { get; set; }
+    }
+
+    public enum HandEffect
+    {
+        PullACardFromDiscardToTopOfDraw = 1,
+        CannotPlay = 2, //clash
     }
 
     public class IndividualEffect

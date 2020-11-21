@@ -2,7 +2,7 @@
 {
     public class Player : Entity
     {
-        public Player(GameContext gameContext, int hpMax, int hp) : base("Wilson", gameContext, EntityType.Player, hpMax, hp) { }
+        public Player(int hpMax, int hp) : base("Wilson", EntityType.Player, hpMax, hp) { }
 
     }
 }

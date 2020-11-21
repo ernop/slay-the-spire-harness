@@ -2,9 +2,10 @@
 
 namespace StS
 {
-    public class Clothesline : AttackCard
+    public class SearingBlow : AttackCard
     {
-        public override string Name => nameof(Clothesline);
+
+        public override string Name => nameof(SearingBlow);
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
@@ -16,20 +17,8 @@ namespace StS
 
         internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {
-            int dmg;
-            StatusInstance si;
-            if (upgradeCount == 0)
-            {
-                dmg = 12;
-                si= new StatusInstance(new Weak(), 2);
-            }
-            else
-            {
-                dmg = 14;
-                si = new StatusInstance(new Weak(), 3);
-            }
+            var dmg = 12 + 6 * upgradeCount;
             ef.TargetEffect.InitialDamage = new List<int>() { dmg };
-            ef.TargetEffect.Status.Add(si);
         }
     }
 }

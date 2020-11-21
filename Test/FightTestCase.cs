@@ -5,7 +5,7 @@ using static StS.Helpers;
 
 namespace StS
 {
-    public class TestCase
+    public class FightTestCase
     {
         public string TestName { get; set; }
         public string EnemyName { get; set; } = "Enemy";
@@ -26,12 +26,9 @@ namespace StS
         public List<CardInstance> EnemyCards { get; set; } = new List<CardInstance>();
         public List<Relic> Relics { get; set; }
         
-        public void Run()
+        public Player SetupPlayer()
         {
-            Console.WriteLine($"====Testcase {TestName}");
-            var gc = new GameContext();
-            var player = new Player(gc, PlayerHp, PlayerHp);
-            
+            var player = new Player(PlayerHp, PlayerHp);
             if (Relics != null)
             {
                 player.relics = Relics;
@@ -40,10 +37,15 @@ namespace StS
                     relic.Player = player;
                 }
             }
+
             player.StatusInstances = PlayerStatuses;
             player.Block = PlayerBlock;
+            return player;
+        }
 
-            var enemy = new Enemy(EnemyName, gc, EnemyHp, EnemyHp);
+        public List<Enemy> SetupEnemies()
+        {
+            var enemy = new Enemy(EnemyName, EnemyHp, EnemyHp);
             enemy.Block = EnemyBlock;
 
             if (EnemyStatuses != null)
@@ -51,12 +53,30 @@ namespace StS
                 enemy.StatusInstances = EnemyStatuses;
             }
 
+            var enemies = new List<Enemy>() { enemy };
+            return enemies;
+        }
+
+        public void Run()
+        {
+            Console.WriteLine($"====Testcase {TestName}");
+            
+            var gc = new GameContext();
+            var player = SetupPlayer();
+            gc.Player = player;
+
+            var enemies = SetupEnemies();
+            var enemy = enemies[0];
+
+            var deck = new Deck(CardsToPlay);
+            var fight = new Fight(gc, deck, player, enemies);
+            
             Console.WriteLine($"Enemy: {enemy}");
-            Console.WriteLine($"Player: {player}");
+            Console.WriteLine($"Player: {player}");            
 
             foreach (var ci in CardsToPlay)
             {
-                gc.PlayCard(ci, player, enemy);
+                fight.PlayCard(ci, player, enemy);
 
                 Console.WriteLine($"Player:{player}");
                 Console.WriteLine($"Enemy:{enemy}");
@@ -65,7 +85,7 @@ namespace StS
             foreach (var ci in EnemyCards)
             {
                 //For now no targeting for enemy cards.
-                gc.EnemyPlayCard(ci, enemy, player, player, enemy);
+                fight.EnemyPlayCard(ci, enemy, player, player, enemy);
 
                 Console.WriteLine($"Player:{player}");
                 Console.WriteLine($"Enemy:{enemy}");
@@ -103,8 +123,6 @@ namespace StS
                     throw new Exception($"bad statuses. {error}");
                 }
             }
-            
-
 
             Console.WriteLine($"====Testcase {TestName} is valid\n");
         }

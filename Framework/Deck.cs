@@ -5,8 +5,20 @@ namespace StS
 
     public class Deck
     {
+        public Deck(List<CardInstance> cis)
+        {
+            Cards = cis;
+        }
+
+        /// <summary>
+        /// The actual cards in the deck; the rest are copies.
+        /// </summary>
         public List<CardInstance> Cards { get; set; }
         public List<CardInstance> DrawPile { get; set; }
+        
+        /// <summary>
+        /// These are copies for just this turn;
+        /// </summary>
         public List<CardInstance> Hand { get; set; }
         public List<CardInstance> DiscardPile { get; set; }
         public List<CardInstance> ExhaustPile { get; set; }
