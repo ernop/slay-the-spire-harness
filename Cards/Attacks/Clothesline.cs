@@ -8,7 +8,7 @@ namespace StS
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
-        public override int EnergyCost(int upgradeCount) => 2;
+        public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
         public override bool Ethereal(int upgradeCount) => false;
 

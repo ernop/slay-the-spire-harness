@@ -14,7 +14,7 @@ namespace StS
         public int EnemyBlock { get; set; }
         public int EnemyHp { get; set; }
         public int PlayerHp { get; set; }
-        
+
         public int FinalEnemyHp { get; set; }
         public int FinalEnemyBlock { get; set; }
         public int FinalPlayerHp { get; set; }
@@ -25,7 +25,7 @@ namespace StS
         public List<StatusInstance> EnemyFinalStatuses { get; set; }
         public List<CardInstance> EnemyCards { get; set; } = new List<CardInstance>();
         public List<Relic> Relics { get; set; }
-        
+
         public Player SetupPlayer()
         {
             var player = new Player(PlayerHp, PlayerHp);
@@ -60,7 +60,7 @@ namespace StS
         public void Run()
         {
             Console.WriteLine($"====Testcase {TestName}");
-            
+
             var gc = new GameContext();
             var player = SetupPlayer();
             gc.Player = player;
@@ -68,11 +68,12 @@ namespace StS
             var enemies = SetupEnemies();
             var enemy = enemies[0];
 
-            var deck = new Deck(CardsToPlay);
-            var fight = new Fight(gc, deck, player, enemies);
-            
+            var fight = new Fight(CardsToPlay, gc, player, enemies);
+
+            fight.NextTurn(5);
+
             Console.WriteLine($"Enemy: {enemy}");
-            Console.WriteLine($"Player: {player}");            
+            Console.WriteLine($"Player: {player}");
 
             foreach (var ci in CardsToPlay)
             {
@@ -109,14 +110,14 @@ namespace StS
             {
                 throw new Exception($"{TestName} PlayerBlock expected:{FinalPlayerBlock} actual:{player.Block}");
             }
-            if (PlayerFinalStatuses.Count>0)
+            if (PlayerFinalStatuses.Count > 0)
             {
                 if (!CompareStatuses(PlayerFinalStatuses, player.StatusInstances, out var error))
                 {
                     throw new Exception($"bad statuses. {error}");
                 }
             }
-            if (EnemyFinalStatuses.Count>0)
+            if (EnemyFinalStatuses.Count > 0)
             {
                 if (!CompareStatuses(EnemyFinalStatuses, enemy.StatusInstances, out var error))
                 {

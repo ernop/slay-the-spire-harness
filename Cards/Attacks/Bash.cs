@@ -11,7 +11,7 @@ namespace StS
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => false;
-        public override int EnergyCost(int upgradeCount) => 2;
+        public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
         internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
         {

@@ -17,13 +17,11 @@ namespace StS
         public IndividualEffect SourceEffect = new IndividualEffect();
         public IndividualEffect TargetEffect = new IndividualEffect();
         public int PlayerMana { get; set; } = 0;
-        public HandEffect HandEffect { get; set; }
-    }
 
-    public enum HandEffect
-    {
-        PullACardFromDiscardToTopOfDraw = 1,
-        CannotPlay = 2, //clash
+        /// <summary>
+        /// After playing the card, call these on the hand (temporarily); things like monkey paw.
+        /// </summary>
+        public List<Action<List<CardInstance>>> HandEffect { get; set; } = new List<Action<List<CardInstance>>>();
     }
 
     public class IndividualEffect
@@ -31,7 +29,7 @@ namespace StS
         public int InitialBlock { get; set; }
         public IEnumerable<int> InitialDamage { get; set; }
         public List<Progression> BlockAdjustments { get; set; } = new List<Progression>();
-        public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression> ();
+        public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();
         public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
     }
 }

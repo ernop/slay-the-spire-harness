@@ -2,6 +2,7 @@
 
 namespace StS
 {
+
     public class Torii : Relic
     {
         public override string Name => nameof(Torii);

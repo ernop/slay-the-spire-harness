@@ -28,7 +28,7 @@ namespace StS
             ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
         }
 
-        public override int EnergyCost(int upgradeCount)
+        public override int CiCanCallEnergyCost(int upgradeCount)
         {
             return 0;
         }

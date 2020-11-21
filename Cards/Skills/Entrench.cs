@@ -8,7 +8,7 @@
 
         public override TargetType TargetType => TargetType.Player;
 
-        public override int EnergyCost(int upgradeCount) => upgradeCount == 0 ? 2 : 1;
+        public override int CiCanCallEnergyCost(int upgradeCount) => upgradeCount == 0 ? 2 : 1;
 
         public override bool Ethereal(int upgradeCount) => false;
 

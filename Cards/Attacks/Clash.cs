@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StS
 {
@@ -8,7 +9,7 @@ namespace StS
 
         public override CharacterType CharacterType => CharacterType.IronClad;
 
-        public override int EnergyCost(int upgradeCount) => 0;
+        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
 
         public override bool Ethereal(int upgradeCount) => false;
 
@@ -18,7 +19,8 @@ namespace StS
         {
             if (action == Action.AttemptPlay)
             {
-                ef.HandEffect = HandEffect.CannotPlay;
+                //ef.HandEffect = HandEffect.CannotPlay;
+                throw new NotImplementedException();
             }
         }
 

@@ -16,16 +16,12 @@ namespace StS
         internal abstract void Play(EffectSet ef, Entity source, Entity target, int upgradeCount);
         public abstract bool Exhausts(int upgradeCount);
         public abstract bool Ethereal(int upgradeCount);
-        public abstract int EnergyCost(int upgradeCount);
         
         /// <summary>
-        /// player should be able to query a card to see if it's currently playable.
+        /// Only callable from cardInstance, to detect per-fight and per-hand cost changes.
         /// </summary>
-        public bool Playable(int energy, int upgradeCount)
-        {
-            return EnergyCost(upgradeCount) <= energy;
-        }
-
+        public abstract int CiCanCallEnergyCost(int upgradeCount);
+        
         /// <summary>
         /// Does the card need to be called with other actions that happen to it like "exhausted" or "removed from deck"?
         /// </summary>
