@@ -11,6 +11,8 @@ namespace StS
             relics["Vajra"] = new Vajra();
             relics["Torii"] = new Torii();
             relics["MonkeyPaw"] = new MonkeyPaw();
+            relics["BustedCrown"] = new BustedCrown();
+            relics["FusionHammer"] = new FusionHammer();
             return relics;
         }
     }

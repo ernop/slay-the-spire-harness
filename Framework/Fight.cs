@@ -23,6 +23,7 @@ namespace StS
         public void NextTurn(int drawCount)
         {
             _Deck.NextTurn(drawCount);
+            _Player.Energy = _Player.MaxEnergy();
         }
 
         public void Play(CardInstance ci)
@@ -52,7 +53,17 @@ namespace StS
         /// </summary>
         public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy)
         {
+            if (!_Deck.Hand.Contains(cardInstance))
+            {
+                throw new Exception("Probably old code trying to play a card not actually in hand.");
+            }
+            if (cardInstance.EnergyCost() > player.Energy)
+            {
+                throw new Exception("Trying to play too expensive card");
+            }
+            player.Energy -= cardInstance.EnergyCost();
             _Deck.PlayingCard(cardInstance);
+            
             Entity target;
             switch (cardInstance.Card.TargetType)
             {
@@ -82,7 +93,7 @@ namespace StS
                 si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, true);
             }
 
-            foreach (var relic in player.relics)
+            foreach (var relic in player.Relics)
             {
                 relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
             }
@@ -153,7 +164,7 @@ namespace StS
             }
 
             //this won't be right for Torii for example.
-            foreach (var relic in player.relics)
+            foreach (var relic in player.Relics)
             {
                 relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
             }

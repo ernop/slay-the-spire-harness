@@ -16,7 +16,15 @@ namespace StS
                 Action<List<CardInstance>> thingie = (List<CardInstance> cis) =>
                 {
                     var ci = SelectNonZeroCostCard(cis);
-                    ci.OverrideEnergyCost = 0;
+                    if (ci != null)
+                    {
+                        Console.WriteLine($"monkey paw set {ci} to cost zero.");
+                        ci.OverrideEnergyCost = 0;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"monkey paw had no card to reduce in value..");
+                    }
                 };
                 ef.HandEffect.Add(thingie);
             }

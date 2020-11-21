@@ -98,7 +98,7 @@ namespace StS
         {
             if (!Hand.Contains(cardInstance))
             {
-                var ae = 4;
+                throw new Exception("playing card you don't have");
             }
             Hand.Remove(cardInstance);
             Console.WriteLine(Hand.Contains(cardInstance));

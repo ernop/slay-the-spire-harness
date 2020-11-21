@@ -14,11 +14,12 @@ namespace StS
         public int EnemyBlock { get; set; }
         public int EnemyHp { get; set; }
         public int PlayerHp { get; set; }
-
+        public int? PlayerEnergy { get; set; }
         public int FinalEnemyHp { get; set; }
         public int FinalEnemyBlock { get; set; }
         public int FinalPlayerHp { get; set; }
         public int FinalPlayerBlock { get; set; }
+        public int? FinalEnergy { get; set; }
         public List<StatusInstance> PlayerStatuses { get; set; }
         public List<StatusInstance> EnemyStatuses { get; set; }
         public List<StatusInstance> PlayerFinalStatuses { get; set; }
@@ -26,13 +27,14 @@ namespace StS
         public List<CardInstance> EnemyCards { get; set; } = new List<CardInstance>();
         public List<Relic> Relics { get; set; }
 
+
         public Player SetupPlayer()
         {
-            var player = new Player(PlayerHp, PlayerHp);
+            var player = new Player(hpMax: PlayerHp, hp: PlayerHp);
             if (Relics != null)
             {
-                player.relics = Relics;
-                foreach (var relic in player.relics)
+                player.Relics = Relics;
+                foreach (var relic in player.Relics)
                 {
                     relic.Player = player;
                 }
@@ -65,12 +67,19 @@ namespace StS
             var player = SetupPlayer();
             gc.Player = player;
 
+
             var enemies = SetupEnemies();
             var enemy = enemies[0];
 
             var fight = new Fight(CardsToPlay, gc, player, enemies);
 
+            //todo player.GetDrawAmount()
             fight.NextTurn(5);
+
+            if (PlayerEnergy.HasValue)
+            {
+                player.Energy = PlayerEnergy.Value;
+            }
 
             Console.WriteLine($"Enemy: {enemy}");
             Console.WriteLine($"Player: {player}");
@@ -122,6 +131,14 @@ namespace StS
                 if (!CompareStatuses(EnemyFinalStatuses, enemy.StatusInstances, out var error))
                 {
                     throw new Exception($"bad statuses. {error}");
+                }
+            }
+
+            if (FinalEnergy.HasValue)
+            {
+                if (player.Energy != FinalEnergy.Value)
+                {
+                    throw new Exception($"Expected energy: {FinalEnergy.Value} actual: {player.Energy}");
                 }
             }
 

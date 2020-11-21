@@ -17,7 +17,9 @@ namespace StS
            List<Relic> relics = null, List<CardInstance> cis = null, List<CardInstance> enemyCards = null,
            List<StatusInstance> playerStatuses = null, List<StatusInstance> enemyStatuses = null,
            List<StatusInstance> playerFinalStatuses = null,
-           List<StatusInstance> enemyFinalStatuses = null)
+           List<StatusInstance> enemyFinalStatuses = null,
+           int? playerEnergy = null,
+           int? finalEnergy = null)
         {
             var tc = new FightTestCase()
             {
@@ -26,6 +28,7 @@ namespace StS
                 EnemyBlock = enbl,
                 FinalEnemyHp = en2,
                 PlayerHp = pl,
+                PlayerEnergy = playerEnergy,
                 FinalPlayerHp = pl2,
                 TestName = name,
                 CardsToPlay = cis ?? new List<CardInstance>(),
@@ -36,7 +39,8 @@ namespace StS
                 EnemyStatuses = enemyStatuses ?? new List<StatusInstance>(),
                 EnemyCards = enemyCards ?? new List<CardInstance>(),
                 PlayerFinalStatuses = playerFinalStatuses ?? new List<StatusInstance>(),
-                EnemyFinalStatuses = enemyFinalStatuses ?? new List<StatusInstance>()
+                EnemyFinalStatuses = enemyFinalStatuses ?? new List<StatusInstance>(),
+                FinalEnergy = finalEnergy
             };
             tc.Run();
         }
@@ -62,10 +66,10 @@ namespace StS
         public static void BasicTests()
         {
             var statuses = new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 8), new StatusInstance(new Weak(), 8) };
-            DoTest("Shockwave+VulnWeakAttack", en2: 37, pl2: 26, cis: GetCis("Shockwave", "Shockwave+", "Strike+"), enemyFinalStatuses: statuses, enemyCards: Attack(8, 4));
+            DoTest("Shockwave+VulnWeakAttack", en2: 37, pl2: 26, cis: GetCis("Shockwave", "Shockwave+", "Strike+"), enemyFinalStatuses: statuses, enemyCards: Attack(8, 4), playerEnergy: 10);
 
             DoTest("BashIronwave", en2: 32, cis: GetCis("Bash", "IronWave+"), finalPlayerBlock: 7);
-            DoTest("BashInflameIronwave", en2: 27, cis: GetCis("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7);
+            DoTest("BashInflameIronwave", en2: 27, cis: GetCis("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7, playerEnergy: 10);
 
             DoTest("DefendNeg3", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -5) });
             DoTest("DefendNeg5", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -7) });
@@ -78,7 +82,7 @@ namespace StS
             DoTest("Strike, Strike+ works", en2: 35, cis: GetCis("Strike", "Strike+"));
 
 
-            DoTest("Bashing", en2: 19, cis: GetCis("Strike", "Bash+", "Strike+"));
+            DoTest("Bashing", en2: 19, cis: GetCis("Strike", "Bash+", "Strike+"), playerEnergy: 10);
             DoTest("SwordBoomerang", en2: 41, cis: GetCis("SwordBoomerang"));
             DoTest("SwordBoomerang+", en2: 38, cis: GetCis("SwordBoomerang+"));
             DoTest("SwordBoomerang+ vs block1", en2: 39, cis: GetCis("SwordBoomerang+"), enbl: 1, finalEnemyBlock: 0);
@@ -90,15 +94,15 @@ namespace StS
 
             DoTest("Inflame", en2: 35, cis: GetCis("Strike", "Inflame+", "Strike"));
             DoTest("Inflame+Bash", en2: 39, cis: GetCis("Inflame+", "Bash"));
-            DoTest("Inflame+Bash+strike", en2: 26, cis: GetCis("Inflame+", "Bash", "Strike"));
-            DoTest("Inflame+LimitBreak", en2: 32, cis: GetCis("Strike", "Inflame+", "LimitBreak", "Strike"));
-            DoTest("Inflame+LimitBreak+bash", en2: 8, cis: GetCis("Strike", "Inflame+", "LimitBreak", "Bash", "Strike+"));
+            DoTest("Inflame+Bash+strike", en2: 26, cis: GetCis("Inflame+", "Bash", "Strike"), playerEnergy: 10);
+            DoTest("Inflame+LimitBreak", en2: 32, cis: GetCis("Strike", "Inflame+", "LimitBreak", "Strike"), playerEnergy: 10);
+            DoTest("Inflame+LimitBreak+bash", en2: 8, cis: GetCis("Strike", "Inflame+", "LimitBreak", "Bash", "Strike+"), playerEnergy: 10);
 
             DoTest("WeakPlayer", cis: GetCis("Strike"), en2: 46, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Weak(), 3) });
             DoTest("WeakenEnemy", cis: GetCis("Uppercut+"), en2: 37,
                 enemyFinalStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2), new StatusInstance(new Weak(), 2) });
 
-            DoTest("Entrench", cis: GetCis("Footwork+", "Defend+", "Entrench", "Defend"), finalPlayerBlock: 30);
+            DoTest("Entrench", cis: GetCis("Footwork+", "Defend+", "Entrench", "Defend"), finalPlayerBlock: 30, playerEnergy: 10);
         }
 
         public static void RelicTests()
@@ -161,7 +165,7 @@ namespace StS
             DoTest("Louse-Aggressive", en2: 41, cis: GetCis("Strike+"), enemyStatuses: si, finalEnemyBlock: 4);
 
             var si2 = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
-            DoTest("Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0);
+            DoTest("Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0, playerEnergy: 10);
 
             DoTest("Enemy-attacks", pl2: 40, en2: 41, cis: GetCis("Strike+"), enemyCards: Attack(10, 1));
 
@@ -171,7 +175,7 @@ namespace StS
         public static void TestMonkeyPaw()
         {
             var player = new Player();
-            player.relics.Add(Relics["MonkeyPaw"]);
+            player.Relics.Add(Relics["MonkeyPaw"]);
             var gc = new GameContext();
             var enemy = new Enemy();
             var initialCis = GetCis("Inflame+", "Bash+");
@@ -196,23 +200,59 @@ namespace StS
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
             }
         }
-
-        public static void HandTests()
+        public static void TestMonkeyPawInflames()
         {
-            TestHand("Basic-Hand-two-from-six", GetCis("Strike+", "Bash", "Inflame", "Shockwave", "LimitBreak", "Footwork"), GetCis("LimitBreak", "Footwork"), 2);
-            TestHand("Basic-Hand-single", GetCis("Strike+"), GetCis("Strike+"), 1);
-            TestHand("Basic-Hand-overdraw", GetCis("Strike+"), GetCis("Strike+"), 2);
-            TestHand("Basic-Hand-draw-one-from-two", GetCis("Strike+", "Bash"), GetCis("Bash"), 1);
-            TestHand("Basic-Hand normal subset", GetCis("Strike+", "Strike", "Bash", "Disarm", "Inflame", "Footwork"), GetCis("Disarm", "Inflame", "Footwork"), 3);
-            TestHand("Basic-Hand normal overdraw", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Strike+", "Strike", "Bash", "Disarm"), 7);
-            TestHand("Basic-Hand turns.", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Bash"), 1, 1);
-            TestHand("Basic-Hand turns.", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Strike+"), 1, 3);
+            var player = new Player();
+            player.Relics.Add(Relics["MonkeyPaw"]);
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Inflame+", "Inflame+", "Inflame+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.NextTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[0], player, enemy);
+            var hand = fight.GetHand();
+
+            while (hand.Count > 0)
+            {
+                hand = fight.GetHand();
+                foreach (var card in hand)
+                {
+                    if (card.EnergyCost() != 0)
+                    {
+                        continue;
+                    }
+                    fight.PlayCard(card, player, enemy);
+                    break;
+                }
+            }
+
+            if (player.Energy != 2)
+            {
+                throw new Exception("Paw didn't work.");
+            }
         }
 
 
-        public static void TestHand(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis, int drawCount = 5, int extraTurns = 0)
+        public static void DrawTests()
         {
-            var player = new Player();
+            TestDrawOnly("Basic-Hand-two-from-six", GetCis("Strike+", "Bash", "Inflame", "Shockwave", "LimitBreak", "Footwork"), GetCis("LimitBreak", "Footwork"), 2);
+            TestDrawOnly("Basic-Hand-single", GetCis("Strike+"), GetCis("Strike+"), 1);
+            TestDrawOnly("Basic-Hand-overdraw", GetCis("Strike+"), GetCis("Strike+"), 2);
+            TestDrawOnly("Basic-Hand-draw-one-from-two", GetCis("Strike+", "Bash"), GetCis("Bash"), 1);
+            TestDrawOnly("Basic-Hand normal subset", GetCis("Strike+", "Strike", "Bash", "Disarm", "Inflame", "Footwork"), GetCis("Disarm", "Inflame", "Footwork"), 3);
+            TestDrawOnly("Basic-Hand normal overdraw", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Strike+", "Strike", "Bash", "Disarm"), 7);
+            TestDrawOnly("Basic-Hand turns.", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Bash"), 1, 1);
+            TestDrawOnly("Basic-Hand turns.", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Strike+"), 1, 3);
+            TestDrawOnly("Powers Disappear", GetCis("Strike+", "Strike", "Bash", "Disarm"), GetCis("Strike+"), 1, 3);
+
+        }
+
+
+        public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis, int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CharacterType? characterType = CharacterType.IronClad)
+        {
+            var player = new Player(characterType.Value);
             var gc = new GameContext();
             var enemy = new Enemy();
             var fight = new Fight(initialCis, gc, player, new List<Enemy>() { enemy }, true);
@@ -231,37 +271,75 @@ namespace StS
             {
                 throw new Exception($"{testName} failed: {message}");
             }
+
+            if (energyAfter.HasValue)
+            {
+                if (player.Energy != energyAfter)
+                {
+                    throw new Exception($"Expected energy={energyAfter.Value} actual={player.Energy}");
+                }
+            }
+
             Console.WriteLine($"Test: {testName} passed.");
         }
-
-
 
         public static void DamageBlockTests()
         {
 
             //TODO this needs fixing.  When the player is weak and target is vuln, do we math.floor both times? or just once at the end.
-            DoTest("Weak-Inflame-BodySlam-Vulned", en2: 30, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerStatuses: GetStatuses(new Weak(), 2));
+            DoTest("Weak-Inflame-BodySlam-Vulned", en2: 30, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerStatuses: GetStatuses(new Weak(), 2), playerEnergy: 10);
 
             DoTest("BodySlam", en2: 40, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "BodySlam+"));
-            DoTest("BodySlam-Vulned", en2: 27, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "BodySlam+"));
-            DoTest("Inflame-BodySlam-Vulned", en2: 23, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"));
+            DoTest("BodySlam-Vulned", en2: 27, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "BodySlam+"), playerEnergy: 10);
+            DoTest("Inflame-BodySlam-Vulned", en2: 23, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerEnergy: 10);
 
 
             DoTest("FlameBarrier", pl2: 50, en2: 34, cis: GetCis("FlameBarrier"), finalPlayerBlock: 8, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
             DoTest("FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalPlayerBlock: 22, finalEnemyBlock: 0, enemyCards: Attack(1, 4));
             DoTest("FlameBarrier-block2", pl2: 50, finalPlayerBlock: 12, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalEnemyBlock: 0, enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
-            DoTest("FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
+            DoTest("FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4), playerEnergy: 10);
+            DoTest("FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4), playerEnergy: 10);
 
-            DoTest("ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0);
-            DoTest("FullBlocked", en2: 50, enbl: 26, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0);
+            DoTest("ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
+            DoTest("FullBlocked", en2: 50, enbl: 26, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
             DoTest("VulnBreakThrough", en2: 49, enbl: 16, cis: GetCis("Bash", "Strike"), finalEnemyBlock: 0);
 
-            DoTest("double-FlameBarrier-block", pl2: 50, finalPlayerBlock: 24, enbl: 0, en2: 10, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4));
+            DoTest("double-FlameBarrier-block", pl2: 50, finalPlayerBlock: 24, enbl: 0, en2: 10,
+                cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4), playerEnergy: 10);
             DoTest("Combining statuses works", finalPlayerBlock: 28, cis: GetCis("Inflame+", "Inflame", "FlameBarrier+", "FlameBarrier"),
                 playerFinalStatuses: new List<StatusInstance>() {
                     new StatusInstance(new Strength(), 5),
-                    new StatusInstance(new FlameBarrierStatus(), 10)});
+                    new StatusInstance(new FlameBarrierStatus(), 10)},
+                playerEnergy: 10);
+
+            DoTest("BustedCrown-Gives", cis: GetCis(),
+                finalEnergy: 4,
+                relics: new List<Relic>() { Relics["BustedCrown"] });
+
+            DoTest("Start-3energy", cis: GetCis(),
+                finalEnergy: 3,
+                relics: new List<Relic>() { Relics["MonkeyPaw"] });
+
+            DoTest("Start-3-paw", cis: GetCis("Inflame", "Strike"),
+                finalEnergy: 2,
+                relics: new List<Relic>() { Relics["MonkeyPaw"] }, en2: 42);
+
+            DoTest("Start-4-paw", cis: GetCis("Inflame", "Strike"),
+                finalEnergy: 3,
+                relics: new List<Relic>() { Relics["BustedCrown"], Relics["MonkeyPaw"] }, en2: 42);
+
+            DoTest("Start-4-paw-zero-out-nothing", cis: GetCis("Strike", "Inflame"),
+                finalEnergy: 2,
+                relics: new List<Relic>() { Relics["BustedCrown"], Relics["MonkeyPaw"] }, en2: 44);
+
+            DoTest("Energy-relics-combine", cis: GetCis("Strike", "Inflame"),
+                finalEnergy: 3,
+                relics: new List<Relic>() { Relics["FusionHammer"], Relics["BustedCrown"] }, en2: 44);
+
+            DoTest("Energy-relics-combine2", cis: GetCis("Strike", "Inflame"),
+                finalEnergy: 3,
+                relics: new List<Relic>() { Relics["BustedCrown"], Relics["FusionHammer"] }, en2: 44);
+
         }
 
         public static List<StatusInstance> GetStatuses(Status status, int num)
@@ -279,7 +357,7 @@ namespace StS
             PrintDetails = print;
 
             TestMonkeyPaw();
-            HandTests();
+            DrawTests();
 
             if (true)
             {

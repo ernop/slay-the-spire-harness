@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace StS
@@ -23,9 +22,9 @@ namespace StS
         public int Block { get; set; }
 
         public List<StatusInstance> StatusInstances { get; set; } = new List<StatusInstance>();
-        
+
         //unlike statuses and cards which have abstract Card and instances, relics are just relics
-        public List<Relic> relics { get; set; } = new List<Relic>();
+        public List<Relic> Relics { get; set; } = new List<Relic>();
 
         public void ApplyStatus(StatusInstance statusInstance)
         {
@@ -49,7 +48,7 @@ namespace StS
                 else
                 {
                     //vuln
-                    exiStatus.Duration += statusInstance.Duration;  
+                    exiStatus.Duration += statusInstance.Duration;
                 }
                 if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
                 {
@@ -66,7 +65,7 @@ namespace StS
         {
             if (amount >= HP)
             {
-                
+
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\t{Name} Died of overdamage.");
@@ -81,7 +80,7 @@ namespace StS
                     Console.WriteLine($"\t{Name} took {amount} Damage");
                     if (amount == 0)
                     {
-                        var ae = 3;
+                        throw new Exception("Took zero damage?");
                     }
                 }
                 return true;
