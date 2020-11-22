@@ -128,24 +128,20 @@ namespace StS
                 enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), 4) },
                 enemyCards: new List<CardInstance>() {
                 new CardInstance(new EnemyAttack(1,4),0)});
-        }
 
-        public static void PenNibTests()
-        {
+            TestMonkeyPawInflames();
+            TestMonkeyPaw();
+
             var penNib = new PenNib();
             penNib.AttackCount = 8;
-
             DoTest("PenNib toggles-untoggles", en2: 20, cis: GetCis("Strike", "Strike+", "Strike"), relics: new List<Relic>() { penNib });
 
             var penNib2 = new PenNib();
             penNib2.AttackCount = 2;
-
             DoTest("PenNib-Nonfunctional", en2: 35, cis: GetCis("Strike", "Strike+"), relics: new List<Relic>() { penNib2 });
-
 
             var penNib3 = new PenNib();
             penNib3.AttackCount = 8;
-
             DoTest("PenNib-Inflame", en2: 20, cis: GetCis("Strike", "Inflame+", "Strike+"), relics: new List<Relic>() { penNib3 });
 
             var penNib4 = new PenNib();
@@ -174,6 +170,7 @@ namespace StS
 
         public static void TestHeadbutt()
         {
+            Console.WriteLine($"Starting{nameof(TestHeadbutt)}");
             var player = new Player();
             var gc = new GameContext();
             var enemy = new Enemy();
@@ -203,6 +200,7 @@ namespace StS
 
         public static void TestMonkeyPaw()
         {
+            Console.WriteLine($"Starting{nameof(TestMonkeyPaw)}");
             var player = new Player();
             player.Relics.Add(Relics["MonkeyPaw"]);
             var gc = new GameContext();
@@ -228,6 +226,32 @@ namespace StS
             {
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
             }
+            Console.WriteLine("==========");
+        }
+
+        public static void TestPerfectedStrike()
+        {
+            Console.WriteLine($"Starting{nameof(TestPerfectedStrike)}");
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Strike+", "PerfectedStrike+", "TwinStrike");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.NextTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+
+            fight.PlayCard(initialCis[0], player, enemy);
+
+            //now we can play it.
+            fight.PlayCard(initialCis[1], player, enemy);
+
+            var expected = 26;
+            if (enemy.HP != expected)
+            {
+                throw new Exception($"{nameof(TestPerfectedStrike)}");
+            }
+            Console.WriteLine("==========");
         }
 
         public static void TestClash()
@@ -418,6 +442,7 @@ namespace StS
         {
             TestClash();
             TestHeadbutt();
+            TestPerfectedStrike();
         }
 
         public static void RunTests(bool print)
@@ -425,7 +450,7 @@ namespace StS
             PrintDetails = print;
 
             CardTests();
-            TestMonkeyPaw();
+
             DrawTests();
 
             if (true)
@@ -433,7 +458,7 @@ namespace StS
                 DamageBlockTests();
                 BasicTests();
                 RelicTests();
-                PenNibTests();
+
                 EnemyBehaviorTests();
             }
 

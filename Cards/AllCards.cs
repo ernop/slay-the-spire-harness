@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace StS
 {
     public static class AllCards
     {
-        public static Dictionary<string,Card> GetAllCards()
+        public static Dictionary<string, Card> GetAllCards()
         {
-            var cards = new Dictionary<string,Card>();
+            var cards = new Dictionary<string, Card>();
             cards["Bash"] = new Bash();
             cards["Strike"] = new Strike();
             cards["Defend"] = new Defend();
@@ -29,6 +26,8 @@ namespace StS
             cards["SearingBlow"] = new SearingBlow();
             cards["Headbutt"] = new Headbutt();
             cards["Clash"] = new Clash();
+            cards["PerfectedStrike"] = new PerfectedStrike();
+            cards["TwinStrike"] = new TwinStrike();
             return cards;
         }
     }

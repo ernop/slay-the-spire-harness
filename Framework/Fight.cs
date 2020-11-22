@@ -35,10 +35,6 @@ namespace StS
             _Player.Energy = _Player.MaxEnergy();
         }
 
-        public void Play(CardInstance ci)
-        {
-            PlayCard(ci, _Player, _Enemies[0]);
-        }
         public List<CardInstance> GetHand()
         {
             return _Deck.Hand;
@@ -92,7 +88,7 @@ namespace StS
 
             //set the initial effect, or status.
             var ef = new EffectSet();
-            cardInstance.Play(ef, player, target, cardTargets);
+            cardInstance.Play(ef, player, target, cardTargets, _Deck);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in player.StatusInstances)

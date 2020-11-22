@@ -2,18 +2,13 @@
 
 namespace StS
 {
-    public class Uppercut : AttackCard
+
+    public class Uppercut : IroncladAttackCard
     {
         public override string Name => nameof(Uppercut);
-
-        public override CharacterType CharacterType => CharacterType.IronClad;
-
-        public override bool Ethereal(int upgradeCount) => false;
-
-        public override bool Exhausts(int upgradeCount) => false;
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int weak;
             int vuln;

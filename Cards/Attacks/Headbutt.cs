@@ -3,23 +3,17 @@ using System.Linq;
 
 namespace StS
 {
-    public class Headbutt : AttackCard
+    public class Headbutt : IroncladAttackCard
     {
         public override string Name => nameof(Headbutt);
 
-        public override CharacterType CharacterType => CharacterType.IronClad;
-
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
-
-        public override bool Ethereal(int upgradeCount) => false;
-
-        public override bool Exhausts(int upgradeCount) => false;
 
         /// <summary>
         /// There needs to be a way to specify extra parameters to play, for things like:
         /// TrueGrit, etc.
         /// </summary>
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int dmg;
             if (upgradeCount == 0)

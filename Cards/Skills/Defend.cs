@@ -15,7 +15,7 @@ namespace StS
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
         public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int amount;
             if (upgradeCount == 0)

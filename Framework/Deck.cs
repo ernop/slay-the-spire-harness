@@ -101,7 +101,6 @@ namespace StS
                 throw new Exception("playing card you don't have");
             }
             Hand.Remove(cardInstance);
-            Console.WriteLine(Hand.Contains(cardInstance));
             if (cardInstance.Card.CardType == CardType.Power)
             {
                 //card just disappears.

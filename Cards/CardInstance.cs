@@ -49,14 +49,14 @@ namespace StS
             return true;
         }
 
-        public void Play(EffectSet ef, Entity source, Entity target, List<CardInstance> cardTargets = null)
+        public void Play(EffectSet ef, Entity source, Entity target, List<CardInstance> cardTargets = null, Deck deck = null)
         {
             if (Helpers.PrintDetails)
             {
                 Console.WriteLine($"\tplaying card {this}");
             }
 
-            Card.Play(ef, source, target, UpgradeCount, cardTargets);
+            Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
         }
 
         /// <summary>

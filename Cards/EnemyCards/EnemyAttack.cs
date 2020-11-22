@@ -24,7 +24,7 @@ namespace StS
             Count = count;
         }
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
         }

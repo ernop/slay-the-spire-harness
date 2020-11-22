@@ -17,7 +17,7 @@ namespace StS
         public override bool Exhausts(int upgradeCount) => false;
         public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var blockAmount = upgradeCount == 0 ? 12 : 16;
             ef.TargetEffect.InitialBlock = blockAmount;
