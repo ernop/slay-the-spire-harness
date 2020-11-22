@@ -51,12 +51,11 @@ namespace StS
 
         public void Play(EffectSet ef, Entity source, Entity target, List<CardInstance> cardTargets = null, Deck deck = null)
         {
+            Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
             if (Helpers.PrintDetails)
             {
-                Console.WriteLine($"\tplaying card {this}");
+                Console.WriteLine($"\tplayed card {this}");
             }
-
-            Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
         }
 
         /// <summary>

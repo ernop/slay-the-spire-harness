@@ -389,6 +389,7 @@ namespace StS
             DoTest("ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
             DoTest("FullBlocked", en2: 50, enbl: 26, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
             DoTest("VulnBreakThrough", en2: 49, enbl: 16, cis: GetCis("Bash", "Strike"), finalEnemyBlock: 0);
+            DoTest("HeavyBlade", en2: 27, enbl: 20, cis: GetCis("HeavyBlade", "Inflame+", "HeavyBlade+"), finalEnemyBlock: 0, playerEnergy: 10);
 
             DoTest("double-FlameBarrier-block", pl2: 50, finalPlayerBlock: 24, enbl: 0, en2: 10,
                 cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), enemyCards: Attack(1, 4), playerEnergy: 10);

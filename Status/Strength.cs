@@ -19,7 +19,12 @@ namespace StS
             //in this case we only care if the subject has the status.
             if (card.CardType == CardType.Attack && !statusIsTargeted)
             {
-                if (targetSet.InitialDamage==null)
+                if (card.Name == "HeavyBlade")
+                {
+                    //already calculated.
+                    return;
+                }
+                if (targetSet.InitialDamage == null)
                 {
                     throw new System.Exception("Why am i calculating strength without having a base damage?");
                 }
@@ -28,8 +33,8 @@ namespace StS
 
                 //this should be genericized; here it's assuming strength only hits enemy when actually it hits whoever the target is.
                 targetSet.DamageAdjustments.Insert(0, new AttackProgression("StrengthStatus", (el) => el.Select(qq => qq + intensity).ToList()));
-                
-            }            
+
+            }
         }
     }
 }
