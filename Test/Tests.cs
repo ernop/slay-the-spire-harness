@@ -172,6 +172,35 @@ namespace StS
 
         }
 
+        public static void TestHeadbutt()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.NextTurn(2);
+
+            var hand = fight.GetHand();
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[2], player, enemy, new List<CardInstance>() { initialCis[1] });
+            //now ensure that headbutt is at the end of the draw pile.
+
+            var dp = fight.GetDrawPile();
+            if (dp.Count != 2)
+            {
+                throw new Exception($"{nameof(TestHeadbutt)}: bad draw pile");
+            }
+
+            if (dp[dp.Count - 1] != initialCis[1])
+            {
+                throw new Exception($"{nameof(TestHeadbutt)}: headbutt didn't work");
+            }
+            Console.WriteLine($"{nameof(TestHeadbutt)} works.");
+        }
+
         public static void TestMonkeyPaw()
         {
             var player = new Player();
@@ -200,6 +229,7 @@ namespace StS
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
             }
         }
+
         public static void TestMonkeyPawInflames()
         {
             var player = new Player();
@@ -356,6 +386,7 @@ namespace StS
         {
             PrintDetails = print;
 
+            TestHeadbutt();
             TestMonkeyPaw();
             DrawTests();
 

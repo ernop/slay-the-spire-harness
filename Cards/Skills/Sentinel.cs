@@ -1,4 +1,6 @@
-﻿namespace StS
+﻿using System.Collections.Generic;
+
+namespace StS
 {
     public class Sentinel : SkillCard
     {
@@ -20,19 +22,19 @@
                 ef.PlayerMana += upgradeCount == 0 ? 2 : 3;
             }
         }
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
         {
-            
-                int amount;
-                if (upgradeCount == 0)
-                {
-                    amount = 5;
-                }
-                else
-                {
-                    amount = 8;
-                }
-                ef.TargetEffect.InitialBlock = amount;
+
+            int amount;
+            if (upgradeCount == 0)
+            {
+                amount = 5;
+            }
+            else
+            {
+                amount = 8;
+            }
+            ef.TargetEffect.InitialBlock = amount;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace StS
 
         public override bool Exhausts(int upgradeCount) => false;
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
         {
             if (upgradeCount == 0)
             {

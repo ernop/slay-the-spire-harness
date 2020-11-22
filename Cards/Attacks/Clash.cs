@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace StS
 {
@@ -14,17 +14,9 @@ namespace StS
         public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => false;
+        public override bool Playable(List<CardInstance> hand) => hand.All(el => el.Card.CardType == CardType.Attack);
 
-        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount)
-        {
-            if (action == Action.AttemptPlay)
-            {
-                //ef.HandEffect = HandEffect.CannotPlay;
-                throw new NotImplementedException();
-            }
-        }
-
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
         {
             var dmg = upgradeCount == 0 ? 14 : 18;
             ef.TargetEffect.InitialDamage = new List<int>() { dmg };

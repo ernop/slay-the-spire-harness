@@ -13,9 +13,9 @@ namespace StS
         {
             if (card.CardType == CardType.Power)
             {
-                Action<List<CardInstance>> thingie = (List<CardInstance> cis) =>
+                Action<Deck> makeOneCostZero = (Deck) =>
                 {
-                    var ci = SelectNonZeroCostCard(cis);
+                    var ci = SelectNonZeroCostCard(Deck.Hand);
                     if (ci != null)
                     {
                         Console.WriteLine($"monkey paw set {ci} to cost zero.");
@@ -26,7 +26,7 @@ namespace StS
                         Console.WriteLine($"monkey paw had no card to reduce in value..");
                     }
                 };
-                ef.HandEffect.Add(thingie);
+                ef.DeckEffect.Add(makeOneCostZero);
             }
         }
     }

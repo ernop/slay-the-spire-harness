@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace StS
 {
@@ -39,19 +40,23 @@ namespace StS
         /// <summary>
         /// player should be able to query a card to see if it's currently playable.
         /// </summary>
-        public bool Playable(int energy)
+        public bool Playable(List<CardInstance> hand)
         {
-            return EnergyCost() <= energy;
+            if (!Card.Playable(hand))
+            {
+                return false;
+            }
+            return true;
         }
 
-        public void Play(EffectSet ef, Entity source, Entity target)
+        public void Play(EffectSet ef, Entity source, Entity target, List<CardInstance> cardTargets = null)
         {
             if (Helpers.PrintDetails)
             {
                 Console.WriteLine($"\tplaying card {this}");
             }
 
-            Card.Play(ef, source, target, UpgradeCount);
+            Card.Play(ef, source, target, UpgradeCount, cardTargets);
         }
 
         /// <summary>

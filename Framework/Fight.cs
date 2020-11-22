@@ -20,6 +20,15 @@ namespace StS
             _Player = player;
             _Deck = new Deck(initialCis, preserveOrder);
         }
+
+        /// <summary>
+        /// for testing
+        /// </summary>
+        public List<CardInstance> GetDrawPile()
+        {
+            return _Deck.DrawPile;
+        }
+
         public void NextTurn(int drawCount)
         {
             _Deck.NextTurn(drawCount);
@@ -51,8 +60,12 @@ namespace StS
         /// <summary>
         /// From monster POV, player is the enemy.
         /// </summary>
-        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy)
+        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy, List<CardInstance> cardTargets = null)
         {
+            if (!cardInstance.Playable(_Deck.Hand))
+            {
+                throw new Exception("Trying to play unplayable card.");
+            }
             if (!_Deck.Hand.Contains(cardInstance))
             {
                 throw new Exception("Probably old code trying to play a card not actually in hand.");
@@ -63,7 +76,7 @@ namespace StS
             }
             player.Energy -= cardInstance.EnergyCost();
             _Deck.PlayingCard(cardInstance);
-            
+
             Entity target;
             switch (cardInstance.Card.TargetType)
             {
@@ -79,7 +92,7 @@ namespace StS
 
             //set the initial effect, or status.
             var ef = new EffectSet();
-            cardInstance.Play(ef, player, target);
+            cardInstance.Play(ef, player, target, cardTargets);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in player.StatusInstances)
@@ -99,9 +112,9 @@ namespace StS
             }
 
             //relic effects apply first.
-            foreach (var f in ef.HandEffect)
+            foreach (var f in ef.DeckEffect)
             {
-                f.Invoke(_Deck.Hand);
+                f.Invoke(_Deck);
             }
 
             //TODO not clear if this order is the most sensible really or not.

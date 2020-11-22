@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿
+using System.Collections.Generic;
+
 using static StS.Helpers;
 
 namespace StS
@@ -23,7 +24,7 @@ namespace StS
             Count = count;
         }
 
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount)
+        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null)
         {
             ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
         }
