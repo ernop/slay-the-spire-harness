@@ -230,6 +230,38 @@ namespace StS
             }
         }
 
+        public static void TestClash()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Clash");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.NextTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            bool gotException;
+            try
+            {
+                fight.PlayCard(initialCis[1], player, enemy);
+                gotException = false;
+            }
+            catch
+            {
+                gotException = true;
+            }
+
+            if (!gotException)
+            {
+                throw new Exception("Allowed playing clash with non-attack in hand.");
+            }
+
+            fight.PlayCard(initialCis[0], player, enemy);
+
+            //now we can play it.
+            fight.PlayCard(initialCis[1], player, enemy);
+        }
+
         public static void TestMonkeyPawInflames()
         {
             var player = new Player();
@@ -382,11 +414,17 @@ namespace StS
             return new List<CardInstance>() { new CardInstance(new EnemyAttack(amount, count), 0) };
         }
 
+        public static void CardTests()
+        {
+            TestClash();
+            TestHeadbutt();
+        }
+
         public static void RunTests(bool print)
         {
             PrintDetails = print;
 
-            TestHeadbutt();
+            CardTests();
             TestMonkeyPaw();
             DrawTests();
 
