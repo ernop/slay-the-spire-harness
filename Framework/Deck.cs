@@ -87,32 +87,37 @@ namespace StS
                         //can't do a full draw.
                         break;
                     }
-                    ReshuffleDiscards();
+                    Reshuffle();
                     continue;
                 }
                 toDraw--;
             }
         }
 
-        internal void PlayingCard(CardInstance cardInstance)
+        internal void BeforePlayingCard(CardInstance ci)
         {
-            if (!Hand.Contains(cardInstance))
+            if (!Hand.Contains(ci))
             {
                 throw new Exception("playing card you don't have");
             }
-            Hand.Remove(cardInstance);
-            if (cardInstance.Card.CardType == CardType.Power)
+            Hand.Remove(ci);
+
+        }
+
+        internal void AfterPlayingCard(CardInstance ci)
+        {
+            if (ci.Card.CardType == CardType.Power)
             {
                 //card just disappears.
             }
             else
             {
-                cardInstance.EnteringDiscardPile();
-                DiscardPile.Add(cardInstance);
+                ci.EnteringDiscardPile();
+                DiscardPile.Add(ci);
             }
         }
 
-        private void ReshuffleDiscards()
+        public void Reshuffle()
         {
             DrawPile.AddRange(DiscardPile);
             DiscardPile = new List<CardInstance>();

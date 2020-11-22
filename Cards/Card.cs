@@ -24,12 +24,27 @@ namespace StS
         public virtual void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
         public virtual bool Playable(List<CardInstance> hand) { return true; }
 
+        /// <summary>
+        /// for AI purposes it helps to have cards self-specify which cards are allowed to be targets (for example, headbutt for cards in discard, or shrugitoff targetting drawpile (or discard))
+        /// </summary>
+        public virtual List<CardInstance> GetTargetCards(Deck deck) { return null; }
+
+        /// <summary>
+        /// the ai will call getTargets and then if randomtarget, pick one; if not, all are considered possible.
+        /// </summary>
+        public virtual bool RandomCardTarget { get; set; } = false;
+
         public override string ToString()
         {
             return Name;
         }
     }
 
+
+    public abstract class IroncladSkillCard : SkillCard
+    {
+        public override CharacterType CharacterType => CharacterType.IronClad;
+    }
 
     public abstract class SkillCard : Card
     {

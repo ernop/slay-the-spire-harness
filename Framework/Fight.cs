@@ -71,7 +71,7 @@ namespace StS
                 throw new Exception("Trying to play too expensive card");
             }
             player.Energy -= cardInstance.EnergyCost();
-            _Deck.PlayingCard(cardInstance);
+            _Deck.BeforePlayingCard(cardInstance);
 
             Entity target;
             switch (cardInstance.Card.TargetType)
@@ -112,6 +112,8 @@ namespace StS
             {
                 f.Invoke(_Deck);
             }
+
+            _Deck.AfterPlayingCard(cardInstance);
 
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.

@@ -29,6 +29,7 @@ namespace StS
             cards["PerfectedStrike"] = new PerfectedStrike();
             cards["TwinStrike"] = new TwinStrike();
             cards["HeavyBlade"] = new HeavyBlade();
+            cards["ShrugItOff"] = new ShrugItOff();
             return cards;
         }
     }

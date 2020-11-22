@@ -2,19 +2,13 @@
 
 namespace StS
 {
-    public class Sentinel : SkillCard
+    public class Sentinel : IroncladSkillCard
     {
         public override string Name => nameof(Sentinel);
-
-        public override CharacterType CharacterType => CharacterType.IronClad;
 
         public override TargetType TargetType => TargetType.Player;
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
-
-        public override bool Ethereal(int upgradeCount) => false;
-
-        public override bool Exhausts(int upgradeCount) => false;
         public override void OtherEffects(Action action, EffectSet ef, int upgradeCount)
         {
             if (action == Action.Exhaust)

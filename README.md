@@ -21,9 +21,15 @@ Stages
 
 Todos
 ==
-# Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
-# unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
-# There is no reason for this to have two parameters; one which gets mapped is enough.
+* Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
+* unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
+* There is no reason for this to have two parameters; one which gets mapped is enough.
 ...deck concepts - exhaust, draw, etc.  New test classes just for this
 - ability to characterize certain cards like the ones that add wounds, the one that draws & puts a card on top.
 ...shouldn't card be a subclass of cardinstance?
+* fix up text notation so it's playable by hand.
+* AI to handle simple fights
+* monsters are going to be a lot more painful than I thought.
+* cards that have multiple "versions" of sims, i.e. headbutt or any card that has targets, needs to specify targets somehow? so the AI can monte carlo over them.
+* fix tests to have standard format and test autodetection.
+* console application for testing

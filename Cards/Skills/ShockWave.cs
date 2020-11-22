@@ -2,17 +2,13 @@
 
 namespace StS
 {
-    public class Shockwave : SkillCard
+    public class Shockwave : IroncladSkillCard
     {
         public override string Name => nameof(Shockwave);
-
-        public override CharacterType CharacterType => CharacterType.IronClad;
 
         public override TargetType TargetType => TargetType.Enemy;
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
-
-        public override bool Ethereal(int upgradeCount) => false;
 
         public override bool Exhausts(int upgradeCount) => true;
         public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }

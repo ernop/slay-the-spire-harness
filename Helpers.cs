@@ -132,13 +132,19 @@ namespace StS
             return newCi;
         }
 
+        public static IEnumerable<CardInstance> GetNonZeroCostsFromHand(List<CardInstance> hand)
+        {
+            var nonZeros = hand.Where(el => el.EnergyCost() > 0);
+            return nonZeros;
+        }
+
         /// <summary>
         /// Null or a CI that has nonzero cost
         /// </summary>
-        public static CardInstance SelectNonZeroCostCard(List<CardInstance> cis)
+        public static CardInstance SelectNonZeroCostCard(List<CardInstance> hand)
         {
             var rnd = new Random();
-            var nonZeros = cis.Where(el => el.EnergyCost() > 0);
+            var nonZeros = GetNonZeroCostsFromHand(hand);
             var len = nonZeros.Count();
             if (len == 0)
             {

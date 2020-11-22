@@ -286,6 +286,47 @@ namespace StS
             fight.PlayCard(initialCis[1], player, enemy);
         }
 
+        public static void TestShrugItOff()
+        {
+            {
+                var player = new Player();
+                var gc = new GameContext();
+                var enemy = new Enemy();
+                var initialCis = GetCis("Inflame+", "Strike+", "ShrugItOff");
+                var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+                fight.NextTurn(3);
+
+                //problem: when I initialize the fight I make a copy of the cards.
+
+                fight.PlayCard(initialCis[0], player, enemy);
+                fight.PlayCard(initialCis[1], player, enemy);
+                fight.PlayCard(initialCis[2], player, enemy);
+                var hand = fight.GetHand();
+                if (!CompareHands(hand, GetCis("Strike+"), out var message))
+                {
+                    throw new Exception($"{nameof(TestShrugItOff)}1 failed to draw. {message}");
+                }
+            }
+            {
+                var player = new Player();
+                var gc = new GameContext();
+                var enemy = new Enemy();
+                var initialCis = GetCis("FlameBarrier", "Inflame+", "Strike+", "ShrugItOff");
+                var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+                fight.NextTurn(3);
+
+                fight.PlayCard(initialCis[1], player, enemy);
+                fight.PlayCard(initialCis[2], player, enemy);
+                fight.PlayCard(initialCis[3], player, enemy);
+                var hand = fight.GetHand();
+                if (!CompareHands(hand, GetCis("FlameBarrier"), out var message))
+                {
+                    throw new Exception($"{nameof(TestShrugItOff)}2 failed to draw. {message}");
+                }
+            }
+            //test 2 - pulling from one.
+        }
+
         public static void TestMonkeyPawInflames()
         {
             var player = new Player();
@@ -369,6 +410,7 @@ namespace StS
             Console.WriteLine($"Test: {testName} passed.");
         }
 
+
         public static void DamageBlockTests()
         {
 
@@ -444,6 +486,7 @@ namespace StS
             TestClash();
             TestHeadbutt();
             TestPerfectedStrike();
+            TestShrugItOff();
         }
 
         public static void RunTests(bool print)
