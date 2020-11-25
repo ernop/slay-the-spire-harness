@@ -10,8 +10,8 @@ namespace StS
         public abstract CardType CardType { get; }
         public abstract TargetType TargetType { get; }
         internal abstract void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null);
-        public virtual bool Exhausts(int upgradeCount) => false;
-        public virtual bool Ethereal(int upgradeCount) => false;
+        internal virtual bool Exhausts(int upgradeCount) => false;
+        internal virtual bool Ethereal(int upgradeCount) => false;
 
         /// <summary>
         /// Only callable from cardInstance, to detect per-fight and per-hand cost changes.

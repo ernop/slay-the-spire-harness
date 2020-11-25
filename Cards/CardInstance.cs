@@ -20,10 +20,20 @@ namespace StS
             UpgradeCount = upgradeCount;
         }
 
+        public bool Exhausts()
+        {
+            return Card.Exhausts(UpgradeCount);
+        }
+
+        public bool Ethereal()
+        {
+            return Card.Ethereal(UpgradeCount);
+        }
+
         /// <summary>
-        /// Called when discarded
+        /// Called when in hand at end of turn, OR when actively discarded.
         /// </summary>
-        public void EnteringDiscardPile()
+        public void LeavingHand()
         {
             OverrideEnergyCost = null;
         }

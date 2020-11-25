@@ -10,9 +10,9 @@ namespace StS
 
         public override CardType CardType => CardType.Skill;
         public override TargetType TargetType => TargetType.Player;
-        public override bool Exhausts(int upgradeCount) => upgradeCount==0 ? true : false;
+        internal override bool Exhausts(int upgradeCount) => upgradeCount == 0 ? true : false;
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
-     
+
         internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var exi = target.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);

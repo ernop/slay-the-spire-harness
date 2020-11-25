@@ -43,7 +43,8 @@ namespace StS
         internal void FirstTurnStarts(int? drawCount = null)
         {
             drawCount = drawCount ?? _Player.GetDrawAmount();
-            _Deck.NextTurn(drawCount.Value);
+            _Deck.TurnEnds();
+            _Deck.NextTurnStarts(drawCount.Value);
             _Player.Energy = _Player.MaxEnergy();
 
             var firstTurnPlayerEf = new EffectSet();
@@ -74,7 +75,8 @@ namespace StS
         public void NextTurn(int? drawCount = null)
         {
             drawCount = drawCount ?? _Player.GetDrawAmount();
-            _Deck.NextTurn(drawCount.Value);
+            _Deck.TurnEnds();
+            _Deck.NextTurnStarts(drawCount.Value);
             _Player.Energy = _Player.MaxEnergy();
 
             //TODO this is affected by calipers, barricade, etc.
@@ -101,12 +103,14 @@ namespace StS
                 relic.EndTurn(_Player, _Enemies[0], relicEf);
             }
 
-
-
             ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0]);
             ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
-
             ApplyEffectSet(relicEf, _Player, _Enemies[0]);
+        }
+
+        public List<CardInstance> GetExhaustPile()
+        {
+            return _Deck.ExhaustPile;
         }
 
         public List<CardInstance> GetHand()

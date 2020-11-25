@@ -30,6 +30,8 @@ namespace StS
             cards["TwinStrike"] = new TwinStrike();
             cards["HeavyBlade"] = new HeavyBlade();
             cards["ShrugItOff"] = new ShrugItOff();
+            cards["Carnage"] = new Carnage();
+
             return cards;
         }
     }

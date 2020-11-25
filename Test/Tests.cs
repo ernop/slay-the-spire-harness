@@ -240,8 +240,6 @@ namespace StS.Tests
             RunTest(name: "Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0, playerEnergy: 10);
 
             RunTest(name: "Enemy-attacks", pl2: 40, en2: 41, cis: GetCis("Strike+"), ea: Attack(10, 1));
-
-
         }
 
         [Test]
@@ -306,6 +304,95 @@ namespace StS.Tests
             }
             Console.WriteLine("==========");
         }
+
+        [Test]
+        public static void Test_Shockwave()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Shockwave+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+
+            fight.PlayCard(initialCis[0], player, enemy);
+            fight.NextTurn();
+            fight.NextTurn();
+            var hand = fight.GetHand();
+            Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
+
+            var exhaust = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust.Count, 1, "Shockwave should have exhausted failed.");
+
+            Console.WriteLine("==========");
+        }
+
+        [Test]
+        public static void Test_Shockwave_NotEthereal()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Shockwave+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+
+            fight.NextTurn();
+            fight.NextTurn();
+            var hand = fight.GetHand();
+            Assert.AreEqual(hand.Count, 1);
+
+            var exhaust = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust.Count, 0);
+
+            Console.WriteLine("==========");
+        }
+
+        [Test]
+        public static void Test_Carnage_Ethereality()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Carnage+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+
+            //problem: when I initialize the fight I make a copy of the cards.
+
+            fight.PlayCard(initialCis[0], player, enemy);
+            fight.NextTurn();
+            fight.NextTurn();
+            var hand = fight.GetHand();
+            Assert.AreEqual(hand.Count, 0, "Card should have exhausted due to ethereality");
+
+            var exhaust = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust.Count, 1, "Carnage ethereality failed.");
+        }
+
+        [Test]
+        public static void Test_Carnage_Playable_Without_Exhaustion()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Carnage+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+
+            //problem: when I initialize the fight I make a copy of the cards.
+
+            fight.PlayCard(initialCis[0], player, enemy);
+            fight.NextTurn();
+            fight.PlayCard(initialCis[0], player, enemy);
+            fight.NextTurn();
+            var hand = fight.GetHand();
+            Assert.AreEqual(hand.Count, 1, "Card should have exhausted due to ethereality");
+
+            var exhaust = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust.Count, 0, "Carnage ethereality failed.");
+        }
+
         [Test]
         public static void TestPerfectedStrike()
         {
@@ -418,6 +505,38 @@ namespace StS.Tests
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
             fight.NextTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>(), out string error2), $"Enemy status not cleared {error2}");
+        }
+
+        [Test]
+        public static void Test_Anchor()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["Anchor"]);
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis();
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+            Assert.AreEqual(player.Block, 10);
+            fight.NextTurn();
+            Assert.AreEqual(player.Block, 0);
+        }
+
+        [Test]
+        public static void Test_HornCleat()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["HornCleat"]);
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis();
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+            Assert.AreEqual(player.Block, 0);
+            fight.NextTurn();
+            Assert.AreEqual(player.Block, 14);
+            fight.NextTurn();
+            Assert.AreEqual(player.Block, 0);
         }
 
         [Test]

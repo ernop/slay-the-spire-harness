@@ -37,19 +37,19 @@ namespace StS
 
 
 
-        public List<CardInstance> BackupCards { get; set; }
+        public List<CardInstance> BackupCards { get; private set; }
 
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
-        public List<CardInstance> DrawPile { get; set; }
+        public List<CardInstance> DrawPile { get; private set; }
 
         /// <summary>
         /// These are copies for just this turn;
         /// </summary>
-        public List<CardInstance> Hand { get; set; } = new List<CardInstance>();
-        public List<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
-        public List<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
+        public List<CardInstance> Hand { get; private set; } = new List<CardInstance>();
+        public List<CardInstance> DiscardPile { get; private set; } = new List<CardInstance>();
+        public List<CardInstance> ExhaustPile { get; private set; } = new List<CardInstance>();
 
         public void ShuffleDrawPile()
         {
@@ -62,15 +62,30 @@ namespace StS
         //when you start a fight, copy cards into drawpile + hand;
         //some fight-actions can modify cards (receiving curse) but generally at the end of a fight you just destroy the copied cardinstances.
 
-        public void NextTurn(int drawCount)
+        public void TurnEnds()
         {
             //clear 
             //shuffle discard back into draw.
-            foreach (var ci in Hand)
+            while (Hand.Count > 0)
             {
-                ci.EnteringDiscardPile();
+
+                var ci = Hand[0];
+                ci.LeavingHand();
+                Hand.Remove(ci);
+                if (ci.Ethereal())
+                {
+                    ExhaustPile.Add(ci);
+                }
+                else
+                {
+                    DiscardPile.Add(ci);
+                }
+
             }
-            DiscardPile.AddRange(Hand);
+        }
+
+        public void NextTurnStarts(int drawCount)
+        {
             Hand = new List<CardInstance>();
 
             int toDraw = drawCount;
@@ -114,8 +129,15 @@ namespace StS
             }
             else
             {
-                ci.EnteringDiscardPile();
-                DiscardPile.Add(ci);
+                ci.LeavingHand();
+                if (ci.Exhausts())
+                {
+                    ExhaustPile.Add(ci);
+                }
+                else
+                {
+                    DiscardPile.Add(ci);
+                }
             }
         }
 
