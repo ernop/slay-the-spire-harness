@@ -10,9 +10,6 @@ namespace StS
         public override string Name => nameof(EnemyAttack);
 
         public override CharacterType CharacterType => CharacterType.Enemy;
-
-        public override bool Ethereal(int upgradeCount) => false;
-        public override bool Exhausts(int upgradeCount) => false;
         public int Amount { get; set; }
         public int Count { get; set; }
 
@@ -29,9 +26,6 @@ namespace StS
             ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
         }
 
-        public override int CiCanCallEnergyCost(int upgradeCount)
-        {
-            return 0;
-        }
+        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
     }
 }

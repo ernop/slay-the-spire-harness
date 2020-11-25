@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StS
+﻿namespace StS
 {
     public abstract class Status
     {
@@ -25,7 +23,9 @@ namespace StS
         internal abstract bool Permanent { get; }
 
         internal abstract void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int num, bool statusIsTargeted, bool playerAction);
-        
-        
+
+        internal virtual void EndTurn(Entity parent, StatusInstance instance, EffectSet endTurnEf)
+        {
+        }
     }
 }

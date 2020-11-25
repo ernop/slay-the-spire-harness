@@ -15,7 +15,7 @@ namespace StS
         public int Intensity { get; set; }
         public int Duration { get; set; }
         //public Entity Parent { get; set; }
-        
+
         /// <summary>
         /// quite bad that intensity needs to be hardcoded when for some statuses it's actually just fixed.
         /// </summary>
@@ -50,22 +50,24 @@ namespace StS
             }
         }
 
-        //public void NewTurnStarted()
-        //{
-        //    if (!Status.Permanent)
-        //    {
-        //        Duration--;
-        //    }
-        //    if (Duration == 0)
-        //    {
-        //        Parent.StatusInstances.Remove(this);
-        //    }
-        //    if (Duration < 0)
-        //    {
-        //        throw new Exception("Negative Duration");
-        //    }
-        //}
-        
+        public void EndTurn(Entity parent, EffectSet endTurnEf)
+        {
+            if (!Status.Permanent)
+            {
+                Duration--;
+            }
+            if (Duration == 0)
+            {
+                parent.StatusInstances.Remove(this);
+            }
+            if (Duration < 0)
+            {
+                throw new Exception("Negative Duration");
+            }
+
+            Status.EndTurn(parent, this, endTurnEf);
+        }
+
         public override string ToString()
         {
             string explanation;

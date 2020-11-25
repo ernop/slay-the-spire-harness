@@ -15,6 +15,7 @@
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,
-        
+        Feather = 201,
+
     }
 }

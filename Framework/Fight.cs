@@ -13,12 +13,22 @@ namespace StS
         private Player _Player { get; set; }
         private Deck _Deck { get; set; }
 
+        public FightStatus Status { get; set; }
+
+        public enum FightStatus
+        {
+            Ongoing = 1,
+            Won = 2,
+            Lost = 3,
+        }
+
         public Fight(List<CardInstance> initialCis, GameContext gameContext, Player player, List<Enemy> enemies, bool preserveOrder = false)
         {
             _GameContext = gameContext;
             _Enemies = enemies;
             _Player = player;
             _Deck = new Deck(initialCis, preserveOrder);
+            Status = FightStatus.Ongoing;
         }
 
         /// <summary>
@@ -29,25 +39,52 @@ namespace StS
             return _Deck.DrawPile;
         }
 
-        public void NextTurn(int drawCount)
+        /// <summary>
+        /// Is nextturn actually equivalent to first turn?  This is messing up some tests.
+        /// </summary>
+        public void NextTurn(int? drawCount = null)
         {
-            _Deck.NextTurn(drawCount);
+            drawCount = drawCount ?? _Player.GetDrawAmount();
+            _Deck.NextTurn(drawCount.Value);
             _Player.Energy = _Player.MaxEnergy();
+
+            //TODO this is affected by calipers, barricade, etc.
+            _Player.Block = 0;
+            var endTurnPlayerEf = new EffectSet();
+            var endTurnEnemyEf = new EffectSet();
+
+            foreach (var si in _Player.StatusInstances)
+            {
+                si.EndTurn(_Player, endTurnPlayerEf);
+            }
+            foreach (var si in _Enemies[0].StatusInstances)
+            {
+                si.EndTurn(_Enemies[0], endTurnEnemyEf);
+            }
+
+            ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0]);
+            ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
         }
 
         public List<CardInstance> GetHand()
         {
             return _Deck.Hand;
         }
+
+        /// <summary>
+        /// Do nothing right now.
+        /// </summary>
         public void Died(Entity entity)
         {
             switch (entity.EntityType)
             {
                 case EntityType.Enemy:
-                    _Enemies.Remove((Enemy)entity);
+                    //_Enemies.Remove((Enemy)entity);
+                    Status = FightStatus.Won;
                     break;
                 case EntityType.Player:
-                    _GameContext.GameOver();
+                    //_GameContext.GameOver();
+                    Status = FightStatus.Lost;
                     break;
                 default:
                     break;
@@ -115,22 +152,27 @@ namespace StS
 
             _Deck.AfterPlayingCard(cardInstance);
 
+            ApplyEffectSet(ef, _Player, target);
+        }
+
+        public void ApplyEffectSet(EffectSet ef, Entity source, Entity target)
+        {
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
-            if (player == target)
+            if (source == target)
             {
                 var combined = Combine(ef.SourceEffect, ef.TargetEffect);
-                GainBlock(player, combined);
-                ReceiveDamage(player, combined, out bool alive);
+                GainBlock(source, combined);
+                ReceiveDamage(source, combined, out bool alive);
                 if (!alive)
                 {
-                    Died(player);
+                    Died(source);
                 }
-                ApplyStatus(player, combined);
+                ApplyStatus(source, combined.Status);
             }
             else
             {
-                GainBlock(player, ef.SourceEffect);
+                GainBlock(source, ef.SourceEffect);
                 ReceiveDamage(target, ef.TargetEffect, out bool alive);
                 if (!alive)
                 {
@@ -138,54 +180,25 @@ namespace StS
                 }
 
                 GainBlock(target, ef.TargetEffect);
-                ReceiveDamage(player, ef.SourceEffect, out bool alive2);
+                ReceiveDamage(source, ef.SourceEffect, out bool alive2);
                 if (!alive2)
                 {
-                    Died(player);
+                    Died(source);
                 }
 
-                ApplyStatus(player, ef.SourceEffect);
-                ApplyStatus(target, ef.TargetEffect);
+                ApplyStatus(source, ef.SourceEffect.Status);
+                ApplyStatus(target, ef.TargetEffect.Status);
             }
 
             //We resolve damage after dealing with statuses the player may just have gained.
             //i.e. we don't apply pen nib to the player til after attack is resolved.
         }
-        public void ApplyStatus(Entity entity, IndividualEffect ef)
+        public void ApplyStatus(Entity entity, List<StatusInstance> sis)
         {
-            foreach (var status in ef.Status)
+            foreach (var status in sis)
             {
                 entity.ApplyStatus(status);
             }
-        }
-        public void EnemyPlayCard(CardInstance cardInstance, Entity source, Entity target, Player player, Enemy enemy)
-        {
-            var ef = new EffectSet();
-            cardInstance.Play(ef, player, enemy);
-
-            foreach (var si in source.StatusInstances)
-            {
-                var statusIsTargeted = enemy == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
-            }
-            foreach (var si in target.StatusInstances)
-            {
-                var statusIsTargeted = player == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
-            }
-
-            //this won't be right for Torii for example.
-            foreach (var relic in player.Relics)
-            {
-                relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
-            }
-
-            GainBlock(player, ef.TargetEffect);
-            GainBlock(enemy, ef.SourceEffect);
-            ReceiveDamage(player, ef.TargetEffect, out bool alive);
-            if (!alive) Died(player);
-            ReceiveDamage(enemy, ef.SourceEffect, out bool alive2);
-            if (!alive2) Died(enemy);
         }
         public void GainBlock(Entity entity, IndividualEffect ef)
         {
@@ -238,6 +251,68 @@ namespace StS
                     }
                 }
             }
+        }
+
+        internal bool EnemyDead()
+        {
+            return _Enemies[0].HP <= 0;
+        }
+
+        internal bool PlayerDead()
+        {
+            return _Player.HP <= 0;
+        }
+
+        internal void ApplyEnemyAction(EnemyAction enemyAction, Enemy enemy, Player player)
+        {
+            if (enemyAction == null)
+            {
+                return;
+            }
+            if (enemyAction.Buffs != null)
+            {
+                ApplyStatus(enemy, enemyAction.Buffs);
+            }
+            if (enemyAction.Attack != null)
+            {
+                EnemyPlayCard(enemyAction.Attack, _Enemies[0], _Player, _Player, _Enemies[0]);
+            }
+            if (enemyAction.PlayerStatusAttack != null)
+            {
+                ApplyStatus(player, enemyAction.Buffs);
+            }
+        }
+
+        public void EnemyPlayCard(EnemyAttack enemyAttack, Entity source, Entity target, Player player, Enemy enemy)
+        {
+            var ef = new EffectSet();
+
+            var cardInstance = new CardInstance(enemyAttack, 0);
+            cardInstance.Play(ef, player, enemy);
+
+            foreach (var si in source.StatusInstances)
+            {
+                var statusIsTargeted = enemy == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
+            }
+            foreach (var si in target.StatusInstances)
+            {
+                var statusIsTargeted = player == target;
+                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
+            }
+
+            //this won't be right for Torii for example.
+            foreach (var relic in player.Relics)
+            {
+                relic.CardPlayed(cardInstance.Card, ef, player: player, enemy: enemy);
+            }
+
+            GainBlock(player, ef.TargetEffect);
+            GainBlock(enemy, ef.SourceEffect);
+            ReceiveDamage(player, ef.TargetEffect, out bool alive);
+            if (!alive) Died(player);
+            ReceiveDamage(enemy, ef.SourceEffect, out bool alive2);
+            if (!alive2) Died(enemy);
         }
     }
 }

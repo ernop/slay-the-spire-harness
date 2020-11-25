@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 using static StS.Helpers;
@@ -18,13 +19,14 @@ namespace StS
         /// Note that per-hand cards are the same as per-fight; but at the end of the fight we should restore the backup cards or something?
         /// makes sense to store the deck as the canonical list.
         /// </summary>
-        public Deck(List<CardInstance> cis, bool preserveOrder = false)
+        public Deck([NotNull] List<CardInstance> cis, bool preserveOrder = false)
         {
-            BackupCards = cis.Select(el => CopyCI(el)).ToList();
+            BackupCards = cis?.Select(el => CopyCI(el)).ToList();
             var newList = new List<CardInstance>();
 
             //we want the original external cis list to still work, but we also want to use the original external cards in here.
             newList.AddRange(cis);
+
             DrawPile = newList;
             if (!preserveOrder)
             {

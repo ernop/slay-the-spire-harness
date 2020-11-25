@@ -21,5 +21,11 @@
             }
             return value;
         }
+
+        internal int GetDrawAmount()
+        {
+            ///todo this should be affected by statuses.
+            return 5;
+        }
     }
 }

@@ -12,7 +12,10 @@
 
         public override bool NegativeStatus => false;
 
-        internal override bool Permanent => false;
+        /// <summary>
+        /// permanent until it self-removes.
+        /// </summary>
+        internal override bool Permanent => true;
 
         internal override bool Scalable => true;
 
@@ -29,8 +32,8 @@
                     //actually this should be a check of the value.
                     if (targetSet.DamageAdjustments != null)
                     {
-                        //removal of pen nib whenever we get attacked.
-                        var negativeAggressiveStatus = new StatusInstance(new Aggressive(), 1);
+                        //bit weird to hack intensity this wasy.
+                        var negativeAggressiveStatus = new StatusInstance(new Aggressive(), -1 * intensity);
 
                         //whoah, this will be applied when the attack is actually resolved.
                         //since here we're 
