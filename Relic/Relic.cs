@@ -11,5 +11,16 @@
         {
             return $"{Name}";
         }
+
+        /// <summary>
+        /// called to get end of turn effectset.
+        /// </summary>
+        public virtual void EndTurn(Player player, Enemy enemy, EffectSet relicEf)
+        {
+        }
+
+        public virtual void FirstRoundStarts(Player player, Enemy enemy, EffectSet relicEf)
+        {
+        }
     }
 }

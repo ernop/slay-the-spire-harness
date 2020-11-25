@@ -50,16 +50,18 @@ namespace StS
             }
         }
 
+        internal void FirstTurn(Entity parent, EffectSet firstTurnPlayerEf)
+        {
+            throw new NotImplementedException();
+        }
+
         public void EndTurn(Entity parent, EffectSet endTurnEf)
         {
             if (!Status.Permanent)
             {
                 Duration--;
             }
-            if (Duration == 0)
-            {
-                parent.StatusInstances.Remove(this);
-            }
+            //remove them externally since we're iterating here.
             if (Duration < 0)
             {
                 throw new Exception("Negative Duration");

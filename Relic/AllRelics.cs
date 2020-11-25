@@ -13,6 +13,8 @@ namespace StS
             relics["MonkeyPaw"] = new MonkeyPaw();
             relics["BustedCrown"] = new BustedCrown();
             relics["FusionHammer"] = new FusionHammer();
+            relics["BagOfEyes"] = new BagOfEyes();
+            relics["Anchor"] = new Anchor();
             return relics;
         }
     }

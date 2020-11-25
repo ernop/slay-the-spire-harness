@@ -39,6 +39,35 @@ namespace StS
             return _Deck.DrawPile;
         }
 
+
+        internal void FirstTurnStarts(int? drawCount = null)
+        {
+            drawCount = drawCount ?? _Player.GetDrawAmount();
+            _Deck.NextTurn(drawCount.Value);
+            _Player.Energy = _Player.MaxEnergy();
+
+            var firstTurnPlayerEf = new EffectSet();
+            var firstTurnEnemyEf = new EffectSet();
+            var relicEf = new EffectSet();
+
+            foreach (var si in _Player.StatusInstances)
+            {
+                si.FirstTurn(_Player, firstTurnPlayerEf);
+            }
+            foreach (var si in _Enemies[0].StatusInstances)
+            {
+                si.FirstTurn(_Enemies[0], firstTurnEnemyEf);
+            }
+            foreach (var relic in _Player.Relics)
+            {
+                relic.FirstRoundStarts(_Player, _Enemies[0], relicEf);
+            }
+
+            ApplyEffectSet(firstTurnPlayerEf, _Player, _Enemies[0]);
+            ApplyEffectSet(firstTurnEnemyEf, _Enemies[0], _Player);
+            ApplyEffectSet(relicEf, _Player, _Enemies[0]);
+        }
+
         /// <summary>
         /// Is nextturn actually equivalent to first turn?  This is messing up some tests.
         /// </summary>
@@ -53,17 +82,31 @@ namespace StS
             var endTurnPlayerEf = new EffectSet();
             var endTurnEnemyEf = new EffectSet();
 
+            var relicEf = new EffectSet();
+
             foreach (var si in _Player.StatusInstances)
             {
                 si.EndTurn(_Player, endTurnPlayerEf);
             }
+            _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0).ToList();
+
             foreach (var si in _Enemies[0].StatusInstances)
             {
                 si.EndTurn(_Enemies[0], endTurnEnemyEf);
             }
+            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0).ToList();
+
+            foreach (var relic in _Player.Relics)
+            {
+                relic.EndTurn(_Player, _Enemies[0], relicEf);
+            }
+
+
 
             ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0]);
             ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
+
+            ApplyEffectSet(relicEf, _Player, _Enemies[0]);
         }
 
         public List<CardInstance> GetHand()
@@ -314,5 +357,6 @@ namespace StS
             ReceiveDamage(enemy, ef.SourceEffect, out bool alive2);
             if (!alive2) Died(enemy);
         }
+
     }
 }

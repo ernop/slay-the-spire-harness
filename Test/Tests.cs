@@ -404,6 +404,22 @@ namespace StS.Tests
             }
             //test 2 - pulling from one.
         }
+
+        [Test]
+        public static void Test_BagOfEyes()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["BagOfEyes"]);
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis();
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
+            fight.NextTurn();
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>(), out string error2), $"Enemy status not cleared {error2}");
+        }
+
         [Test]
         public static void TestMonkeyPawInflames()
         {
@@ -546,7 +562,7 @@ namespace StS.Tests
             var en = new Cultist();
             var cis = GetCis("Strike+", "Defend+");
             var fight = new Fight(cis, new GameContext(), pl, new List<Enemy>() { en });
-            fight.NextTurn(4);
+            fight.FirstTurnStarts();
 
             while (true)
             {
