@@ -22,6 +22,7 @@ namespace StS
         /// After playing the card, call these on the hand (temporarily); things like monkey paw.
         /// </summary>
         public List<Action<Deck>> DeckEffect { get; set; } = new List<Action<Deck>>();
+        public List<Action<Player>> PlayerEffect { get; set; } = new List<Action<Player>>();
     }
 
     public class IndividualEffect

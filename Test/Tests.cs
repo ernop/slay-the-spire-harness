@@ -236,6 +236,8 @@ namespace StS.Tests
             RunTest(name: "Inflamed Nibbed SwordBoomerang+", en2: 4, cis: GetCis("Strike", "Inflame", "SwordBoomerang+"), relics: new List<Relic>() { penNib4 });
         }
 
+
+
         [Test]
         public static void EnemyBehaviorTests()
         {
@@ -254,9 +256,54 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_BurningBlood1()
+        {
+            var player = new Player(hpMax: 100, hp: 50, relics: GetRelics("BurningBlood"));
+
+            var gc = new GameContext();
+            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Strike+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+            fight.PlayCard(initialCis[0], player, enemy);
+            Assert.AreEqual(fight.Status, FightStatus.Won);
+            Assert.AreEqual(player.HP, 56);
+        }
+
+        [Test]
+        public static void Test_BurningBlood_Overheal()
+        {
+            var player = new Player(hpMax: 100, hp: 99, relics: GetRelics("BurningBlood"));
+
+            var gc = new GameContext();
+            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Strike+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+            fight.PlayCard(initialCis[0], player, enemy);
+            Assert.AreEqual(fight.Status, FightStatus.Won);
+            Assert.AreEqual(player.HP, 100);
+        }
+
+
+        [Test]
+        public static void Test_BurningBlood_AtMax()
+        {
+            var player = new Player(hpMax: 100, hp: 100, relics: GetRelics("BurningBlood"));
+
+            var gc = new GameContext();
+            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Strike+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+            fight.PlayCard(initialCis[0], player, enemy);
+            Assert.AreEqual(fight.Status, FightStatus.Won);
+            Assert.AreEqual(player.HP, 100);
+        }
+
+        [Test]
         public static void TestHeadbutt()
         {
-            Console.WriteLine($"Starting{nameof(TestHeadbutt)}");
             var player = new Player();
             var gc = new GameContext();
             var enemy = new Enemy();
@@ -266,7 +313,6 @@ namespace StS.Tests
 
             var hand = fight.GetHand();
 
-            //problem: when I initialize the fight I make a copy of the cards.
             fight.PlayCard(initialCis[1], player, enemy);
             fight.PlayCard(initialCis[2], player, enemy, new List<CardInstance>() { initialCis[1] });
             //now ensure that headbutt is at the end of the draw pile.
@@ -281,15 +327,23 @@ namespace StS.Tests
             {
                 throw new Exception($"{nameof(TestHeadbutt)}: headbutt didn't work");
             }
-            Console.WriteLine($"{nameof(TestHeadbutt)} works.");
+        }
+
+        private static List<Relic> GetRelics(params string[] relics)
+        {
+            var res = new List<Relic>();
+            foreach (var x in relics)
+            {
+                res.Add(Relics[x]);
+            }
+            return res;
         }
 
         [Test]
         public static void TestMonkeyPaw()
         {
             Console.WriteLine($"Starting{nameof(TestMonkeyPaw)}");
-            var player = new Player();
-            player.Relics.Add(Relics["MonkeyPaw"]);
+            var player = new Player(relics: GetRelics("MonkeyPaw"));
             var gc = new GameContext();
             var enemy = new Enemy();
             var initialCis = GetCis("Inflame+", "Bash+");
@@ -559,7 +613,6 @@ namespace StS.Tests
         [Test]
         public static void Test_ShrugItOff1()
         {
-
             var player = new Player();
             var gc = new GameContext();
             var enemy = new Enemy();
@@ -798,7 +851,7 @@ namespace StS.Tests
                 var enemyAction = en.GetAction();
                 fight.ApplyEnemyAction(enemyAction, en, pl);
 
-                if (fight.Status != Fight.FightStatus.Ongoing)
+                if (fight.Status != FightStatus.Ongoing)
                 {
                     break;
                 }

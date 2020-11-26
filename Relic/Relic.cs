@@ -3,9 +3,11 @@
     public abstract class Relic
     {
         public abstract string Name { get; }
-        public abstract void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy);
-        public virtual bool ExtraEnergy => false;
         public Entity Player { get; set; }
+
+        public virtual void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy) { }
+        public virtual bool ExtraEnergy => false;
+
 
         public override string ToString()
         {
@@ -22,5 +24,7 @@
         public virtual void FirstRoundStarts(Player player, Enemy enemy, EffectSet relicEf)
         {
         }
+
+        public virtual void EndFight(EffectSet relicEf) { }
     }
 }

@@ -16,6 +16,7 @@ namespace StS
             relics["BagOfEyes"] = new BagOfEyes();
             relics["Anchor"] = new Anchor();
             relics["HornCleat"] = new HornCleat();
+            relics["BurningBlood"] = new BurningBlood();
             return relics;
         }
     }

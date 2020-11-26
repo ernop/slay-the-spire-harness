@@ -15,13 +15,6 @@ namespace StS
 
         public FightStatus Status { get; set; }
 
-        public enum FightStatus
-        {
-            Ongoing = 1,
-            Won = 2,
-            Lost = 3,
-        }
-
         public Fight(List<CardInstance> initialCis, GameContext gameContext, Player player, List<Enemy> enemies, bool preserveOrder = false)
         {
             _GameContext = gameContext;
@@ -38,7 +31,6 @@ namespace StS
         {
             return _Deck.DrawPile;
         }
-
 
         internal void FirstTurnStarts(int? drawCount = null)
         {
@@ -133,17 +125,27 @@ namespace StS
             switch (entity.EntityType)
             {
                 case EntityType.Enemy:
-                    //_Enemies.Remove((Enemy)entity);
                     Status = FightStatus.Won;
+                    WinFight();
                     break;
                 case EntityType.Player:
-                    //_GameContext.GameOver();
                     Status = FightStatus.Lost;
                     break;
                 default:
                     break;
             };
         }
+
+        private void WinFight()
+        {
+            foreach (var relic in _Player.Relics)
+            {
+                var ef = new EffectSet();
+                relic.EndFight(ef);
+                ApplyEffectSet(ef, _Player, _Player);
+            }
+        }
+
         /// <summary>
         /// From monster POV, player is the enemy.
         /// </summary>
@@ -199,14 +201,11 @@ namespace StS
             }
 
             //relic effects apply first.
-            foreach (var f in ef.DeckEffect)
-            {
-                f.Invoke(_Deck);
-            }
-
-            _Deck.AfterPlayingCard(cardInstance);
 
             ApplyEffectSet(ef, _Player, target);
+
+            //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
+            _Deck.AfterPlayingCard(cardInstance);
         }
 
         public void ApplyEffectSet(EffectSet ef, Entity source, Entity target)
@@ -242,6 +241,18 @@ namespace StS
 
                 ApplyStatus(source, ef.SourceEffect.Status);
                 ApplyStatus(target, ef.TargetEffect.Status);
+
+
+            }
+
+            foreach (var f in ef.DeckEffect)
+            {
+                f.Invoke(_Deck);
+            }
+
+            foreach (var f in ef.PlayerEffect)
+            {
+                f.Invoke(_Player);
             }
 
             //We resolve damage after dealing with statuses the player may just have gained.
