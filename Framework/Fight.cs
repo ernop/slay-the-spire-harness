@@ -149,22 +149,29 @@ namespace StS
         /// <summary>
         /// From monster POV, player is the enemy.
         /// </summary>
-        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy, List<CardInstance> cardTargets = null)
+        public void PlayCard(CardInstance cardInstance, Player player, Enemy enemy, List<CardInstance> cardTargets = null, bool forceExhaust = false, bool newCard = false)
         {
-            if (!cardInstance.Playable(_Deck.Hand))
+            if (forceExhaust)
             {
-                throw new Exception("Trying to play unplayable card.");
+                cardInstance.OverrideExhaust = true;
             }
-            if (!_Deck.Hand.Contains(cardInstance))
+            if (newCard)
             {
-                throw new Exception("Probably old code trying to play a card not actually in hand.");
+                //don't do checks; definitely playable, etc.
             }
-            if (cardInstance.EnergyCost() > player.Energy)
+            else
             {
-                throw new Exception("Trying to play too expensive card");
+                if (!cardInstance.Playable(_Deck.Hand))
+                {
+                    throw new Exception("Trying to play unplayable card.");
+                }
+                if (cardInstance.EnergyCost() > player.Energy)
+                {
+                    throw new Exception("Trying to play too expensive card");
+                }
+                player.Energy -= cardInstance.EnergyCost();
+                _Deck.BeforePlayingCard(cardInstance);
             }
-            player.Energy -= cardInstance.EnergyCost();
-            _Deck.BeforePlayingCard(cardInstance);
 
             Entity target;
             switch (cardInstance.Card.TargetType)
@@ -253,6 +260,11 @@ namespace StS
             foreach (var f in ef.PlayerEffect)
             {
                 f.Invoke(_Player);
+            }
+
+            foreach (var f in ef.FightEffects)
+            {
+                f.Action.Invoke(this, _Deck, _Player, _Enemies[0]);
             }
 
             //We resolve damage after dealing with statuses the player may just have gained.

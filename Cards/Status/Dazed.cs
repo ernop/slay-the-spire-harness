@@ -12,5 +12,6 @@ namespace StS
         internal override bool Ethereal(int upgradeCount) => true;
         public override int CiCanCallEnergyCost(int upgradeCount) => int.MaxValue;
         internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null) { }
+        public override bool Playable(List<CardInstance> hand) => false;
     }
 }

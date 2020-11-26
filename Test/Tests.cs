@@ -171,7 +171,7 @@ namespace StS.Tests
             RunTest(name: "Strike, Strike+ works", en2: 35, cis: GetCis("Strike", "Strike+"));
 
 
-            RunTest(name: "Bashing", en2: 19, cis: GetCis("Strike", "Bash+", "Strike+"), playerEnergy: 10);
+            RunTest(name: "Bashing", en2: 21, cis: GetCis("Strike", "Bash+", "Strike+"), playerEnergy: 10);
             RunTest(name: "SwordBoomerang", en2: 41, cis: GetCis("SwordBoomerang"));
             RunTest(name: "SwordBoomerang+", en2: 38, cis: GetCis("SwordBoomerang+"));
             RunTest(name: "SwordBoomerang+ vs block1", en2: 39, cis: GetCis("SwordBoomerang+"), enbl: 1, finalEnemyBlock: 0);
@@ -299,6 +299,58 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0], player, enemy);
             Assert.AreEqual(fight.Status, FightStatus.Won);
             Assert.AreEqual(player.HP, 100);
+        }
+
+        [Test]
+        public static void Test_Havok_Basic()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Strike+", "Bash+", "Havok");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+
+            var hand = fight.GetHand();
+
+            //play havok; strike should be burned.
+            fight.PlayCard(initialCis[2], player, enemy);
+
+            var dp = fight.GetDrawPile();
+            Assert.AreEqual(0, dp.Count);
+            Assert.AreEqual(41, enemy.HP);
+            var ex = fight.GetExhaustPile();
+            Assert.AreEqual(1, ex.Count);
+            Assert.IsTrue(CompareHands(GetCis("Strike+"), ex, out string message), message);
+        }
+
+        /// <summary>
+        /// Note - a lot of supposedly random card draws aren't actually random; the draw pile
+        /// already has an order. The real randomness is previously determined state of the draw pile
+        /// </summary>
+        [Test]
+        public static void Test_Havok_MoreCards()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame", "Strike+", "FlameBarrier+", "Bash+", "Havok");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+
+            //play havok; strike should be burned.
+            fight.PlayCard(initialCis[4], player, enemy);
+
+            fight.EnemyPlayCard(new EnemyAttack(3, 3), enemy, player, player, enemy);
+
+            var dp = fight.GetDrawPile();
+            Assert.AreEqual(2, dp.Count);
+            Assert.AreEqual(32, enemy.HP);
+            Assert.AreEqual(100, player.HP);
+            var ex = fight.GetExhaustPile();
+            Assert.AreEqual(1, ex.Count);
+            Assert.IsTrue(CompareHands(GetCis("FlameBarrier+"), ex, out string message), message);
+            Assert.IsTrue(CompareStatuses(GetStatuses(new FlameBarrierStatus(), 6), player.StatusInstances, out string error), error);
         }
 
         [Test]

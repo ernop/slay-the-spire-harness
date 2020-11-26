@@ -42,7 +42,7 @@ namespace StS
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal void Draw(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
+        internal void DrawToHand(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
         {
             var res = new List<CardInstance>() { };
 
@@ -83,6 +83,44 @@ namespace StS
             {
                 TryAddToHand(effectedCard);
             }
+        }
+
+        internal List<CardInstance> Draw(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
+        {
+            var res = new List<CardInstance>() { };
+            if (targetCards == null)
+            {
+
+                while (res.Count < count)
+                {
+                    if (DrawPile.Count == 0)
+                    {
+                        if (reshuffle)
+                        {
+                            Reshuffle();
+                            if (DrawPile.Count == 0)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //can't pull more and can't reshuffle (pull from draw pile only, for example.)
+                            break;
+                        }
+                    }
+
+                    var pulledCard = DrawPile[DrawPile.Count - 1];
+                    DrawPile.Remove(pulledCard);
+                    res.Add(pulledCard);
+                }
+            }
+            else
+            {
+                res = targetCards;
+            }
+
+            return res;
         }
 
         /// <summary>
@@ -175,6 +213,7 @@ namespace StS
 
         internal void BeforePlayingCard(CardInstance ci)
         {
+            ///Todo this will be a problem with playing cards that have just been created.
             if (!Hand.Contains(ci))
             {
                 throw new Exception("playing card you don't have");

@@ -22,6 +22,7 @@ Stages
 Todos
 ==
 
+ - fix output so I can see what's going on - bad experience when running through nunit.
  - Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
  - deck concepts - exhaust, draw, etc.  New test classes just for this
  - ability to characterize certain cards like the ones that add wounds, the one that draws & puts a card on top.

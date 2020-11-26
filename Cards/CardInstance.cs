@@ -14,6 +14,7 @@ namespace StS
         public int UpgradeCount { get; set; }
         public Card Card { get; set; }
         public int? OverrideEnergyCost { get; set; } = null;
+        public bool OverrideExhaust { get; set; }
         public CardInstance(Card card, int upgradeCount)
         {
             Card = card;
@@ -22,6 +23,10 @@ namespace StS
 
         public bool Exhausts()
         {
+            if (OverrideExhaust)
+            {
+                return true;
+            }
             return Card.Exhausts(UpgradeCount);
         }
 

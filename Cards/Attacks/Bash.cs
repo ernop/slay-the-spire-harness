@@ -18,7 +18,7 @@ namespace StS
             }
             else
             {
-                amt = 12;
+                amt = 10;
                 si = new StatusInstance(new Vulnerable(), 3);
             }
 

@@ -23,7 +23,18 @@ namespace StS
         /// </summary>
         public List<Action<Deck>> DeckEffect { get; set; } = new List<Action<Deck>>();
         public List<Action<Player>> PlayerEffect { get; set; } = new List<Action<Player>>();
+
+        /// <summary>
+        /// The ultimate power; can see everything.
+        /// </summary>
+        public List<OneEffect> FightEffects { get; set; } = new List<OneEffect>();
     }
+
+    public class OneEffect
+    {
+        public Action<Fight,Deck,Player,Enemy> Action { get; set; }
+    }
+
 
     public class IndividualEffect
     {

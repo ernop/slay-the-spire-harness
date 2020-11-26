@@ -15,7 +15,7 @@ namespace StS
             ef.TargetEffect.InitialDamage = new List<int>() { dmg };
             ef.DeckEffect.Add((Deck d) =>
             {
-                d.Draw(this, targetCards, cardAmt, true);
+                d.DrawToHand(this, targetCards, cardAmt, true);
             });
         }
     }

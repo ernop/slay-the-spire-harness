@@ -34,6 +34,7 @@ namespace StS
             cards["Slimed"] = new Slimed();
             cards["Dazed"] = new Dazed();
             cards["PommelStrike"] = new PommelStrike();
+            cards["Havok"] = new Havok();
 
             return cards;
         }
