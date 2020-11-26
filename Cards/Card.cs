@@ -32,8 +32,6 @@ namespace StS
         /// <summary>
         /// the ai will call getTargets and then if randomtarget, pick one; if not, all are considered possible.
         /// </summary>
-        public virtual bool RandomCardTarget { get; set; } = false;
-
         public override string ToString()
         {
             return Name;

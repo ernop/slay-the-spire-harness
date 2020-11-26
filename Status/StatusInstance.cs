@@ -50,10 +50,8 @@ namespace StS
             }
         }
 
-        internal void FirstTurn(Entity parent, EffectSet firstTurnPlayerEf)
-        {
-            throw new NotImplementedException();
-        }
+        //internal void FirstTurn(Entity parent, EffectSet firstTurnPlayerEf)
+        //{}
 
         public void EndTurn(Entity parent, EffectSet endTurnEf)
         {

@@ -40,6 +40,68 @@ namespace StS
         public List<CardInstance> BackupCards { get; private set; }
 
         /// <summary>
+        /// TargetCards are forced choice even if the choice ought to be random.
+        /// </summary>
+        internal void Draw(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
+        {
+            var res = new List<CardInstance>() { };
+
+
+            if (targetCards == null)
+            {
+
+                while (res.Count < count)
+                {
+                    if (DrawPile.Count == 0)
+                    {
+                        if (reshuffle)
+                        {
+                            Reshuffle();
+                            if (DrawPile.Count == 0)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //can't pull more and can't reshuffle (pull from draw pile only, for example.)
+                            break;
+                        }
+                    }
+
+                    var pulledCard = DrawPile[DrawPile.Count - 1];
+                    DrawPile.Remove(pulledCard);
+                    res.Add(pulledCard);
+                }
+            }
+            else
+            {
+                res = targetCards;
+            }
+
+            foreach (var effectedCard in res)
+            {
+                TryAddToHand(effectedCard);
+            }
+        }
+
+        /// <summary>
+        /// add to hand if hand isn't too bigyet.
+        /// </summary>
+        private void TryAddToHand(CardInstance ci)
+        {
+            if (Hand.Count < 10)
+            {
+                Hand.Add(ci);
+            }
+            else
+            {
+                DiscardPile.Add(ci);
+            }
+        }
+
+
+        /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
         public List<CardInstance> DrawPile { get; private set; }

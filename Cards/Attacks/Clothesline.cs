@@ -2,6 +2,7 @@
 
 namespace StS
 {
+
     public class Clothesline : IroncladAttackCard
     {
         public override string Name => nameof(Clothesline);

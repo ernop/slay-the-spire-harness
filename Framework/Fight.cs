@@ -42,38 +42,45 @@ namespace StS
 
         internal void FirstTurnStarts(int? drawCount = null)
         {
+            FirstTurnCalled = true;
             drawCount = drawCount ?? _Player.GetDrawAmount();
             _Deck.TurnEnds();
             _Deck.NextTurnStarts(drawCount.Value);
             _Player.Energy = _Player.MaxEnergy();
 
-            var firstTurnPlayerEf = new EffectSet();
-            var firstTurnEnemyEf = new EffectSet();
+            //var firstTurnPlayerEf = new EffectSet();
+            //var firstTurnEnemyEf = new EffectSet();
             var relicEf = new EffectSet();
 
-            foreach (var si in _Player.StatusInstances)
-            {
-                si.FirstTurn(_Player, firstTurnPlayerEf);
-            }
-            foreach (var si in _Enemies[0].StatusInstances)
-            {
-                si.FirstTurn(_Enemies[0], firstTurnEnemyEf);
-            }
+            //foreach (var si in _Player.StatusInstances)
+            //{
+            //    si.FirstTurn(_Player, firstTurnPlayerEf);
+            //}
+            //foreach (var si in _Enemies[0].StatusInstances)
+            //{
+            //    si.FirstTurn(_Enemies[0], firstTurnEnemyEf);
+            //}
             foreach (var relic in _Player.Relics)
             {
                 relic.FirstRoundStarts(_Player, _Enemies[0], relicEf);
             }
 
-            ApplyEffectSet(firstTurnPlayerEf, _Player, _Enemies[0]);
-            ApplyEffectSet(firstTurnEnemyEf, _Enemies[0], _Player);
+            //ApplyEffectSet(firstTurnPlayerEf, _Player, _Enemies[0]);
+            //ApplyEffectSet(firstTurnEnemyEf, _Enemies[0], _Player);
             ApplyEffectSet(relicEf, _Player, _Enemies[0]);
         }
+
+        private bool FirstTurnCalled = false;
 
         /// <summary>
         /// Is nextturn actually equivalent to first turn?  This is messing up some tests.
         /// </summary>
         public void NextTurn(int? drawCount = null)
         {
+            if (!FirstTurnCalled)
+            {
+                throw new Exception("Calling nextTurn without firstturn started.");
+            }
             drawCount = drawCount ?? _Player.GetDrawAmount();
             _Deck.TurnEnds();
             _Deck.NextTurnStarts(drawCount.Value);

@@ -31,6 +31,9 @@ namespace StS
             cards["HeavyBlade"] = new HeavyBlade();
             cards["ShrugItOff"] = new ShrugItOff();
             cards["Carnage"] = new Carnage();
+            cards["Slimed"] = new Slimed();
+            cards["Dazed"] = new Dazed();
+            cards["PommelStrike"] = new PommelStrike();
 
             return cards;
         }

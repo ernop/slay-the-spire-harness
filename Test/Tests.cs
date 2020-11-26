@@ -32,7 +32,8 @@ namespace StS.Tests
            List<StatusInstance> playerFinalStatuses = null,
            List<StatusInstance> enemyFinalStatuses = null,
            int? playerEnergy = null,
-           int? finalEnergy = null)
+           int? finalEnergy = null,
+           int? expectedExhausePileCount = null)
         {
             Console.WriteLine($"====Testcase {name}");
             if (cis == null)
@@ -63,7 +64,7 @@ namespace StS.Tests
             var fight = new Fight(cis, gc, player, enemies);
 
             //todo player.GetDrawAmount()
-            fight.NextTurn(5);
+            fight.FirstTurnStarts(5);
 
             //these apply after the fight started. conceptually having tests that set up artificial situations is going to cause lots of problems.
             player.StatusInstances = playerStatuses ?? new List<StatusInstance>();
@@ -135,6 +136,16 @@ namespace StS.Tests
                     throw new Exception($"Expected energy: {finalEnergy.Value} actual: {player.Energy}");
                 }
             }
+
+            if (expectedExhausePileCount.HasValue)
+            {
+                var ex = fight.GetExhaustPile();
+                if (ex.Count != expectedExhausePileCount.Value)
+                {
+                    throw new Exception($"expected exhaust pile count: {expectedExhausePileCount.Value} actual {ex.Count}");
+                }
+            }
+
 
             Console.WriteLine($"====Testcase {name} is valid\n");
 
@@ -251,7 +262,7 @@ namespace StS.Tests
             var enemy = new Enemy();
             var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
             var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-            fight.NextTurn(2);
+            fight.FirstTurnStarts(2);
 
             var hand = fight.GetHand();
 
@@ -283,7 +294,7 @@ namespace StS.Tests
             var enemy = new Enemy();
             var initialCis = GetCis("Inflame+", "Bash+");
             var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-            fight.NextTurn(5);
+            fight.FirstTurnStarts(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
             fight.PlayCard(initialCis[0], player, enemy);
@@ -303,6 +314,34 @@ namespace StS.Tests
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
             }
             Console.WriteLine("==========");
+        }
+
+        [Test]
+        public static void Test_Statuses()
+        {
+            RunTest("Slimed", cis: GetCis("Slimed", "Slimed", "Slimed"), finalEnergy: 0);
+        }
+
+        [Test]
+        public static void Test_Dazed()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Dazed", "Dazed", "Slimed");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts();
+            fight.NextTurn();
+            var exhaust = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust.Count, 2);
+
+            fight.PlayCard(initialCis[2], player, enemy);
+            fight.NextTurn();
+            var hand = fight.GetHand();
+            Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
+
+            var exhaust2 = fight.GetExhaustPile();
+            Assert.AreEqual(exhaust2.Count, 3);
         }
 
         [Test]
@@ -402,7 +441,7 @@ namespace StS.Tests
             var enemy = new Enemy();
             var initialCis = GetCis("Strike+", "PerfectedStrike+", "TwinStrike");
             var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-            fight.NextTurn(5);
+            fight.FirstTurnStarts(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
 
@@ -426,7 +465,7 @@ namespace StS.Tests
             var enemy = new Enemy();
             var initialCis = GetCis("Inflame+", "Clash");
             var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-            fight.NextTurn(5);
+            fight.FirstTurnStarts(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
             bool gotException;
@@ -450,46 +489,108 @@ namespace StS.Tests
             //now we can play it.
             fight.PlayCard(initialCis[1], player, enemy);
         }
+
         [Test]
-        public static void TestShrugItOff()
+        public static void Test_PommelStrike()
         {
-            {
-                var player = new Player();
-                var gc = new GameContext();
-                var enemy = new Enemy();
-                var initialCis = GetCis("Inflame+", "Strike+", "ShrugItOff");
-                var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-                fight.NextTurn(3);
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(1);
 
-                //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[2], player, enemy);
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
+        }
 
-                fight.PlayCard(initialCis[0], player, enemy);
-                fight.PlayCard(initialCis[1], player, enemy);
-                fight.PlayCard(initialCis[2], player, enemy);
-                var hand = fight.GetHand();
-                if (!CompareHands(hand, GetCis("Strike+"), out var message))
-                {
-                    throw new Exception($"{nameof(TestShrugItOff)}1 failed to draw. {message}");
-                }
-            }
-            {
-                var player = new Player();
-                var gc = new GameContext();
-                var enemy = new Enemy();
-                var initialCis = GetCis("FlameBarrier", "Inflame+", "Strike+", "ShrugItOff");
-                var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-                fight.NextTurn(3);
+        [Test]
+        public static void Test_PommelStrike_Override()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(1);
 
-                fight.PlayCard(initialCis[1], player, enemy);
-                fight.PlayCard(initialCis[2], player, enemy);
-                fight.PlayCard(initialCis[3], player, enemy);
-                var hand = fight.GetHand();
-                if (!CompareHands(hand, GetCis("FlameBarrier"), out var message))
-                {
-                    throw new Exception($"{nameof(TestShrugItOff)}2 failed to draw. {message}");
-                }
-            }
-            //test 2 - pulling from one.
+            ///force us to draw the inflame
+            var targets = new List<CardInstance>() { initialCis[0] };
+
+            fight.PlayCard(initialCis[2], player, enemy, targets);
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("Inflame+"), out var message), message);
+        }
+
+        [Test]
+        public static void Test_PommelStrike2()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(1);
+
+            fight.PlayCard(initialCis[2], player, enemy);
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
+        }
+
+        [Test]
+        public static void Test_PommelStrike_Rotation()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike+");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(2);
+
+            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[2], player, enemy);
+            //hand has rotated.
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
+        }
+
+
+        [Test]
+        public static void Test_ShrugItOff1()
+        {
+
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("Inflame+", "Strike+", "ShrugItOff");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(3);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+
+            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[2], player, enemy);
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
+        }
+
+        [Test]
+        public static void Test_ShrugItOff2()
+        {
+            var player = new Player();
+            var gc = new GameContext();
+            var enemy = new Enemy();
+            var initialCis = GetCis("FlameBarrier", "Inflame+", "Strike+", "ShrugItOff");
+            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            fight.FirstTurnStarts(3);
+
+            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[3], player, enemy);
+            var hand = fight.GetHand();
+            Assert.IsTrue(CompareHands(hand, GetCis("FlameBarrier"), out var message), message);
         }
 
         [Test]
@@ -548,7 +649,7 @@ namespace StS.Tests
             var enemy = new Enemy();
             var initialCis = GetCis("Inflame+", "Inflame+", "Inflame+", "Inflame+");
             var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
-            fight.NextTurn(5);
+            fight.FirstTurnStarts(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
             fight.PlayCard(initialCis[0], player, enemy);
@@ -597,7 +698,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, gc, player, new List<Enemy>() { enemy }, true);
 
             //initial card draw.
-            fight.NextTurn(drawCount);
+            fight.FirstTurnStarts(drawCount);
 
             while (extraTurns > 0)
             {
