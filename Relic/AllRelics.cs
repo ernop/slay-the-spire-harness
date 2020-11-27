@@ -17,6 +17,7 @@ namespace StS
             relics["Anchor"] = new Anchor();
             relics["HornCleat"] = new HornCleat();
             relics["BurningBlood"] = new BurningBlood();
+            relics["Ectoplasm"] = new Ectoplasm();
             return relics;
         }
     }

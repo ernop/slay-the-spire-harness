@@ -12,6 +12,7 @@
         PenNibStatus = 6,
         Weak = 7,
         FlameBarrierStatus = 8,
+        PlatedArmor = 9,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

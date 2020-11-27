@@ -22,6 +22,8 @@ Stages
 Todos
 ==
 
+ - I should try out events to handle some of these really rare connections. i.e. no other status except PlatedArmor cares when a player takes attack damage; why should I call ApplyStatus on every status whenever that happens?  And i don't just want to have cutouts directly in the damage code.
+ -- better to emit events when something happens and platedarmor just listens.
  - fix output so I can see what's going on - bad experience when running through nunit.
  - Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
  - deck concepts - exhaust, draw, etc.  New test classes just for this

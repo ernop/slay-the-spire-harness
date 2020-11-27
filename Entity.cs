@@ -57,6 +57,10 @@ namespace StS
             }
         }
 
+        public event Notify TakeDamage;
+
+        public delegate void Notify(Entity e);
+
         /// <summary>
         /// after block is accounted.
         /// bool represents if they are still alive.
@@ -75,6 +79,7 @@ namespace StS
             else
             {
                 HP -= amount;
+                TakeDamage?.Invoke(this);
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\t{Name} took {amount} Damage");

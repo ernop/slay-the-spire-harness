@@ -32,54 +32,20 @@ namespace StS
             return _Deck.DrawPile;
         }
 
-        internal void FirstTurnStarts(int? drawCount = null)
-        {
-            FirstTurnCalled = true;
-            drawCount = drawCount ?? _Player.GetDrawAmount();
-            _Deck.TurnEnds();
-            _Deck.NextTurnStarts(drawCount.Value);
-            _Player.Energy = _Player.MaxEnergy();
-
-            //var firstTurnPlayerEf = new EffectSet();
-            //var firstTurnEnemyEf = new EffectSet();
-            var relicEf = new EffectSet();
-
-            //foreach (var si in _Player.StatusInstances)
-            //{
-            //    si.FirstTurn(_Player, firstTurnPlayerEf);
-            //}
-            //foreach (var si in _Enemies[0].StatusInstances)
-            //{
-            //    si.FirstTurn(_Enemies[0], firstTurnEnemyEf);
-            //}
-            foreach (var relic in _Player.Relics)
-            {
-                relic.FirstRoundStarts(_Player, _Enemies[0], relicEf);
-            }
-
-            //ApplyEffectSet(firstTurnPlayerEf, _Player, _Enemies[0]);
-            //ApplyEffectSet(firstTurnEnemyEf, _Enemies[0], _Player);
-            ApplyEffectSet(relicEf, _Player, _Enemies[0]);
-        }
-
         private bool FirstTurnCalled = false;
 
-        /// <summary>
-        /// Is nextturn actually equivalent to first turn?  This is messing up some tests.
-        /// </summary>
-        public void NextTurn(int? drawCount = null)
+        public int RoundNumber { get; set; }
+
+        public void EndTurn()
         {
             if (!FirstTurnCalled)
             {
                 throw new Exception("Calling nextTurn without firstturn started.");
             }
-            drawCount = drawCount ?? _Player.GetDrawAmount();
-            _Deck.TurnEnds();
-            _Deck.NextTurnStarts(drawCount.Value);
-            _Player.Energy = _Player.MaxEnergy();
 
+            _Deck.TurnEnds();
             //TODO this is affected by calipers, barricade, etc.
-            _Player.Block = 0;
+
             var endTurnPlayerEf = new EffectSet();
             var endTurnEnemyEf = new EffectSet();
 
@@ -95,7 +61,6 @@ namespace StS
             {
                 si.EndTurn(_Enemies[0], endTurnEnemyEf);
             }
-            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0).ToList();
 
             foreach (var relic in _Player.Relics)
             {
@@ -105,6 +70,28 @@ namespace StS
             ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0]);
             ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
             ApplyEffectSet(relicEf, _Player, _Enemies[0]);
+
+            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0).ToList();
+        }
+
+        public void StartTurn(int? drawCount = null)
+        {
+            FirstTurnCalled = true;
+            RoundNumber++;
+            drawCount = drawCount ?? _Player.GetDrawAmount();
+            _Deck.NextTurnStarts(drawCount.Value);
+            _Player.Energy = _Player.MaxEnergy();
+            _Player.Block = 0;
+            var ef = new EffectSet();
+            foreach (var status in _Player.StatusInstances)
+            {
+                status.StartTurn(_Player, ef);
+            }
+            foreach (var relic in _Player.Relics)
+            {
+                relic.StartTurn(_Player, _Enemies[0], ef);
+            }
+            ApplyEffectSet(ef, _Player, _Enemies[0]);
         }
 
         public List<CardInstance> GetExhaustPile()
@@ -329,6 +316,8 @@ namespace StS
                 }
             }
         }
+
+
 
         internal bool EnemyDead()
         {

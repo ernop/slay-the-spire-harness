@@ -50,8 +50,10 @@ namespace StS
             }
         }
 
-        //internal void FirstTurn(Entity parent, EffectSet firstTurnPlayerEf)
-        //{}
+        public void StartTurn(Entity parent, EffectSet startTurnEf)
+        {
+            Status.StartTurn(parent, this, startTurnEf);
+        }
 
         public void EndTurn(Entity parent, EffectSet endTurnEf)
         {
@@ -63,6 +65,13 @@ namespace StS
             if (Duration < 0)
             {
                 throw new Exception("Negative Duration");
+            }
+
+            //shoudl I just return here, to not apply the status?
+            if (Duration == 0)
+            {
+                return;
+                //throw new Exception("Expired status being applied.");
             }
 
             Status.EndTurn(parent, this, endTurnEf);

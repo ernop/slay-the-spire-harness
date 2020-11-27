@@ -6,11 +6,10 @@
         private int RoundNumber { get; set; }
 
         public override void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy) { }
-        public override void EndTurn(Player player, Enemy enemy, EffectSet relicEf)
+        public override void StartTurn(Player player, Enemy enemy, EffectSet relicEf)
         {
             RoundNumber++;
-            //RoundNumber just ended; we are going into RoundNumber+1
-            if (RoundNumber == 1)
+            if (RoundNumber == 2)
             {
                 //Why am I sure I can override this?
                 if (relicEf.SourceEffect.InitialBlock != 0)
