@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace StS
 {
+
+    /// <summary>
+    /// just keep copying the fight playing out every choice.
+    /// All this copying of the fight is expensive!
+    /// </summary>
+
+
     /// <summary>
     /// Should I iterate over all possibilities as deep as possible?
     /// How much will things actually blow up?  With fully unique deck (no repeat cards)
@@ -14,7 +20,6 @@ namespace StS
     {
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
-        private Deck _Deck { get; set; }
         private List<CardInstance> _CIs { get; set; }
 
         /// <summary>
@@ -25,83 +30,79 @@ namespace StS
             _CIs = cis;
             _Enemy = enemy;
             _Player = player;
-            Sim();
         }
 
-        ///would really be nice to iterate over all possible shufflings but i'll just do random shuffling.
-        private void Sim()
+        public void Sim()
         {
-            var gc = new GameContext();
-            var fight = new Fight(_CIs, gc, _Player, new List<Enemy>() { _Enemy });
 
-            while (true)
+            var fight = new Fight(_CIs, _Player, _Enemy);
+            fight.StartTurn();
+            var res = Iter(fight);
+
+        }
+
+        private List<Fight> Iter(Fight fight)
+        {
+            var actions = fight.GetAllActions();
+            Console.WriteLine($"Iter fight with action length: {fight.ActionHistory.Count}");
+            var res = new List<Fight>();
+            if (fight.ActionHistory.Count > 50)
             {
-
-                while (ActionsPossible())
+                Console.WriteLine("Break");
+                return res;
+            }
+            foreach (var action in actions)
+            {
+                var fc = fight.Copy();
+                var finishedFight = ApplyAction(fc, action);
+                if (finishedFight == null)
                 {
-                    var action = GetNextAction(fight);
-                    if (action == null)
-                    {
-                        Console.WriteLine("No action.");
-                        break;
-                    }
-                    fight.PlayCard(action.CardToPlay, _Player, _Enemy);
+                    Iter(fc);
                 }
-
-                Console.WriteLine("Done with turn.");
-
-                var enemyCi = _Enemy.GetAction();
-                fight.EnemyPlayCard(enemyCi.Attack, _Enemy, _Player, _Player, _Enemy);
+                else
+                {
+                    res.Add(fc);
+                }
             }
+            return res;
         }
 
-        private bool ActionsPossible()
+        /// <summary>
+        /// returns fight when reached the end.
+        /// </summary>
+        private Fight ApplyAction(Fight fight, SimAction action)
         {
-            return _Player.Energy > 0;
-        }
-
-        private CardChoice GetNextAction(Fight fight)
-        {
-            var scores = new Dictionary<CardChoice, double>();
-            var hand = fight.GetHand();
-            foreach (var ci in hand)
+            fight.ActionHistory.Add(action);
+            switch (action.SimActionType)
             {
-                var dec = new CardChoice(ci);
-                var score = SimFromHere(fight, ci);
-                scores[dec] = score;
+                case SimActionEnum.Card:
+                    Console.WriteLine($"{action.Card}");
+                    var copiedCard = fight.FindIdenticalCard(action.Card);
+                    fight.PlayCard(copiedCard);
+                    break;
+                case SimActionEnum.EndTurn:
+                    Console.WriteLine($"End Turn");
+                    fight.EndTurn();
+                    //monsterTurn
+                    
+                    fight.EnemyMove();
+                    fight.StartTurn();
+                    break;
+                case SimActionEnum.Potion:
+                    Console.WriteLine($"Drink {action.Potion}");
+                    _Player.DrinkPotion(action.Potion, _Enemy);
+                    break;
+                default:
+                    break;
             }
-
-            var best = scores.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
-            Console.WriteLine($"Chose: {best}");
-            return best;
-        }
-
-        public double SimFromHere(Fight fight, CardInstance ci)
-        {
-            return 4.0f;
-        }
-    }
-
-
-
-    public class SimResult
-    {
-        public bool Dead { get; set; }
-        public int HP { get; set; }
-    }
-
-    public class CardChoice
-    {
-        public CardInstance CardToPlay { get; set; }
-
-        public CardChoice(CardInstance cardToPlay)
-        {
-            CardToPlay = cardToPlay;
-        }
-
-        public override string ToString()
-        {
-            return $"{CardToPlay}";
+            if (fight.Status == FightStatus.Ongoing)
+            {
+                return null;
+            }
+            else
+            {
+                return fight;
+            }
         }
     }
 }

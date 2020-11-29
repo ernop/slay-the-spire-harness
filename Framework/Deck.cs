@@ -34,9 +34,6 @@ namespace StS
             }
         }
 
-
-
-
         public List<CardInstance> BackupCards { get; private set; }
 
         /// <summary>
@@ -151,6 +148,14 @@ namespace StS
         public List<CardInstance> DiscardPile { get; private set; } = new List<CardInstance>();
         public List<CardInstance> ExhaustPile { get; private set; } = new List<CardInstance>();
 
+        internal Deck(List<CardInstance> hand, List<CardInstance> draw, List<CardInstance> discard, List<CardInstance> ex)
+        {
+            Hand = hand;
+            DrawPile = draw;
+            DiscardPile = discard;
+            ExhaustPile = ex;
+        }
+
         public void ShuffleDrawPile()
         {
             var r = new Random();
@@ -252,6 +257,16 @@ namespace StS
         public void FightEnded()
         {
 
+        }
+
+        internal Deck Copy()
+        {
+            var h = Hand.Select(el => el.Copy()).ToList();
+            var dr = DrawPile.Select(el => el.Copy()).ToList();
+            var dis = DiscardPile.Select(el => el.Copy()).ToList();
+            var ex = ExhaustPile.Select(el => el.Copy()).ToList();
+            var d = new Deck(h, dr, dis, ex);
+            return d;
         }
     }
 }

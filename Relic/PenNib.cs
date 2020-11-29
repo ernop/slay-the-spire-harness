@@ -1,13 +1,10 @@
-﻿using System;
-using System.Text;
-
-namespace StS
+﻿namespace StS
 {
     public class PenNib : Relic
     {
         public override string Name => nameof(PenNib);
         public int AttackCount { get; set; } = 0;
-        public override void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy)
+        public override void CardPlayed(Card card, EffectSet ef, IEntity player, IEntity enemy)
         {
             if (card.CardType == CardType.Attack)
             {
@@ -18,6 +15,11 @@ namespace StS
                 }
             }
         }
+
+        internal override Relic Copy() => new PenNib
+        {
+            AttackCount = AttackCount
+        };
 
         public override string ToString()
         {

@@ -4,7 +4,10 @@ namespace StS
 {
     public static class AllRelics
     {
-        public static Dictionary<string, Relic> GetAllRelics()
+
+        public static Dictionary<string, Relic> Relics = GetAllRelics();
+
+        private static Dictionary<string, Relic> GetAllRelics()
         {
             var relics = new Dictionary<string, Relic>();
             relics["Pen Nib"] = new PenNib();

@@ -4,9 +4,8 @@ using System.Linq;
 
 namespace StS
 {
-    public class Entity
+    public abstract class Entity : IEntity
     {
-
         public Entity(string name, EntityType entityType, int hpMax, int hp)
         {
             Name = name;
@@ -16,7 +15,7 @@ namespace StS
         }
 
         public EntityType EntityType { get; set; }
-        private string Name { get; set; }
+        public string Name { get; set; }
         public int HP { get; set; }
         public int HPMax { get; set; }
         public int Block { get; set; }

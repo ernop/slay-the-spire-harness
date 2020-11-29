@@ -13,11 +13,12 @@ namespace StS
     {
         public int UpgradeCount { get; set; }
         public Card Card { get; set; }
-        public int? OverrideEnergyCost { get; set; } = null;
+        public int? PerTurnOverrideEnergyCost { get; set; } = null;
+        public int? PerFightOverrideEnergyCost { get; set; } = null;
         public bool OverrideExhaust { get; set; }
         public CardInstance(Card card, int upgradeCount)
         {
-            Card = card;
+            Card = card ?? throw new ArgumentNullException(nameof(card));
             UpgradeCount = upgradeCount;
         }
 
@@ -40,14 +41,18 @@ namespace StS
         /// </summary>
         public void LeavingHand()
         {
-            OverrideEnergyCost = null;
+            PerTurnOverrideEnergyCost = null;
         }
 
         public int EnergyCost()
         {
-            if (OverrideEnergyCost != null)
+            if (PerTurnOverrideEnergyCost != null)
             {
-                return OverrideEnergyCost.Value;
+                return PerTurnOverrideEnergyCost.Value;
+            }
+            if (PerFightOverrideEnergyCost != null)
+            {
+                return PerFightOverrideEnergyCost.Value;
             }
             return Card.CiCanCallEnergyCost(UpgradeCount);
         }
@@ -64,7 +69,7 @@ namespace StS
             return true;
         }
 
-        public void Play(EffectSet ef, Entity source, Entity target, List<CardInstance> cardTargets = null, Deck deck = null)
+        public void Play(EffectSet ef, IEntity source, IEntity target, List<CardInstance> cardTargets = null, Deck deck = null)
         {
             Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
             if (Helpers.PrintDetails)
@@ -80,7 +85,25 @@ namespace StS
         {
             var ec = EnergyCost();
             var upgrade = UpgradeCount > 0 ? "+" : "";
-            return $"{Card}{upgrade}C:{ec}";
+            var extra = "";
+            if (PerTurnOverrideEnergyCost != null)
+            {
+                extra = $"(Turn:{ec})";
+            }
+            else if (PerFightOverrideEnergyCost != null)
+            {
+                extra = $"(Fight:{ec})";
+            }
+            return $"{Card}{upgrade}C:{ec}{extra}";
+        }
+
+        internal CardInstance Copy()
+        {
+            var ci = new CardInstance(Card, UpgradeCount);
+            ci.PerTurnOverrideEnergyCost = PerTurnOverrideEnergyCost;
+            ci.PerFightOverrideEnergyCost = PerFightOverrideEnergyCost;
+            ci.OverrideExhaust = OverrideExhaust;
+            return ci;
         }
     }
 }

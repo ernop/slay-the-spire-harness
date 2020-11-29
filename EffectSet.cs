@@ -32,7 +32,7 @@ namespace StS
 
     public class OneEffect
     {
-        public Action<Fight,Deck,Player,Enemy> Action { get; set; }
+        public Action<Fight, Deck> Action { get; set; }
     }
 
 

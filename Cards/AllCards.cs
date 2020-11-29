@@ -4,7 +4,10 @@ namespace StS
 {
     public static class AllCards
     {
-        public static Dictionary<string, Card> GetAllCards()
+
+        public static Dictionary<string, Card> Cards { get; private set; } = GetAllCards();
+
+        private static Dictionary<string, Card> GetAllCards()
         {
             var cards = new Dictionary<string, Card>();
             cards["Bash"] = new Bash();
@@ -35,6 +38,7 @@ namespace StS
             cards["Dazed"] = new Dazed();
             cards["PommelStrike"] = new PommelStrike();
             cards["Havok"] = new Havok();
+            cards["TrueGrit"] = new TrueGrit();
 
             return cards;
         }

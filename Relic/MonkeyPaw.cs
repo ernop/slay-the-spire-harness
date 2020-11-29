@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using static StS.Helpers;
 
@@ -9,7 +8,7 @@ namespace StS
     {
         public override string Name => nameof(MonkeyPaw);
 
-        public override void CardPlayed(Card card, EffectSet ef, Entity player, Entity enemy)
+        public override void CardPlayed(Card card, EffectSet ef, IEntity player, IEntity enemy)
         {
             if (card.CardType == CardType.Power)
             {
@@ -19,7 +18,7 @@ namespace StS
                     if (ci != null)
                     {
                         Console.WriteLine($"monkey paw set {ci} to cost zero.");
-                        ci.OverrideEnergyCost = 0;
+                        ci.PerTurnOverrideEnergyCost = 0;
                     }
                     else
                     {
@@ -29,5 +28,7 @@ namespace StS
                 ef.DeckEffect.Add(makeOneCostZero);
             }
         }
+
+        internal override Relic Copy() => new MonkeyPaw();
     }
 }

@@ -9,7 +9,7 @@ namespace StS
         public abstract CharacterType CharacterType { get; }
         public abstract CardType CardType { get; }
         public abstract TargetType TargetType { get; }
-        internal abstract void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null);
+        internal abstract void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null);
         internal virtual bool Exhausts(int upgradeCount) => false;
         internal virtual bool Ethereal(int upgradeCount) => false;
 

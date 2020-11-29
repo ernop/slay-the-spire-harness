@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using NUnit.Framework;
 
-using static StS.AllCards;
 using static StS.AllRelics;
 using static StS.Helpers;
 
@@ -11,19 +10,10 @@ namespace StS.Tests
 {
     public class Tests
     {
-
-        public static Dictionary<string, Card> Cards;
-        public static Dictionary<string, Relic> Relics;
-
         [SetUp]
         public void Setup()
         {
-            Cards = GetAllCards();
-            Relics = GetAllRelics();
         }
-
-
-
 
         public static void RunTest(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50,
            int plbl = 0, int enbl = 0, int finalPlayerBlock = 0, int finalEnemyBlock = 0,
@@ -41,7 +31,6 @@ namespace StS.Tests
                 cis = new List<CardInstance>();
             }
 
-            var gc = new GameContext();
             var player = new Player(hpMax: pl, hp: pl);
             if (relics != null)
             {
@@ -52,16 +41,11 @@ namespace StS.Tests
                 }
             }
 
-
-
-            gc.Player = player;
-
-
             var enemies = SetupEnemies("Name", en, enbl, enemyStatuses);
 
             var enemy = enemies[0];
 
-            var fight = new Fight(cis, gc, player, enemies);
+            var fight = new Fight(cis, player, enemy);
 
             //todo player.GetDrawAmount()
             fight.StartTurn(5);
@@ -79,14 +63,17 @@ namespace StS.Tests
 
             foreach (var ci in cis)
             {
-                fight.PlayCard(ci, player, enemy);
+                fight.PlayCard(ci);
 
                 Console.WriteLine($"Player:{player}");
                 Console.WriteLine($"Enemy:{enemy}");
             }
 
             //For now no targeting for enemy cards.
-            fight.ApplyEnemyAction(ea, enemy, player);
+            if (ea != null) //only if there was an action specified
+            {
+                fight.EnemyMove(ea);
+            }
 
             Console.WriteLine($"Player:{player}");
             Console.WriteLine($"Enemy:{enemy}");
@@ -260,12 +247,11 @@ namespace StS.Tests
         {
             var player = new Player(hpMax: 100, hp: 50, relics: GetRelics("BurningBlood"));
 
-            var gc = new GameContext();
-            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
             var initialCis = GetCis("Strike+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             Assert.AreEqual(fight.Status, FightStatus.Won);
             Assert.AreEqual(player.HP, 56);
         }
@@ -275,28 +261,39 @@ namespace StS.Tests
         {
             var player = new Player(hpMax: 100, hp: 99, relics: GetRelics("BurningBlood"));
 
-            var gc = new GameContext();
-            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
             var initialCis = GetCis("Strike+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             Assert.AreEqual(fight.Status, FightStatus.Won);
             Assert.AreEqual(player.HP, 100);
         }
 
 
         [Test]
+        public static void Test_Sentinel()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Sentinel+", "True Grit");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(2);
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(fight.Status, FightStatus.Won);
+            Assert.AreEqual(player.HP, 100);
+        }
+
+        [Test]
         public static void Test_BurningBlood_AtMax()
         {
             var player = new Player(hpMax: 100, hp: 100, relics: GetRelics("BurningBlood"));
 
-            var gc = new GameContext();
-            var enemy = new Enemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
             var initialCis = GetCis("Strike+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             Assert.AreEqual(fight.Status, FightStatus.Won);
             Assert.AreEqual(player.HP, 100);
         }
@@ -305,16 +302,15 @@ namespace StS.Tests
         public static void Test_Havok_Basic()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Strike+", "Bash+", "Havok");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy, true);
             fight.StartTurn(2);
 
             var hand = fight.GetHand();
 
             //play havok; strike should be burned.
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[2]);
 
             var dp = fight.GetDrawPile();
             Assert.AreEqual(0, dp.Count);
@@ -332,16 +328,15 @@ namespace StS.Tests
         public static void Test_Havok_MoreCards()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame", "Strike+", "FlameBarrier+", "Bash+", "Havok");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
 
             //play havok; strike should be burned.
-            fight.PlayCard(initialCis[4], player, enemy);
+            fight.PlayCard(initialCis[4]);
 
-            fight.EnemyPlayCard(new EnemyAttack(3, 3), enemy, player, player, enemy);
+            fight.EnemyPlayCard(new EnemyAttack(3, 3));
 
             var dp = fight.GetDrawPile();
             Assert.AreEqual(2, dp.Count);
@@ -370,15 +365,14 @@ namespace StS.Tests
         {
             var potion = new EssenceOfSteel();
             var player = new Player(potions: new List<Potion>() { potion });
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
             player.DrinkPotion(potion, enemy);
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(null), 4), out string error), error);
 
-            fight.EnemyPlayCard(new EnemyAttack(5, 2), enemy, player, player, enemy);
+            fight.EnemyPlayCard(new EnemyAttack(5, 2));
             //now ensure that headbutt is at the end of the draw pile.
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(null), 2), out string error2), error2);
             Assert.AreEqual(90, player.HP, "Bad hp.");
@@ -391,16 +385,15 @@ namespace StS.Tests
         public static void TestHeadbutt()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
 
             var hand = fight.GetHand();
 
-            fight.PlayCard(initialCis[1], player, enemy);
-            fight.PlayCard(initialCis[2], player, enemy, new List<CardInstance>() { initialCis[1] });
+            fight.PlayCard(initialCis[1]);
+            fight.PlayCard(initialCis[2], new List<CardInstance>() { initialCis[1] });
             //now ensure that headbutt is at the end of the draw pile.
 
             var dp = fight.GetDrawPile();
@@ -415,29 +408,20 @@ namespace StS.Tests
             }
         }
 
-        private static List<Relic> GetRelics(params string[] relics)
-        {
-            var res = new List<Relic>();
-            foreach (var x in relics)
-            {
-                res.Add(Relics[x]);
-            }
-            return res;
-        }
+
 
         [Test]
         public static void TestMonkeyPaw()
         {
             Console.WriteLine($"Starting{nameof(TestMonkeyPaw)}");
             var player = new Player(relics: GetRelics("MonkeyPaw"));
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Bash+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             var hand = fight.GetHand();
             var card = hand[0];
             var ec = card.EnergyCost();
@@ -445,7 +429,7 @@ namespace StS.Tests
             {
                 throw new Exception("Monkey paw didn't work");
             }
-            fight.PlayCard(card, player, enemy);
+            fight.PlayCard(card);
             fight.EndTurn();
             fight.StartTurn(5);
 
@@ -467,17 +451,16 @@ namespace StS.Tests
         public static void Test_Dazed()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Dazed", "Dazed", "Slimed");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             fight.EndTurn();
             fight.StartTurn();
             var exhaust = fight.GetExhaustPile();
             Assert.AreEqual(exhaust.Count, 2);
 
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[2]);
             fight.EndTurn();
             fight.StartTurn();
             var hand = fight.GetHand();
@@ -491,13 +474,12 @@ namespace StS.Tests
         public static void Test_Shockwave()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Shockwave+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             fight.EndTurn();
             fight.StartTurn();
             fight.EndTurn();
@@ -515,10 +497,9 @@ namespace StS.Tests
         public static void Test_Shockwave_NotEthereal()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Shockwave+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
             fight.EndTurn();
@@ -538,15 +519,14 @@ namespace StS.Tests
         public static void Test_Carnage_Ethereality()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Carnage+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
             //problem: when I initialize the fight I make a copy of the cards.
 
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             fight.EndTurn();
             fight.StartTurn();
             fight.EndTurn();
@@ -562,18 +542,17 @@ namespace StS.Tests
         public static void Test_Carnage_Playable_Without_Exhaustion()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Carnage+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
             //problem: when I initialize the fight I make a copy of the cards.
 
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             fight.EndTurn();
             fight.StartTurn();
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             fight.EndTurn();
             fight.StartTurn();
             var hand = fight.GetHand();
@@ -588,18 +567,17 @@ namespace StS.Tests
         {
             Console.WriteLine($"Starting{nameof(TestPerfectedStrike)}");
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Strike+", "PerfectedStrike+", "TwinStrike");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
 
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
 
             //now we can play it.
-            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[1]);
 
             var expected = 26;
             if (enemy.HP != expected)
@@ -612,17 +590,16 @@ namespace StS.Tests
         public static void TestClash()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Clash");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
             bool gotException;
             try
             {
-                fight.PlayCard(initialCis[1], player, enemy);
+                fight.PlayCard(initialCis[1]);
                 gotException = false;
             }
             catch
@@ -635,23 +612,22 @@ namespace StS.Tests
                 throw new Exception("Allowed playing clash with non-attack in hand.");
             }
 
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
 
             //now we can play it.
-            fight.PlayCard(initialCis[1], player, enemy);
+            fight.PlayCard(initialCis[1]);
         }
 
         [Test]
         public static void Test_PommelStrike()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(1);
 
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[2]);
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
         }
@@ -660,16 +636,15 @@ namespace StS.Tests
         public static void Test_PommelStrike_Override()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(1);
 
             ///force us to draw the inflame
             var targets = new List<CardInstance>() { initialCis[0] };
 
-            fight.PlayCard(initialCis[2], player, enemy, targets);
+            fight.PlayCard(initialCis[2], targets);
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+"), out var message), message);
         }
@@ -678,13 +653,12 @@ namespace StS.Tests
         public static void Test_PommelStrike2()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(1);
 
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[2]);
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
         }
@@ -693,14 +667,13 @@ namespace StS.Tests
         public static void Test_PommelStrike_Rotation()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Strike+", "PommelStrike+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
 
-            fight.PlayCard(initialCis[1], player, enemy);
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[1]);
+            fight.PlayCard(initialCis[2]);
             //hand has rotated.
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
@@ -711,17 +684,16 @@ namespace StS.Tests
         public static void Test_ShrugItOff1()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Strike+", "ShrugItOff");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(3);
 
             //problem: when I initialize the fight I make a copy of the cards.
 
-            fight.PlayCard(initialCis[0], player, enemy);
-            fight.PlayCard(initialCis[1], player, enemy);
-            fight.PlayCard(initialCis[2], player, enemy);
+            fight.PlayCard(initialCis[0]);
+            fight.PlayCard(initialCis[1]);
+            fight.PlayCard(initialCis[2]);
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
         }
@@ -730,15 +702,14 @@ namespace StS.Tests
         public static void Test_ShrugItOff2()
         {
             var player = new Player();
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("FlameBarrier", "Inflame+", "Strike+", "ShrugItOff");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(3);
 
-            fight.PlayCard(initialCis[1], player, enemy);
-            fight.PlayCard(initialCis[2], player, enemy);
-            fight.PlayCard(initialCis[3], player, enemy);
+            fight.PlayCard(initialCis[1]);
+            fight.PlayCard(initialCis[2]);
+            fight.PlayCard(initialCis[3]);
             var hand = fight.GetHand();
             Assert.IsTrue(CompareHands(hand, GetCis("FlameBarrier"), out var message), message);
         }
@@ -748,10 +719,9 @@ namespace StS.Tests
         {
             var player = new Player();
             player.Relics.Add(Relics["BagOfEyes"]);
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis();
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
             fight.EndTurn();
@@ -764,10 +734,9 @@ namespace StS.Tests
         {
             var player = new Player();
             player.Relics.Add(Relics["Anchor"]);
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis();
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             Assert.AreEqual(player.Block, 10);
             fight.EndTurn();
@@ -780,10 +749,9 @@ namespace StS.Tests
         {
             var player = new Player();
             player.Relics.Add(Relics["HornCleat"]);
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis();
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
             fight.EndTurn();
@@ -799,14 +767,13 @@ namespace StS.Tests
         {
             var player = new Player();
             player.Relics.Add(Relics["MonkeyPaw"]);
-            var gc = new GameContext();
-            var enemy = new Enemy();
+            var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Inflame+", "Inflame+", "Inflame+");
-            var fight = new Fight(initialCis, gameContext: gc, player: player, enemies: new List<Enemy>() { enemy }, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(5);
 
             //problem: when I initialize the fight I make a copy of the cards.
-            fight.PlayCard(initialCis[0], player, enemy);
+            fight.PlayCard(initialCis[0]);
             var hand = fight.GetHand();
 
             while (hand.Count > 0)
@@ -818,7 +785,7 @@ namespace StS.Tests
                     {
                         continue;
                     }
-                    fight.PlayCard(card, player, enemy);
+                    fight.PlayCard(card);
                     break;
                 }
             }
@@ -847,9 +814,8 @@ namespace StS.Tests
         public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis, int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CharacterType? characterType = CharacterType.IronClad)
         {
             var player = new Player(characterType.Value);
-            var gc = new GameContext();
-            var enemy = new Enemy();
-            var fight = new Fight(initialCis, gc, player, new List<Enemy>() { enemy }, true);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(initialCis, player, enemy: enemy, true);
 
             //initial card draw.
             fight.StartTurn(drawCount);
@@ -936,7 +902,7 @@ namespace StS.Tests
             var pl = new Player();
             var en = new Cultist();
             var cis = GetCis("Strike+", "Defend+");
-            var fight = new Fight(cis, new GameContext(), pl, new List<Enemy>() { en });
+            var fight = new Fight(cis, pl, en);
             fight.StartTurn();
 
             while (true)
@@ -944,14 +910,13 @@ namespace StS.Tests
                 var hand = fight.GetHand().ToArray();
                 foreach (var ci in hand)
                 {
-                    fight.PlayCard(ci, pl, en);
+                    fight.PlayCard(ci);
                     if (fight.EnemyDead())
                     {
                         break;
                     }
                 }
-                var enemyAction = en.GetAction();
-                fight.ApplyEnemyAction(enemyAction, en, pl);
+                fight.EnemyMove();
 
                 if (fight.Status != FightStatus.Ongoing)
                 {
@@ -973,37 +938,19 @@ namespace StS.Tests
             return new EnemyAction(null, new EnemyAttack(amount, count), null);
         }
 
-        public static List<CardInstance> GetCis(params string[] names)
-        {
-            var cis = new List<CardInstance>();
-            foreach (var name in names)
-            {
-                var x = SplitCardName(name);
-                var card = Cards[x.Item1];
-                if (card == null)
-                {
-                    throw new Exception("Missing card.");
-                }
-
-                var ci = new CardInstance(card, x.Item2);
-                cis.Add(ci);
-            }
-            return cis;
-        }
-
         public static EnemyAction GetEnemyAction(EnemyAttack card)
         {
             return new EnemyAction(null, card, null);
         }
 
-        public static List<Enemy> SetupEnemies(string en, int ehp, int enbl, List<StatusInstance> enemyStatuses)
+        public static List<IEnemy> SetupEnemies(string en, int ehp, int enbl, List<StatusInstance> enemyStatuses)
         {
-            var enemy = new Enemy(en, ehp, ehp);
+            var enemy = new GenericEnemy(ehp, ehp);
             enemy.Block = enbl;
 
             enemy.StatusInstances = enemyStatuses ?? new List<StatusInstance>();
 
-            var enemies = new List<Enemy>() { enemy };
+            var enemies = new List<IEnemy>() { enemy };
             return enemies;
         }
 

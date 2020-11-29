@@ -153,5 +153,33 @@ namespace StS
             var num = rnd.Next(len);
             return nonZeros.Skip(num).First();
         }
+
+
+        public static List<CardInstance> GetCis(params string[] names)
+        {
+            var cis = new List<CardInstance>();
+            foreach (var name in names)
+            {
+                var x = SplitCardName(name);
+                var card = AllCards.Cards[x.Item1];
+                if (card == null)
+                {
+                    throw new Exception("Missing card.");
+                }
+
+                var ci = new CardInstance(card, x.Item2);
+                cis.Add(ci);
+            }
+            return cis;
+        }
+        public static List<Relic> GetRelics(params string[] relics)
+        {
+            var res = new List<Relic>();
+            foreach (var x in relics)
+            {
+                res.Add(AllRelics.Relics[x]);
+            }
+            return res;
+        }
     }
 }

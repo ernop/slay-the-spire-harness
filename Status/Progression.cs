@@ -9,9 +9,9 @@ namespace StS
     public class Progression
     {
         public string Desc { get; set; }
-        public Func<int,Entity,int> Fun { get; set; }
+        public Func<int,IEntity,int> Fun { get; set; }
 
-        public Progression(string desc, Func<int,Entity, int> fun)
+        public Progression(string desc, Func<int,IEntity, int> fun)
         {
             Desc = desc;
             Fun = fun;

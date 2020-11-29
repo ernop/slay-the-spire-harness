@@ -14,7 +14,30 @@ namespace StS
         /// </summary>
         public int Intensity { get; set; }
         public int Duration { get; set; }
-        //public Entity Parent { get; set; }
+
+        internal StatusInstance Copy()
+        {
+            return new StatusInstance(Status, GetCurrentStatusNum());
+        }
+
+        /// <summary>
+        /// read out the current way to recreate the status.
+        /// </summary>
+        /// <returns></returns>
+        private int GetCurrentStatusNum()
+        {
+            int num;
+            if (Status.Scalable)
+            {
+                num = Intensity;
+            }
+            else
+            {
+                num = Duration;
+            }
+            return num;
+        }
+
 
         /// <summary>
         /// quite bad that intensity needs to be hardcoded when for some statuses it's actually just fixed.
@@ -41,6 +64,7 @@ namespace StS
                 if (status.Permanent)
                 {
                     Duration = int.MaxValue; //will be taken care of with a temporary cancelling status.
+                    //this is for statuses that are permanent and nonscalable.  What is an example of them?
                 }
                 else
                 {

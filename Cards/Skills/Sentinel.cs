@@ -16,7 +16,7 @@ namespace StS
                 ef.PlayerMana += upgradeCount == 0 ? 2 : 3;
             }
         }
-        internal override void Play(EffectSet ef, Entity source, Entity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
 
             int amount;

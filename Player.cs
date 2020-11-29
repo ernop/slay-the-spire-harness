@@ -6,7 +6,7 @@ namespace StS
 {
     public class Player : Entity
     {
-        public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null, List<Relic> relics = null, List<Potion> potions = null) : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100
+        public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null, IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null) : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100
             )
         {
             CharacterType = type;
@@ -21,8 +21,19 @@ namespace StS
             if (potions != null)
             {
                 //TODO check max potion slots?
-                Potions = potions;
+                Potions = potions.ToList();
             }
+        }
+
+        internal Player Copy()
+        {
+            var relics = Relics.Select(el => el.Copy());
+            var newPlayer = new Player(CharacterType, HPMax, HP, relics);
+            newPlayer.Energy = Energy;
+            newPlayer.Gold = Gold;
+            newPlayer.Potions = Potions.Select(el => el.Copy()).ToList();
+            //TODO not copying potions now.
+            return newPlayer;
         }
 
         public CharacterType CharacterType { get; }

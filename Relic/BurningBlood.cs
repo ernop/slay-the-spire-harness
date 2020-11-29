@@ -11,6 +11,6 @@
                 p.HealFor(6);
             });
         }
-
+        internal override Relic Copy() => new BurningBlood();
     }
 }
