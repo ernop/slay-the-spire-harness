@@ -825,6 +825,44 @@ namespace StS.Tests
             Assert.IsTrue(CompareHands(hand, GetCis("FlameBarrier"), out var message), message);
         }
 
+
+        [Test]
+        public static void Test_Sundial()
+        {
+            var sd = new Sundial();
+            var player = new Player(relics: new List<Relic>() { sd });
+            var enemy = new GenericEnemy();
+            var ps = GetCi("PommelStrike");
+            var s = GetCi("Strike");
+            var d = GetCi("Defend");
+            var fight = new Fight(new List<CardInstance>() { ps, s, d }, player: player, enemy: enemy, true);
+            fight.StartTurn(3);
+            Assert.AreEqual(0, sd.ShuffleCount);
+            fight.PlayCard(s); //[] ps,s,d [] => [] ps,d s
+
+            fight.PlayCard(ps); //=>[] d,s ps
+            Assert.AreEqual(2, fight.GetHand.Count);
+            Assert.AreEqual(1, fight.GetDiscardPile.Count);
+            Assert.AreEqual(1, sd.ShuffleCount);
+            Assert.AreEqual(1, player.Energy);
+
+            fight.PlayCard(d); //reshuffle [] s ps,d
+            Assert.AreEqual(1, fight.GetHand.Count);
+            Assert.AreEqual(2, fight.GetDiscardPile.Count);
+            Assert.AreEqual(1, sd.ShuffleCount);
+            fight.EndTurn();
+            fight.StartTurn(3); //[] s,ps,d
+            Assert.AreEqual(2, sd.ShuffleCount);
+
+            fight.PlayCard(ps); //=> [] s,d ps
+            Assert.AreEqual(2, fight.GetHand.Count);
+            Assert.AreEqual(1, fight.GetDiscardPile.Count);
+            Assert.AreEqual(3, sd.ShuffleCount);
+
+            //bump energy
+            Assert.AreEqual(4, player.Energy);
+        }
+
         [Test]
         public static void Test_BagOfEyes()
         {
@@ -838,6 +876,22 @@ namespace StS.Tests
             fight.EndTurn();
             fight.StartTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>(), out string error2), $"Enemy status not cleared {error2}");
+        }
+
+        [Test]
+        public static void Test_BagOfEyesBash()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["BagOfEyes"]);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Bash+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 4) }, out string error), error);
+            fight.EndTurn();
+            fight.StartTurn();
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) }, out string error2));
         }
 
         [Test]

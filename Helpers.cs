@@ -155,6 +155,19 @@ namespace StS
         }
 
 
+        public static CardInstance GetCi(string name)
+        {
+            var x = SplitCardName(name);
+            var card = AllCards.Cards[x.Item1];
+            if (card == null)
+            {
+                throw new Exception("Missing card.");
+            }
+
+            var ci = new CardInstance(card, x.Item2);
+            return ci;
+        }
+
         public static List<CardInstance> GetCis(params string[] names)
         {
             var cis = new List<CardInstance>();

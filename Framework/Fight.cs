@@ -37,8 +37,16 @@ namespace StS
         {
             _Deck = d;
             _Player = player;
+
             _Enemies = enemies;
             Status = FightStatus.Ongoing;
+
+            var ef = new EffectSet();
+            foreach (var relic in player.Relics)
+            {
+                relic.StartFight(_Deck, ef);
+            }
+            ApplyEffectSet(ef, _Player, _Enemies[0]);
         }
 
         private Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -113,6 +121,28 @@ namespace StS
         public int RoundNumber { get; set; }
         public List<SimAction> ActionHistory { get; internal set; } = new List<SimAction>();
 
+
+
+        public void StartTurn(int? drawCount = null)
+        {
+            FirstTurnCalled = true;
+            RoundNumber++;
+            drawCount = drawCount ?? _Player.GetDrawAmount();
+            var ef = new EffectSet();
+            _Deck.NextTurnStarts(drawCount.Value, ef);
+            _Player.Energy = _Player.MaxEnergy();
+            _Player.Block = 0;
+            foreach (var status in _Player.StatusInstances)
+            {
+                status.StartTurn(_Player, ef);
+            }
+            foreach (var relic in _Player.Relics)
+            {
+                relic.StartTurn(_Player, _Enemies[0], ef);
+            }
+            ApplyEffectSet(ef, _Player, _Enemies[0]);
+        }
+
         public void EndTurn()
         {
             if (!FirstTurnCalled)
@@ -153,27 +183,8 @@ namespace StS
             _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
         }
 
-        public void StartTurn(int? drawCount = null)
-        {
-            FirstTurnCalled = true;
-            RoundNumber++;
-            drawCount = drawCount ?? _Player.GetDrawAmount();
-            _Deck.NextTurnStarts(drawCount.Value);
-            _Player.Energy = _Player.MaxEnergy();
-            _Player.Block = 0;
-            var ef = new EffectSet();
-            foreach (var status in _Player.StatusInstances)
-            {
-                status.StartTurn(_Player, ef);
-            }
-            foreach (var relic in _Player.Relics)
-            {
-                relic.StartTurn(_Player, _Enemies[0], ef);
-            }
-            ApplyEffectSet(ef, _Player, _Enemies[0]);
-        }
-
         public IList<CardInstance> GetExhaustPile => _Deck.GetExhaustPile;
+        public IList<CardInstance> GetDiscardPile => _Deck.GetDiscardPile;
 
         public IList<CardInstance> GetHand => _Deck.GetHand;
 
@@ -201,7 +212,7 @@ namespace StS
             foreach (var relic in _Player.Relics)
             {
                 var ef = new EffectSet();
-                relic.EndFight(ef);
+                relic.EndFight(_Deck, ef);
                 ApplyEffectSet(ef, _Player, _Player);
             }
         }

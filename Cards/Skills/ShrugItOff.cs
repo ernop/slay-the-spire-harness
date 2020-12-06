@@ -18,7 +18,7 @@ namespace StS
             ef.TargetEffect.InitialBlock = upgradeCount == 0 ? 8 : 11;
             ef.DeckEffect.Add((Deck d) =>
             {
-                d.DrawToHand(targetCards, 1, true);
+                d.DrawToHand(targetCards, 1, true, ef);
             });
         }
     }

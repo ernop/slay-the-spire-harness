@@ -63,7 +63,7 @@ namespace StS
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal void DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle)
+        internal void DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -74,7 +74,7 @@ namespace StS
                     {
                         if (reshuffle)
                         {
-                            Reshuffle();
+                            Reshuffle(ef);
                             if (DrawPile.Count == 0)
                             {
                                 break;
@@ -103,7 +103,7 @@ namespace StS
             }
         }
 
-        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle)
+        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -114,7 +114,7 @@ namespace StS
                     {
                         if (reshuffle)
                         {
-                            Reshuffle();
+                            Reshuffle(ef);
                             if (DrawPile.Count == 0)
                             {
                                 break;
@@ -176,6 +176,9 @@ namespace StS
 
         public delegate void NotifyOfExhaustion(EffectSet ef);
 
+        public event NotifyDeckShuffle DeckShuffle;
+        public delegate void NotifyDeckShuffle(EffectSet ef);
+
         internal Deck(List<CardInstance> hand, List<CardInstance> draw, List<CardInstance> discard, List<CardInstance> ex)
         {
             Hand = hand;
@@ -189,8 +192,6 @@ namespace StS
             var r = new Random();
             DrawPile = DrawPile.OrderBy(el => r.Next()).ToList();
         }
-
-
 
         //when you start a fight, copy cards into drawpile + hand;
         //some fight-actions can modify cards (receiving curse) but generally at the end of a fight you just destroy the copied cardinstances.
@@ -241,7 +242,7 @@ namespace StS
             DiscardPile.Add(ci);
         }
 
-        public void NextTurnStarts(int drawCount)
+        public void NextTurnStarts(int drawCount, EffectSet ef)
         {
             Hand = new List<CardInstance>();
 
@@ -261,7 +262,7 @@ namespace StS
                         //can't do a full draw.
                         break;
                     }
-                    Reshuffle();
+                    Reshuffle(ef);
                     continue;
                 }
                 toDraw--;
@@ -310,8 +311,9 @@ namespace StS
 
         private CardInstance PutIntoDiscardAfterApplyingEffectSet { get; set; }
 
-        public void Reshuffle()
+        public void Reshuffle(EffectSet ef)
         {
+            DeckShuffle?.Invoke(ef);
             DrawPile.AddRange(DiscardPile);
             DiscardPile = new List<CardInstance>();
             ShuffleDrawPile();

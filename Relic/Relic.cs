@@ -9,17 +9,18 @@
         public virtual bool ExtraEnergy => false;
 
 
+        public virtual void StartFight(Deck d, EffectSet ef) { }
+        public virtual void EndFight(Deck d, EffectSet ef) { }
+
+        public virtual void StartTurn(Player player, IEnemy enemy, EffectSet ef) { }
+        public virtual void EndTurn(Player player, IEnemy enemy, EffectSet ef) { }
+
+        internal abstract Relic Copy();
+
         public override string ToString()
         {
             return $"{Name}";
         }
 
-        /// <summary>
-        /// called to get end of turn effectset.
-        /// </summary>
-        public virtual void EndTurn(Player player, IEnemy enemy, EffectSet relicEf) { }
-        public virtual void StartTurn(Player player, IEnemy enemy, EffectSet relicEf) { }
-        public virtual void EndFight(EffectSet relicEf) { }
-        internal abstract Relic Copy();
     }
 }
