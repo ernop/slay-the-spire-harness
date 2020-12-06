@@ -14,7 +14,7 @@ namespace StS
 
         internal override bool Scalable => true;
 
-        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
+        internal override void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
         {
             //triggers when player with this status is targeted.
 

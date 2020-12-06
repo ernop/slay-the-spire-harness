@@ -16,7 +16,7 @@ namespace StS
     {
         public IndividualEffect SourceEffect = new IndividualEffect();
         public IndividualEffect TargetEffect = new IndividualEffect();
-        public int PlayerMana { get; set; } = 0;
+        public int PlayerEnergy { get; set; } = 0;
 
         /// <summary>
         /// After playing the card, call these on the hand (temporarily); things like monkey paw.

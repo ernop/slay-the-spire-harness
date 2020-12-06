@@ -107,7 +107,7 @@ namespace StS
         /// <summary>
         /// meant to be a complete comparison of per-hand lists of CIs.
         /// </summary>
-        public static bool CompareHands(List<CardInstance> a, List<CardInstance> b, out string message)
+        public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message)
         {
             if (a.Count() != b.Count())
             {
@@ -132,7 +132,7 @@ namespace StS
             return newCi;
         }
 
-        public static IEnumerable<CardInstance> GetNonZeroCostsFromHand(List<CardInstance> hand)
+        public static IEnumerable<CardInstance> GetNonZeroCostsFromHand(IList<CardInstance> hand)
         {
             var nonZeros = hand.Where(el => el.EnergyCost() > 0);
             return nonZeros;
@@ -141,7 +141,7 @@ namespace StS
         /// <summary>
         /// Null or a CI that has nonzero cost
         /// </summary>
-        public static CardInstance SelectNonZeroCostCard(List<CardInstance> hand)
+        public static CardInstance SelectNonZeroCostCard(IList<CardInstance> hand)
         {
             var rnd = new Random();
             var nonZeros = GetNonZeroCostsFromHand(hand);

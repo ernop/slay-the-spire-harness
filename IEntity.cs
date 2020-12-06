@@ -13,6 +13,6 @@ namespace StS
         public List<Relic> Relics { get; set; }
         public bool ApplyDamage(int amount);
         public void ApplyBlock(int amount);
-        public void ApplyStatus(StatusInstance statusInstance);
+        public void ApplyStatus(Deck d, StatusInstance statusInstance);
     }
 }

@@ -12,7 +12,7 @@
 
         internal override bool Permanent => true;
 
-        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int num, bool statusIsTargeted, bool playerAction)
+        internal override void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int num, bool statusIsTargeted, bool playerAction)
         {
         }
 

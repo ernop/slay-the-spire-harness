@@ -18,16 +18,13 @@ namespace StS
         /// </summary>
         public abstract int CiCanCallEnergyCost(int upgradeCount);
 
-        /// <summary>
-        /// Does the card need to be called with other actions that happen to it like "exhausted" or "removed from deck"?
-        /// </summary>
-        public virtual void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
         public virtual bool Playable(List<CardInstance> hand) { return true; }
 
         /// <summary>
-        /// for AI purposes it helps to have cards self-specify which cards are allowed to be targets (for example, headbutt for cards in discard, or shrugitoff targetting drawpile (or discard))
+        /// Does the card need to be called with other actions that happen to it like "exhausted" or "removed from deck"?
         /// </summary>
-        public virtual List<CardInstance> GetTargetCards(Deck deck) { return null; }
+        public virtual void OtherAction(Action action, EffectSet ef, int upgradeCount) { }
+        public virtual bool Playable(IList<CardInstance> hand) { return true; }
 
         /// <summary>
         /// the ai will call getTargets and then if randomtarget, pick one; if not, all are considered possible.

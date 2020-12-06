@@ -21,6 +21,19 @@ namespace StS
         }
 
         /// <summary>
+        /// When a status really gets applied.
+        /// </summary>
+        public virtual void Apply(Deck d, Entity e)
+        {
+            Status.Apply(d, e);
+        }
+
+        public virtual void Unapply(Deck d, Entity e)
+        {
+            Status.Unapply(d, e);
+        }
+
+        /// <summary>
         /// read out the current way to recreate the status.
         /// </summary>
         /// <returns></returns>
@@ -125,7 +138,7 @@ namespace StS
 
         public void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, bool statusIsTargeted, bool playerAction)
         {
-            Status.Apply(card, sourceSet, targetSet, Intensity, statusIsTargeted, playerAction);
+            Status.CardWasPlayed(card, sourceSet, targetSet, Intensity, statusIsTargeted, playerAction);
         }
     }
 }

@@ -14,6 +14,10 @@ namespace StS
             HP = hp;
         }
 
+        public event NotifyTookDamage TakeDamage;
+
+        public delegate void NotifyTookDamage(Entity e);
+
         public EntityType EntityType { get; set; }
         public string Name { get; set; }
         public int HP { get; set; }
@@ -25,7 +29,7 @@ namespace StS
         //unlike statuses and cards which have abstract Card and instances, relics are just relics
         public List<Relic> Relics { get; set; } = new List<Relic>();
 
-        public void ApplyStatus(StatusInstance statusInstance)
+        public void ApplyStatus(Deck d, StatusInstance statusInstance)
         {
             var exiStatus = StatusInstances.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
             if (exiStatus == null)
@@ -36,6 +40,7 @@ namespace StS
                     Console.WriteLine($"\tGained {statusInstance}");
                     Console.WriteLine(this);
                 }
+                statusInstance.Apply(d, this);
             }
             else
             {
@@ -52,13 +57,14 @@ namespace StS
                 if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
                 {
                     StatusInstances.Remove(exiStatus);
+                    exiStatus.Unapply(d, this);
                 }
+                //we never apply the new status so it's inactive. we just mined it for intensity.
             }
         }
 
-        public event Notify TakeDamage;
 
-        public delegate void Notify(Entity e);
+
 
         /// <summary>
         /// after block is accounted.
@@ -79,6 +85,7 @@ namespace StS
             {
                 HP -= amount;
                 TakeDamage?.Invoke(this);
+
                 if (Helpers.PrintDetails)
                 {
                     Console.WriteLine($"\t{Name} took {amount} Damage");
@@ -93,6 +100,7 @@ namespace StS
 
         public void ApplyBlock(int amount)
         {
+            //TODO hook this into block-gaining interested parties.
             Block += amount;
             if (Helpers.PrintDetails)
             {

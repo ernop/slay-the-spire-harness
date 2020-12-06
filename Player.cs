@@ -48,10 +48,11 @@ namespace StS
             Gold += amount;
         }
 
-        public void DrinkPotion(Potion p, Enemy e)
+        public void DrinkPotion(Fight f, Potion p, Enemy e)
         {
-            p.Apply(this, e);
+            p.Apply(f, this, e);
         }
+
         public List<Potion> Potions { get; set; } = new List<Potion>();
 
         public int MaxEnergy()

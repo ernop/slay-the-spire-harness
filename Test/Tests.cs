@@ -126,7 +126,7 @@ namespace StS.Tests
 
             if (expectedExhausePileCount.HasValue)
             {
-                var ex = fight.GetExhaustPile();
+                var ex = fight.GetExhaustPile;
                 if (ex.Count != expectedExhausePileCount.Value)
                 {
                     throw new Exception($"expected exhaust pile count: {expectedExhausePileCount.Value} actual {ex.Count}");
@@ -276,12 +276,87 @@ namespace StS.Tests
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
             var enemy = new GenericEnemy(hpMax: 3, hp: 3);
-            var initialCis = GetCis("Sentinel+", "True Grit");
+            var initialCis = GetCis("Sentinel+", "TrueGrit");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
             fight.PlayCard(initialCis[0]);
-            Assert.AreEqual(fight.Status, FightStatus.Won);
+            Assert.AreEqual(fight.Status, FightStatus.Ongoing);
+            Assert.AreEqual(player.Block, 8);
             Assert.AreEqual(player.HP, 100);
+        }
+
+        [Test]
+        public static void Test_TrueGrit()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Sentinel+", "TrueGrit");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(2);
+            fight.PlayCard(initialCis[1]);
+            var hand = fight.GetHand;
+            Assert.AreEqual(hand.Count, 0);
+            Assert.IsTrue(CompareHands(fight.GetExhaustPile, GetCis("Sentinel+"), out string message), message);
+            Assert.AreEqual(5, player.Energy);
+        }
+
+        [Test]
+        public static void Test_TrueGritPlus()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("Sentinel+", "Inflame", "TrueGrit+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[2], cardTargets: new List<CardInstance>() { initialCis[1] });
+            var hand = fight.GetHand;
+            Assert.AreEqual(hand.Count, 1);
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Sentinel+"), out string message), message);
+            Assert.IsTrue(CompareHands(fight.GetExhaustPile, GetCis("Inflame"), out string message2), message2);
+            Assert.AreEqual(2, player.Energy);
+        }
+
+        [Test]
+        public static void Test_FeelNoPain()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("FeelNoPain", "Strike", "TrueGrit+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(3);
+            fight.PlayCard(initialCis[0]);
+            fight.PlayCard(initialCis[2]); //this should exhaust strike
+            var hand = fight.GetHand;
+            Assert.AreEqual(hand.Count, 0);
+            Assert.IsTrue(CompareHands(fight.GetExhaustPile, GetCis("Strike"), out string message2), message2);
+            Assert.AreEqual(1, player.Energy);
+            Assert.IsTrue(CompareStatuses(GetStatuses(new FeelNoPainStatus(), 3), player.StatusInstances, out string se), se);
+            Assert.AreEqual(13, player.Block); //TG=10 + 3 for exhaustion
+        }
+
+        [Test]
+        public static void Test_Combining_FNP()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+
+            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var initialCis = GetCis("FeelNoPain", "FeelNoPain+", "Strike+", "Strike", "TrueGrit+", "TrueGrit+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+
+            fight.StartTurn(6);
+            player.Energy = 10;
+            fight.PlayCard(initialCis[0]); //FNP
+            Console.WriteLine(fight);
+            fight.PlayCard(initialCis[5], new List<CardInstance>() { initialCis[2] }); //exhaust the first strike. block 10+3=13
+            Assert.AreEqual(13, player.Block); //TG=10 + 3 for exhaustion}
+            fight.PlayCard(initialCis[1]); //FNP+
+            Assert.AreEqual(13, player.Block); //TG=10 + 3 for exhaustion}
+            fight.PlayCard(initialCis[4], new List<CardInstance>() { initialCis[3] }); // block 10+10+3+4 = 17
+            var hand = fight.GetHand;
+            Assert.AreEqual(0, hand.Count);
+            Assert.AreEqual(2, fight.GetExhaustPile.Count);
+            Assert.IsTrue(CompareStatuses(GetStatuses(new FeelNoPainStatus(), 7), player.StatusInstances, out string se), se);
+            Assert.AreEqual(30, player.Block); //TG=10 + 3 for exhaustion}
         }
 
         [Test]
@@ -307,7 +382,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy, true);
             fight.StartTurn(2);
 
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
 
             //play havok; strike should be burned.
             fight.PlayCard(initialCis[2]);
@@ -315,7 +390,7 @@ namespace StS.Tests
             var dp = fight.GetDrawPile();
             Assert.AreEqual(0, dp.Count);
             Assert.AreEqual(41, enemy.HP);
-            var ex = fight.GetExhaustPile();
+            var ex = fight.GetExhaustPile;
             Assert.AreEqual(1, ex.Count);
             Assert.IsTrue(CompareHands(GetCis("Strike+"), ex, out string message), message);
         }
@@ -342,7 +417,7 @@ namespace StS.Tests
             Assert.AreEqual(2, dp.Count);
             Assert.AreEqual(32, enemy.HP);
             Assert.AreEqual(100, player.HP);
-            var ex = fight.GetExhaustPile();
+            var ex = fight.GetExhaustPile;
             Assert.AreEqual(1, ex.Count);
             Assert.IsTrue(CompareHands(GetCis("FlameBarrier+"), ex, out string message), message);
             Assert.IsTrue(CompareStatuses(GetStatuses(new FlameBarrierStatus(), 6), player.StatusInstances, out string error), error);
@@ -369,16 +444,52 @@ namespace StS.Tests
             var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
-            player.DrinkPotion(potion, enemy);
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(null), 4), out string error), error);
+            fight.DrinkPotion(player, potion, null);
+            //player.DrinkPotion(potion, enemy);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 4), out string error), error);
 
             fight.EnemyPlayCard(new EnemyAttack(5, 2));
             //now ensure that headbutt is at the end of the draw pile.
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(null), 2), out string error2), error2);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 2), out string error2), error2);
             Assert.AreEqual(90, player.HP, "Bad hp.");
             fight.EndTurn();
             fight.StartTurn();
             Assert.AreEqual(2, player.Block, "Should have gotten 2 essence of steel block.");
+        }
+
+        [Test]
+        public static void Test_DoubleEssenceOfSteel()
+        {
+            var potion = new EssenceOfSteel();
+            var potion2 = new EssenceOfSteel();
+            var player = new Player(potions: new List<Potion>() { potion, potion2 });
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Strike+", "Bash+", "Headbutt");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(2);
+            fight.DrinkPotion(player, potion, null);
+            fight.DrinkPotion(player, potion2, null);
+
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 8), out string error), error);
+
+            //statuses combined correctly; 8 essence - 5 attacks = 3
+            fight.EnemyPlayCard(new EnemyAttack(1, 5));
+
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 3), out string error2), error2);
+            Assert.AreEqual(95, player.HP, "Bad hp.");
+            fight.EndTurn();
+            fight.StartTurn();
+            Assert.AreEqual(3, player.Block, "Should have gotten 2 essence of steel block.");
+
+            fight.EndTurn();
+            fight.StartTurn();
+            //PA:3 HP:95
+
+            fight.EnemyPlayCard(new EnemyAttack(1, 7));
+            Assert.AreEqual(91, player.HP, "Bad hp.");
+            Assert.AreEqual(0, player.Block);
+            fight.EndTurn();
+            Assert.AreEqual(0, player.StatusInstances.Count);
         }
 
         [Test]
@@ -390,7 +501,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn(2);
 
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
 
             fight.PlayCard(initialCis[1]);
             fight.PlayCard(initialCis[2], new List<CardInstance>() { initialCis[1] });
@@ -422,7 +533,7 @@ namespace StS.Tests
 
             //problem: when I initialize the fight I make a copy of the cards.
             fight.PlayCard(initialCis[0]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             var card = hand[0];
             var ec = card.EnergyCost();
             if (ec != 0)
@@ -433,7 +544,7 @@ namespace StS.Tests
             fight.EndTurn();
             fight.StartTurn(5);
 
-            var secondHand = fight.GetHand();
+            var secondHand = fight.GetHand;
             if (!CompareHands(secondHand, GetCis("Bash+"), out string message))
             {
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
@@ -457,16 +568,16 @@ namespace StS.Tests
             fight.StartTurn();
             fight.EndTurn();
             fight.StartTurn();
-            var exhaust = fight.GetExhaustPile();
+            var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 2);
 
             fight.PlayCard(initialCis[2]);
             fight.EndTurn();
             fight.StartTurn();
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
 
-            var exhaust2 = fight.GetExhaustPile();
+            var exhaust2 = fight.GetExhaustPile;
             Assert.AreEqual(exhaust2.Count, 3);
         }
 
@@ -484,10 +595,10 @@ namespace StS.Tests
             fight.StartTurn();
             fight.EndTurn();
             fight.StartTurn();
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
 
-            var exhaust = fight.GetExhaustPile();
+            var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 1, "Shockwave should have exhausted failed.");
 
             Console.WriteLine("==========");
@@ -506,10 +617,10 @@ namespace StS.Tests
             fight.StartTurn();
             fight.EndTurn();
             fight.StartTurn();
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 1);
 
-            var exhaust = fight.GetExhaustPile();
+            var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 0);
 
             Console.WriteLine("==========");
@@ -531,10 +642,10 @@ namespace StS.Tests
             fight.StartTurn();
             fight.EndTurn();
             fight.StartTurn();
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted due to ethereality");
 
-            var exhaust = fight.GetExhaustPile();
+            var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 1, "Carnage ethereality failed.");
         }
 
@@ -555,10 +666,10 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             fight.EndTurn();
             fight.StartTurn();
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 1, "Card should have exhausted due to ethereality");
 
-            var exhaust = fight.GetExhaustPile();
+            var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 0, "Carnage ethereality failed.");
         }
 
@@ -628,7 +739,7 @@ namespace StS.Tests
             fight.StartTurn(1);
 
             fight.PlayCard(initialCis[2]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
         }
 
@@ -645,7 +756,7 @@ namespace StS.Tests
             var targets = new List<CardInstance>() { initialCis[0] };
 
             fight.PlayCard(initialCis[2], targets);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+"), out var message), message);
         }
 
@@ -659,7 +770,7 @@ namespace StS.Tests
             fight.StartTurn(1);
 
             fight.PlayCard(initialCis[2]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
         }
 
@@ -675,7 +786,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[1]);
             fight.PlayCard(initialCis[2]);
             //hand has rotated.
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("Inflame+", "Strike+"), out var message), message);
         }
 
@@ -694,7 +805,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             fight.PlayCard(initialCis[1]);
             fight.PlayCard(initialCis[2]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("Strike+"), out var message), message);
         }
 
@@ -710,7 +821,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[1]);
             fight.PlayCard(initialCis[2]);
             fight.PlayCard(initialCis[3]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, GetCis("FlameBarrier"), out var message), message);
         }
 
@@ -774,11 +885,11 @@ namespace StS.Tests
 
             //problem: when I initialize the fight I make a copy of the cards.
             fight.PlayCard(initialCis[0]);
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
 
             while (hand.Count > 0)
             {
-                hand = fight.GetHand();
+                hand = fight.GetHand;
                 foreach (var card in hand)
                 {
                     if (card.EnergyCost() != 0)
@@ -827,7 +938,7 @@ namespace StS.Tests
                 extraTurns--;
             }
 
-            var hand = fight.GetHand();
+            var hand = fight.GetHand;
             Assert.IsTrue(CompareHands(hand, expectedCis, out string message));
 
             if (energyAfter.HasValue)
@@ -907,10 +1018,15 @@ namespace StS.Tests
 
             while (true)
             {
-                var hand = fight.GetHand().ToArray();
-                foreach (var ci in hand)
+
+                while (true)
                 {
-                    fight.PlayCard(ci);
+                    var hand = fight.GetHand;
+                    if (hand.Count == 0)
+                    {
+                        break;
+                    }
+                    fight.PlayCard(hand[0]);
                     if (fight.EnemyDead())
                     {
                         break;

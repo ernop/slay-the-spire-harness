@@ -18,6 +18,8 @@ namespace StS
         /// 
         /// Note that per-hand cards are the same as per-fight; but at the end of the fight we should restore the backup cards or something?
         /// makes sense to store the deck as the canonical list.
+        /// 
+        /// Should I add player to this?  So that the deck will know where to send exhaust events?
         /// </summary>
         public Deck([NotNull] List<CardInstance> cis, bool preserveOrder = false)
         {
@@ -34,19 +36,38 @@ namespace StS
             }
         }
 
+        internal bool DiscardPileContains(CardInstance headbuttTarget)
+        {
+            return DiscardPile.Contains(headbuttTarget);
+        }
+
+        internal void MoveFromDiscardToDraw(CardInstance headbuttTarget)
+        {
+            DiscardPile.Remove(headbuttTarget);
+            DrawPile.Add(headbuttTarget);
+        }
+
+        internal CardInstance GetRandomCardFromHand()
+        {
+            if (Hand.Count == 0)
+            {
+                return null;
+            }
+            var rnd = new Random();
+            var res = Hand[rnd.Next(Hand.Count)];
+            return res;
+        }
+
         public List<CardInstance> BackupCards { get; private set; }
 
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal void DrawToHand(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
+        internal void DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle)
         {
             var res = new List<CardInstance>() { };
-
-
             if (targetCards == null)
             {
-
                 while (res.Count < count)
                 {
                     if (DrawPile.Count == 0)
@@ -82,12 +103,11 @@ namespace StS
             }
         }
 
-        internal List<CardInstance> Draw(Card card, List<CardInstance> targetCards, int count, bool reshuffle)
+        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
             {
-
                 while (res.Count < count)
                 {
                     if (DrawPile.Count == 0)
@@ -139,14 +159,22 @@ namespace StS
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
-        public List<CardInstance> DrawPile { get; private set; }
+        private List<CardInstance> DrawPile { get; set; }
+        private List<CardInstance> Hand { get; set; } = new List<CardInstance>();
+        private List<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
+        private List<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
 
         /// <summary>
-        /// These are copies for just this turn;
+        /// should these all just return by value?  or do I need to modify them in tests?
         /// </summary>
-        public List<CardInstance> Hand { get; private set; } = new List<CardInstance>();
-        public List<CardInstance> DiscardPile { get; private set; } = new List<CardInstance>();
-        public List<CardInstance> ExhaustPile { get; private set; } = new List<CardInstance>();
+        public IList<CardInstance> GetDrawPile => DrawPile;
+        public IList<CardInstance> GetHand => Hand;
+        public IList<CardInstance> GetDiscardPile => DiscardPile;
+        public IList<CardInstance> GetExhaustPile => ExhaustPile;
+
+        public event NotifyOfExhaustion ExhaustCard;
+
+        public delegate void NotifyOfExhaustion(EffectSet ef);
 
         internal Deck(List<CardInstance> hand, List<CardInstance> draw, List<CardInstance> discard, List<CardInstance> ex)
         {
@@ -167,7 +195,7 @@ namespace StS
         //when you start a fight, copy cards into drawpile + hand;
         //some fight-actions can modify cards (receiving curse) but generally at the end of a fight you just destroy the copied cardinstances.
 
-        public void TurnEnds()
+        public void TurnEnds(EffectSet ef)
         {
             //clear 
             //shuffle discard back into draw.
@@ -179,14 +207,38 @@ namespace StS
                 Hand.Remove(ci);
                 if (ci.Ethereal())
                 {
-                    ExhaustPile.Add(ci);
+                    Exhaust(ci, ef);
                 }
                 else
                 {
-                    DiscardPile.Add(ci);
+                    Discard(ci);
                 }
 
             }
+        }
+
+        private void Exhaust(CardInstance ci, EffectSet ef)
+        {
+            ci.OtherAction(Action.Exhaust, ef);
+
+            //this has to somehow hook into relics that care about exhaust, and also player / monster statuses which care too.
+            ExhaustCard?.Invoke(ef);
+            ExhaustPile.Add(ci);
+        }
+
+        public void ExhaustFromHand(CardInstance ci, EffectSet ef)
+        {
+            if (ci == null)
+            {
+                return;
+            }
+            Hand.Remove(ci);
+            Exhaust(ci, ef);
+        }
+
+        public void Discard(CardInstance ci)
+        {
+            DiscardPile.Add(ci);
         }
 
         public void NextTurnStarts(int drawCount)

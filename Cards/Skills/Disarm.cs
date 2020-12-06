@@ -9,8 +9,6 @@ namespace StS
         public override TargetType TargetType => TargetType.Enemy;
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
-        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount) { }
-
         internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int amt;

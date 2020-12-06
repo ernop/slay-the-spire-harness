@@ -15,7 +15,6 @@ namespace StS
             var e = new List<IEnemy>() { _Enemies[0].Copy() };
             var d = _Deck.Copy();
 
-
             var newFight = new Fight(d, p, e);
             var historyCopy = ActionHistory.Select(el => el.Copy());
             newFight.ActionHistory = historyCopy.ToList();
@@ -27,6 +26,11 @@ namespace StS
         private Player _Player { get; set; }
         private Deck _Deck { get; set; }
 
+        /// <summary>
+        /// For tests of hooking to events.?
+        /// </summary>
+        public Deck GetDeck => _Deck;
+
         public FightStatus Status { get; set; }
 
         private void Init(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -37,7 +41,7 @@ namespace StS
             Status = FightStatus.Ongoing;
         }
 
-        public Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
+        private Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
         {
             Init(d, player, enemies, preserveOrder);
         }
@@ -52,9 +56,9 @@ namespace StS
         /// <summary>
         /// for testing
         /// </summary>
-        public List<CardInstance> GetDrawPile()
+        public IList<CardInstance> GetDrawPile()
         {
-            return _Deck.DrawPile;
+            return _Deck.GetDrawPile;
         }
 
         /// <summary>
@@ -63,7 +67,7 @@ namespace StS
         internal List<SimAction> GetAllActions()
         {
             var res = new List<SimAction>();
-            var hand = _Deck.Hand;
+            var hand = _Deck.GetHand;
             var consideredCis = new List<string>();
             var en = _Player.Energy;
             foreach (var ci in hand)
@@ -90,7 +94,7 @@ namespace StS
         {
             CardInstance res = null;
             var cs = card.ToString();
-            foreach (var c in _Deck.Hand)
+            foreach (var c in _Deck.GetHand)
             {
                 if (c.ToString() == cs)
                 {
@@ -116,7 +120,9 @@ namespace StS
                 throw new Exception("Calling EndTurn without firstturn started.");
             }
 
-            _Deck.TurnEnds();
+            var endTurnEf = new EffectSet();
+            _Deck.TurnEnds(endTurnEf);
+            ApplyEffectSet(endTurnEf, _Player, _Enemies[0]);
             //TODO this is affected by calipers, barricade, etc.
 
             var endTurnPlayerEf = new EffectSet();
@@ -128,7 +134,7 @@ namespace StS
             {
                 si.EndTurn(_Player, endTurnPlayerEf);
             }
-            _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0).ToList();
+            _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
 
             foreach (var si in ((Entity)_Enemies[0]).StatusInstances)
             {
@@ -144,7 +150,7 @@ namespace StS
             ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
             ApplyEffectSet(relicEf, _Player, _Enemies[0]);
 
-            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0).ToList();
+            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
         }
 
         public void StartTurn(int? drawCount = null)
@@ -167,15 +173,9 @@ namespace StS
             ApplyEffectSet(ef, _Player, _Enemies[0]);
         }
 
-        public List<CardInstance> GetExhaustPile()
-        {
-            return _Deck.ExhaustPile;
-        }
+        public IList<CardInstance> GetExhaustPile => _Deck.GetExhaustPile;
 
-        public List<CardInstance> GetHand()
-        {
-            return _Deck.Hand;
-        }
+        public IList<CardInstance> GetHand => _Deck.GetHand;
 
         /// <summary>
         /// Do nothing right now.
@@ -221,7 +221,7 @@ namespace StS
             }
             else
             {
-                if (!cardInstance.Playable(_Deck.Hand))
+                if (!cardInstance.Playable(_Deck.GetHand))
                 {
                     throw new Exception("Trying to play unplayable card.");
                 }
@@ -279,6 +279,13 @@ namespace StS
         {
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
+
+            //What happens if a deckeffect has further effects like exhausting a card, and the player has a status that triggers on this?
+            foreach (var f in ef.DeckEffect)
+            {
+                f.Invoke(_Deck);
+            }
+
             if (source == target)
             {
                 var combined = Combine(ef.SourceEffect, ef.TargetEffect);
@@ -308,14 +315,9 @@ namespace StS
 
                 ApplyStatus(source, ef.SourceEffect.Status);
                 ApplyStatus(target, ef.TargetEffect.Status);
-
-
             }
 
-            foreach (var f in ef.DeckEffect)
-            {
-                f.Invoke(_Deck);
-            }
+            _Player.Energy += ef.PlayerEnergy;
 
             foreach (var f in ef.PlayerEffect)
             {
@@ -330,15 +332,27 @@ namespace StS
             //We resolve damage after dealing with statuses the player may just have gained.
             //i.e. we don't apply pen nib to the player til after attack is resolved.
         }
+
+
         public void ApplyStatus(IEntity entity, List<StatusInstance> sis)
         {
             foreach (var status in sis)
             {
-                entity.ApplyStatus(status);
+                entity.ApplyStatus(_Deck, status);
             }
         }
+
+        public void ApplyStatus(IEntity entity, StatusInstance si)
+        {
+
+            entity.ApplyStatus(_Deck, si);
+        }
+
+
         public void GainBlock(IEntity entity, IndividualEffect ef)
         {
+            //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
+            // (fore xample, exhausting a card with Feel No Pain on.)
             var val = ef.InitialBlock;
             foreach (var prog in ef.BlockAdjustments)
             {
@@ -389,8 +403,6 @@ namespace StS
                 }
             }
         }
-
-
 
         internal bool EnemyDead()
         {
@@ -463,6 +475,11 @@ namespace StS
         public override string ToString()
         {
             return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]} History: {ActionHistory.Count}";
+        }
+
+        internal void DrinkPotion(Player player, Potion potion, Enemy enemy)
+        {
+            player.DrinkPotion(this, potion, enemy);
         }
     }
 }

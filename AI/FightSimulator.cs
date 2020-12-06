@@ -84,13 +84,13 @@ namespace StS
                     Console.WriteLine($"End Turn");
                     fight.EndTurn();
                     //monsterTurn
-                    
+
                     fight.EnemyMove();
                     fight.StartTurn();
                     break;
                 case SimActionEnum.Potion:
                     Console.WriteLine($"Drink {action.Potion}");
-                    _Player.DrinkPotion(action.Potion, _Enemy);
+                    _Player.DrinkPotion(fight, action.Potion, _Enemy);
                     break;
                 default:
                     break;

@@ -29,12 +29,12 @@ namespace StS
             ef.DeckEffect.Add((Deck deck) =>
             {
                 var headbuttTarget = targets.First();
-                if (!deck.DiscardPile.Contains(headbuttTarget))
+                if (!deck.DiscardPileContains(headbuttTarget))
                 {
                     throw new System.Exception("Trying to headbutt card not in discard.");
                 }
-                deck.DiscardPile.Remove(headbuttTarget);
-                deck.DrawPile.Add(headbuttTarget);
+
+                deck.MoveFromDiscardToDraw(headbuttTarget);
             });
         }
     }

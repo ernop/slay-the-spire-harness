@@ -17,7 +17,7 @@ namespace StS
             {
                 Action = (Fight f, Deck d) =>
                 {
-                    var theCard = d.Draw(this, null, 1, true).SingleOrDefault();
+                    var theCard = d.Draw(null, 1, true).SingleOrDefault();
                     if (theCard == null)
                     {
                         return;

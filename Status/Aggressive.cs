@@ -23,7 +23,7 @@
         /// someone played a card against an entity with aggro status.  Is it safe to assume I'm always target here as far as ef is concerned?
         /// Question: someone playing strike with -6 strength; does it trigger aggressive?  probably shouldn't.
         /// </summary>
-        internal override void Apply(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
+        internal override void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
         {
             if (card.CardType == CardType.Attack && statusIsTargeted)
             {

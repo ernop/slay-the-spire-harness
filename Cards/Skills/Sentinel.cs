@@ -9,13 +9,14 @@ namespace StS
         public override TargetType TargetType => TargetType.Player;
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
-        public override void OtherEffects(Action action, EffectSet ef, int upgradeCount)
+        public override void OtherAction(Action action, EffectSet ef, int upgradeCount)
         {
             if (action == Action.Exhaust)
             {
-                ef.PlayerMana += upgradeCount == 0 ? 2 : 3;
+                ef.PlayerEnergy += upgradeCount == 0 ? 2 : 3;
             }
         }
+
         internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
 

@@ -14,7 +14,7 @@ namespace StS
             {
                 Action<Deck> makeOneCostZero = (Deck) =>
                 {
-                    var ci = SelectNonZeroCostCard(Deck.Hand);
+                    var ci = SelectNonZeroCostCard(Deck.GetHand);
                     if (ci != null)
                     {
                         Console.WriteLine($"monkey paw set {ci} to cost zero.");

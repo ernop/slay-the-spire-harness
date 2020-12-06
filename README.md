@@ -35,6 +35,7 @@ Todos
  - cards that have multiple "versions" of sims, i.e. headbutt or any card that has targets, needs to specify targets somehow? so the AI can monte carlo over them.
  - fix tests to have standard format and test autodetection.
  - console application for testing
+ - how to generally get a narrative account of a fight?  textmode StS
 
 Todos Done
  - unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).

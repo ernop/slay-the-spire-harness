@@ -60,7 +60,7 @@ namespace StS
         /// <summary>
         /// player should be able to query a card to see if it's currently playable.
         /// </summary>
-        public bool Playable(List<CardInstance> hand)
+        public bool Playable(IList<CardInstance> hand)
         {
             if (!Card.Playable(hand))
             {
@@ -76,6 +76,11 @@ namespace StS
             {
                 Console.WriteLine($"\tplayed card {this}");
             }
+        }
+
+        public void OtherAction(Action action, EffectSet ef)
+        {
+            Card.OtherAction(action, ef, UpgradeCount);
         }
 
         /// <summary>

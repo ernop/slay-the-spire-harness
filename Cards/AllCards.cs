@@ -39,6 +39,7 @@ namespace StS
             cards["PommelStrike"] = new PommelStrike();
             cards["Havok"] = new Havok();
             cards["TrueGrit"] = new TrueGrit();
+            cards["FeelNoPain"] = new FeelNoPain();
 
             return cards;
         }

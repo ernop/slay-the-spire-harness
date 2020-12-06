@@ -7,24 +7,29 @@ namespace StS
     /// </summary>
     public class PlatedArmor : Status
     {
-        public PlatedArmor(Entity e)
-        {
-            //in tests, null entity.
-            if (e == null)
-            {
-                return;
-            }
-            e.TakeDamage += NotifyStatusOfDamage;
-        }
-
-        private void NotifyStatusOfDamage(Entity e)
+        private void PlatedArmorTookDamage(Entity e)
         {
             var si = e.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.PlatedArmor);
             if (si == null)
             {
+                throw new System.Exception("Event should have been removed already");
                 return;
             }
             si.Intensity--;
+            if (si.Intensity < 0)
+            {
+                si.Intensity = 0;
+            }
+        }
+
+        public override void Apply(Deck d, Entity e)
+        {
+            e.TakeDamage += PlatedArmorTookDamage;
+        }
+
+        public override void Unapply(Deck d, Entity e)
+        {
+            e.TakeDamage -= PlatedArmorTookDamage;
         }
 
         public override string Name => nameof(PlatedArmor);
