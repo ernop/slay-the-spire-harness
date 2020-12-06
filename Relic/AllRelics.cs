@@ -23,6 +23,7 @@ namespace StS
             relics["Ectoplasm"] = new Ectoplasm();
             relics["TheBoot"] = new TheBoot();
             relics["Sundial"] = new Sundial();
+            relics["NeowsLament"] = new NeowsLament();
             return relics;
         }
     }

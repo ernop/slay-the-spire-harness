@@ -995,6 +995,57 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Intimidate()
+        {
+            var relics = GetRelics("NeowsLament", "BagOfEyes");
+            var player = new Player(relics: relics);
+
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "Intimidate+", "FeelNoPain+", "Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[2]);
+            fight.PlayCard(initialCis[1]);
+            Assert.AreEqual(4, player.Block);
+            var statuses = new List<StatusInstance>();
+            statuses.AddRange(GetStatuses(new Weak(), 2));
+            statuses.AddRange(GetStatuses(new Vulnerable(), 1));
+            Assert.IsTrue(CompareStatuses(statuses, enemy.StatusInstances, out var msg), msg);
+        }
+
+        [Test]
+        public static void Test_Neow()
+        {
+            var relics = GetRelics("NeowsLament");
+            var player = new Player(relics: relics);
+
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "FeelNoPain+", "Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[2]);
+            Assert.AreEqual(FightStatus.Won, fight.Status);
+
+            var enemy2 = new GenericEnemy();
+            var fight2 = new Fight(initialCis, player: player, enemy: enemy2, true);
+            fight2.StartTurn();
+            fight2.PlayCard(initialCis[2]);
+            Assert.AreEqual(FightStatus.Won, fight2.Status);
+
+            var enemy3 = new GenericEnemy();
+            var fight3 = new Fight(initialCis, player: player, enemy: enemy3, true);
+            fight3.StartTurn();
+            fight3.PlayCard(initialCis[2]);
+            Assert.AreEqual(FightStatus.Won, fight3.Status);
+
+            var enemy4 = new GenericEnemy();
+            var fight4 = new Fight(initialCis, player: player, enemy: enemy4, true);
+            fight4.StartTurn();
+            fight4.PlayCard(initialCis[2]);
+            Assert.AreEqual(FightStatus.Ongoing, fight4.Status);
+        }
+
+        [Test]
         public static void Test_Pummel()
         {
             var player = new Player();

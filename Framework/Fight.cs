@@ -24,6 +24,16 @@ namespace StS
 
         private List<IEnemy> _Enemies { get; set; }
         private Player _Player { get; set; }
+
+        internal void SetEnemyHp(int v)
+        {
+            foreach (var enemy in _Enemies)
+            {
+                enemy.HP = 1;
+                enemy.HPMax = 1;
+            }
+        }
+
         private Deck _Deck { get; set; }
 
         /// <summary>

@@ -41,6 +41,7 @@ namespace StS
             cards["TrueGrit"] = new TrueGrit();
             cards["FeelNoPain"] = new FeelNoPain();
             cards["Pummel"] = new Pummel();
+            cards["Intimidate"] = new Intimidate();
 
             return cards;
         }

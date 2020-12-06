@@ -32,11 +32,16 @@ namespace StS
 
         public static bool CompareStatuses(List<StatusInstance> a, List<StatusInstance> b, out string error)
         {
+
             if (a.Count != b.Count)
             {
                 error = "Status length mismatch";
                 return false;
             }
+
+            a = a.OrderBy(el => el.Status.StatusType).ToList();
+            b = b.OrderBy(el => el.Status.StatusType).ToList();
+
             for (var i = 0; i < a.Count; i++)
             {
                 var ael = a[i];
