@@ -21,6 +21,7 @@ namespace StS
             relics["HornCleat"] = new HornCleat();
             relics["BurningBlood"] = new BurningBlood();
             relics["Ectoplasm"] = new Ectoplasm();
+            relics["TheBoot"] = new TheBoot();
             return relics;
         }
     }

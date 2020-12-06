@@ -40,6 +40,7 @@ namespace StS
             cards["Havok"] = new Havok();
             cards["TrueGrit"] = new TrueGrit();
             cards["FeelNoPain"] = new FeelNoPain();
+            cards["Pummel"] = new Pummel();
 
             return cards;
         }

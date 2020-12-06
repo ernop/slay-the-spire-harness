@@ -199,9 +199,9 @@ namespace StS
         {
             //clear 
             //shuffle discard back into draw.
+
             while (Hand.Count > 0)
             {
-
                 var ci = Hand[0];
                 ci.LeavingHand();
                 Hand.Remove(ci);
@@ -217,7 +217,7 @@ namespace StS
             }
         }
 
-        private void Exhaust(CardInstance ci, EffectSet ef)
+        public void Exhaust(CardInstance ci, EffectSet ef)
         {
             ci.OtherAction(Action.Exhaust, ef);
 
@@ -279,7 +279,7 @@ namespace StS
 
         }
 
-        internal void AfterPlayingCard(CardInstance ci)
+        internal void AfterPlayingCard(CardInstance ci, EffectSet ef)
         {
             if (ci.Card.CardType == CardType.Power)
             {
@@ -290,14 +290,25 @@ namespace StS
                 ci.LeavingHand();
                 if (ci.Exhausts())
                 {
-                    ExhaustPile.Add(ci);
+                    Exhaust(ci, ef);
                 }
                 else
                 {
-                    DiscardPile.Add(ci);
+                    PutIntoDiscardAfterApplyingEffectSet = ci;
                 }
             }
         }
+
+        internal void FinishCardPlay()
+        {
+            if (PutIntoDiscardAfterApplyingEffectSet != null)
+            {
+                DiscardPile.Add(PutIntoDiscardAfterApplyingEffectSet);
+                PutIntoDiscardAfterApplyingEffectSet = null;
+            }
+        }
+
+        private CardInstance PutIntoDiscardAfterApplyingEffectSet { get; set; }
 
         public void Reshuffle()
         {

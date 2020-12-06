@@ -13,7 +13,7 @@ namespace StS
         internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var amt = upgradeCount == 0 ? 3 : 4;
-            ef.TargetEffect.Status.Add(new StatusInstance(new FeelNoPainStatus(), amt));
+            ef.SourceEffect.Status.Add(new StatusInstance(new FeelNoPainStatus(), amt));
         }
     }
 }

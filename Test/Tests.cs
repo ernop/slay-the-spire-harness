@@ -908,6 +908,53 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_TheBoot()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["TheBoot"]);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(30, enemy.HP);
+        }
+
+        [Test]
+        public static void Test_TheBoot_FNP()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["TheBoot"]);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "FeelNoPain+", "Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[0]);
+            fight.PlayCard(initialCis[1]);
+            fight.PlayCard(initialCis[2]);
+            Assert.AreEqual(30, enemy.HP);
+            Assert.AreEqual(4, player.Block);
+        }
+
+        [Test]
+        public static void Test_Pummel()
+        {
+            var player = new Player();
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(5);
+
+            //problem: when I initialize the fight I make a copy of the cards.
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(42, enemy.HP);
+        }
+
+        [Test]
         public static void DrawTests()
         {
             TestDrawOnly("Basic-Hand-two-from-six", GetCis("Strike+", "Bash", "Inflame", "Shockwave", "LimitBreak", "Footwork"), GetCis("LimitBreak", "Footwork"), 2);

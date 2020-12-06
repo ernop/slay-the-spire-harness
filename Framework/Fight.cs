@@ -269,10 +269,13 @@ namespace StS
 
             //relic effects apply first.
 
+            //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
+            _Deck.AfterPlayingCard(cardInstance, ef);
+
             ApplyEffectSet(ef, _Player, target);
 
-            //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
-            _Deck.AfterPlayingCard(cardInstance);
+            _Deck.FinishCardPlay();
+
         }
 
         public void ApplyEffectSet(EffectSet ef, IEntity source, IEntity target)
@@ -370,7 +373,7 @@ namespace StS
             if (ef.InitialDamage != null)
             {
                 var val = ef.InitialDamage.Select(el => (double)el);
-                foreach (var prog in ef.DamageAdjustments)
+                foreach (var prog in ef.DamageAdjustments.OrderBy(el => el.Order))
                 {
                     val = prog.Fun(val);
                 }
