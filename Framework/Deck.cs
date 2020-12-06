@@ -212,7 +212,7 @@ namespace StS
                 }
                 else
                 {
-                    Discard(ci);
+                    PutInDiscardPile(ci);
                 }
 
             }
@@ -237,7 +237,10 @@ namespace StS
             Exhaust(ci, ef);
         }
 
-        public void Discard(CardInstance ci)
+        /// <summary>
+        /// Doesn't trigger "Discard" events.
+        /// </summary>
+        public void PutInDiscardPile(CardInstance ci)
         {
             DiscardPile.Add(ci);
         }

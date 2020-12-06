@@ -2,7 +2,6 @@
 
 namespace StS
 {
-
     public class TwinStrike : IroncladAttackCard
     {
         public override string Name => nameof(TwinStrike);

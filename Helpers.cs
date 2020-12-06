@@ -190,12 +190,13 @@ namespace StS
             }
             return cis;
         }
+
         public static List<Relic> GetRelics(params string[] relics)
         {
             var res = new List<Relic>();
             foreach (var x in relics)
             {
-                res.Add(AllRelics.Relics[x]);
+                res.Add(AllRelics.Relics[x].Copy());
             }
             return res;
         }

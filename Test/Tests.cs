@@ -1014,6 +1014,18 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Anger()
+        {
+            var player = new Player();
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "Anger", "Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[1]);
+            Assert.AreEqual(2, fight.GetDiscardPile.Count);
+        }
+
+        [Test]
         public static void Test_Neow()
         {
             var relics = GetRelics("NeowsLament");
@@ -1023,6 +1035,7 @@ namespace StS.Tests
             var initialCis = GetCis("Inflame", "FeelNoPain+", "Pummel");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
             fight.PlayCard(initialCis[2]);
             Assert.AreEqual(FightStatus.Won, fight.Status);
 
@@ -1043,6 +1056,7 @@ namespace StS.Tests
             fight4.StartTurn();
             fight4.PlayCard(initialCis[2]);
             Assert.AreEqual(FightStatus.Ongoing, fight4.Status);
+            Assert.AreEqual(0, player.StatusInstances.Count);
         }
 
         [Test]

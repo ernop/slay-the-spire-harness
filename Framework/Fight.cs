@@ -135,6 +135,11 @@ namespace StS
 
         public void StartTurn(int? drawCount = null)
         {
+            if (RoundNumber == 0)
+            {
+                //clear this.
+                _Player.StatusInstances = new List<StatusInstance>();
+            }
             FirstTurnCalled = true;
             RoundNumber++;
             drawCount = drawCount ?? _Player.GetDrawAmount();
