@@ -38,7 +38,7 @@ namespace StS
 
     public class IndividualEffect
     {
-        public int InitialBlock { get; set; }
+        public double InitialBlock { get; set; }
         public IEnumerable<int> InitialDamage { get; set; }
         public List<Progression> BlockAdjustments { get; set; } = new List<Progression>();
         public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();

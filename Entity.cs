@@ -29,8 +29,21 @@ namespace StS
         //unlike statuses and cards which have abstract Card and instances, relics are just relics
         public List<Relic> Relics { get; set; } = new List<Relic>();
 
+        public bool CheckTurnip(StatusInstance si)
+        {
+            if (si.Status.StatusType == StatusType.Frail)
+            {
+                if (Relics.Any(el => el.Name == nameof(Turnip)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void ApplyStatus(Deck d, StatusInstance statusInstance)
         {
+            if (CheckTurnip(statusInstance)) return;
             var exiStatus = StatusInstances.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
             if (exiStatus == null)
             {

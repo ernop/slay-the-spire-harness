@@ -14,6 +14,7 @@
         FlameBarrierStatus = 8,
         PlatedArmor = 9,
         FeelNoPainStatus = 10,
+        Frail = 11,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

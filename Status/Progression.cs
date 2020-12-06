@@ -9,12 +9,14 @@ namespace StS
     public class Progression
     {
         public string Desc { get; set; }
-        public Func<int, IEntity, int> Fun { get; set; }
+        public Func<double, IEntity, double> Fun { get; set; }
+        public int Order { get; set; }
 
-        public Progression(string desc, Func<int, IEntity, int> fun)
+        public Progression(string desc, Func<double, IEntity, double> fun, int order = 1)
         {
             Desc = desc;
             Fun = fun;
+            Order = order;
         }
 
         public override string ToString()

@@ -2,7 +2,6 @@
 
 namespace StS
 {
-
     public class Strength : Status
     {
         public override string Name => nameof(Strength);

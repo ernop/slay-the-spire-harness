@@ -383,13 +383,13 @@ namespace StS
             //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
             // (fore xample, exhausting a card with Feel No Pain on.)
             var val = ef.InitialBlock;
-            foreach (var prog in ef.BlockAdjustments)
+            foreach (var prog in ef.BlockAdjustments.OrderBy(el => el.Order))
             {
                 val = prog.Fun(val, entity);
             }
             if (val > 0)
             {
-                entity.Block += val;
+                entity.Block += (int)val;
             }
         }
         public void ReceiveDamage(IEntity entity, IndividualEffect ef, out bool alive)
@@ -467,13 +467,13 @@ namespace StS
             }
         }
 
-        public void EnemyPlayCard(EnemyAttack enemyAttack)
+        public void EnemyPlayCard(EnemyCard enemyCard)
         {
             var source = _Enemies[0];
             var target = _Player;
             var ef = new EffectSet();
 
-            var cardInstance = new CardInstance(enemyAttack, 0);
+            var cardInstance = new CardInstance(enemyCard, 0);
             cardInstance.Play(ef, _Player, _Enemies[0]);
 
             foreach (var si in source.StatusInstances)
@@ -499,6 +499,8 @@ namespace StS
             if (!alive) Died(_Player);
             ReceiveDamage(_Enemies[0], ef.SourceEffect, out bool alive2);
             if (!alive2) Died(_Enemies[0]);
+            ApplyStatus(_Player, ef.TargetEffect.Status);
+            ApplyStatus(_Enemies[0], ef.SourceEffect.Status);
         }
 
         public override string ToString()

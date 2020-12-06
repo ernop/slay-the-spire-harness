@@ -74,6 +74,6 @@ namespace StS
     }
     public abstract class EnemyCard : Card
     {
-        public override CardType CardType => CardType.Attack;
+        public override CharacterType CharacterType => CharacterType.Enemy;
     }
 }

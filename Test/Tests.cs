@@ -995,6 +995,57 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Turnip()
+        {
+            var relics = GetRelics("Turnip");
+            var player = new Player(relics: relics);
+
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "Intimidate+", "FeelNoPain+", "Pummel");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartTurn();
+            fight.EnemyPlayCard(new EnemyStatusEffect(new StatusInstance(new Frail(), 3)));
+
+            Assert.AreEqual(0, player.StatusInstances.Count);
+        }
+
+        [Test]
+        public static void Test_Frail()
+        {
+            var player = new Player();
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Defend+", "Footwork+", "Footwork+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(8, player.Block);
+            fight.EndTurn();
+            fight.EnemyPlayCard(new EnemyStatusEffect(new StatusInstance(new Frail(), 3)));
+            Assert.AreEqual(1, player.StatusInstances.Count);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(6, player.Block);
+            fight.PlayCard(initialCis[1]);
+            fight.EndTurn();
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]); //should be sure that the frailty is applied after the extra defense is added in.
+
+            Assert.AreEqual(8, player.Block);
+            fight.PlayCard(initialCis[2]); //should be sure that the frailty is applied after the extra defense is added in.
+            fight.EndTurn();
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(10, player.Block);
+            Assert.AreEqual(2, player.StatusInstances.Count);
+            fight.EndTurn();
+            Assert.AreEqual(1, player.StatusInstances.Count);
+            fight.StartTurn();
+            Assert.AreEqual(1, player.StatusInstances.Count);
+            fight.PlayCard(initialCis[0]);
+            Assert.AreEqual(14, player.Block);
+        }
+
+        [Test]
         public static void Test_Intimidate()
         {
             var relics = GetRelics("NeowsLament", "BagOfEyes");

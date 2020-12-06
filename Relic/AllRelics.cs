@@ -24,6 +24,7 @@ namespace StS
             relics["TheBoot"] = new TheBoot();
             relics["Sundial"] = new Sundial();
             relics["NeowsLament"] = new NeowsLament();
+            relics["Turnip"] = new Turnip();
             return relics;
         }
     }

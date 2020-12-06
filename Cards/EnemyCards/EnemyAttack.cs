@@ -5,9 +5,11 @@ using static StS.Helpers;
 
 namespace StS
 {
+
     public class EnemyAttack : EnemyCard
     {
         public override string Name => nameof(EnemyAttack);
+        public override CardType CardType => CardType.Attack;
 
         public override CharacterType CharacterType => CharacterType.Enemy;
         public int Amount { get; set; }
