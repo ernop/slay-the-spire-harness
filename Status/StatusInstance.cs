@@ -21,7 +21,7 @@ namespace StS
         }
 
         /// <summary>
-        /// When a status really gets applied.
+        /// Initialize event linkages for a status
         /// </summary>
         public virtual void Apply(Deck d, Entity e)
         {

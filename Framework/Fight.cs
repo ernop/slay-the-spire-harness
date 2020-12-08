@@ -16,14 +16,15 @@ namespace StS
             var d = _Deck.Copy();
 
             var newFight = new Fight(d, p, e);
-            var historyCopy = SimActionHistory.Select(el => el.Copy());
-            newFight.SimActionHistory = historyCopy.ToList();
+            var historyCopy = FightHistory.Select(el => el.Copy());
+            newFight.FightHistory = historyCopy.ToList();
             newFight.FirstTurnCalled = FirstTurnCalled;
+            newFight.TurnNumber = TurnNumber;
             return newFight;
         }
 
-        private List<IEnemy> _Enemies { get; set; }
-        private Player _Player { get; set; }
+        public List<IEnemy> _Enemies { get; set; }
+        public Player _Player { get; set; }
 
         internal void SetEnemyHp(int v)
         {
@@ -56,8 +57,8 @@ namespace StS
             {
                 relic.StartFight(_Deck, ef);
             }
-            ApplyEffectSet(SimActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
 
+            ApplyEffectSet(FightActionEnum.StartFight, ef, _Player, _Enemies[0]);
         }
 
         private Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -93,9 +94,9 @@ namespace StS
         /// <summary>
         /// Should really only return distinct actions.
         /// </summary>
-        internal List<SimAction> GetAllActions()
+        internal List<FightAction> GetAllActions()
         {
-            var res = new List<SimAction>();
+            var res = new List<FightAction>();
             var hand = _Deck.GetHand;
             var consideredCis = new List<string>();
             var en = _Player.Energy;
@@ -103,18 +104,18 @@ namespace StS
             {
                 if (ci.EnergyCost() <= en && ci.Playable(hand) && !consideredCis.Contains(ci.ToString()))
                 {
-                    var sa = new SimAction(simActionType: SimActionEnum.PlayCard, null, ci);
+                    var sa = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
                     res.Add(sa);
                     consideredCis.Add(ci.ToString());
                 }
             }
             foreach (var pot in _Player.Potions)
             {
-                var sa = new SimAction(SimActionEnum.Potion, pot, null);
+                var sa = new FightAction(FightActionEnum.Potion, potion: pot);
                 res.Add(sa);
             }
 
-            res.Add(new SimAction(SimActionEnum.EndTurn, null, null));
+            res.Add(new FightAction(FightActionEnum.EndTurn));
 
             return res;
         }
@@ -139,23 +140,24 @@ namespace StS
 
         private bool FirstTurnCalled = false;
 
-        public int RoundNumber { get; set; }
-        public List<SimAction> SimActionHistory { get; internal set; } = new List<SimAction>();
+        public int TurnNumber { get; set; }
+        public List<FightAction> FightHistory { get; internal set; } = new List<FightAction>();
 
 
 
         public void StartTurn(int? drawCount = null)
         {
-            if (RoundNumber == 0)
+            if (TurnNumber == 0)
             {
                 //clear this.
                 _Player.StatusInstances = new List<StatusInstance>();
             }
             FirstTurnCalled = true;
-            RoundNumber++;
+            TurnNumber++;
             drawCount = drawCount ?? _Player.GetDrawAmount();
             var ef = new EffectSet();
             _Deck.NextTurnStarts(drawCount.Value, ef);
+            AddHistory(FightActionEnum.StartTurn, desc: new List<string>() { TurnNumber.ToString() });
             _Player.Energy = _Player.MaxEnergy();
             _Player.Block = 0;
             foreach (var status in _Player.StatusInstances)
@@ -166,7 +168,21 @@ namespace StS
             {
                 relic.StartTurn(_Player, _Enemies[0], ef);
             }
-            ApplyEffectSet(SimActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
+
+            ApplyEffectSet(FightActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
+        }
+
+        public void AddHistory(FightActionEnum type, Potion potion = null, CardInstance card = null, IEntity enemy = null, List<string> desc = null)
+        {
+            var fh = new FightAction(type, potion, card, enemy, desc);
+            var fhstr = fh.ToString();
+            if (string.IsNullOrEmpty(fhstr))
+            {
+                return;
+            }
+
+
+            FightHistory.Add(fh);
         }
 
         public void EndTurn()
@@ -176,9 +192,11 @@ namespace StS
                 throw new Exception("Calling EndTurn without firstturn started.");
             }
 
+            AddHistory(FightActionEnum.EndTurn, desc: new List<string>() { $"{TurnNumber}" });
+
             var endTurnEf = new EffectSet();
             _Deck.TurnEnds(endTurnEf);
-            ApplyEffectSet(SimActionEnum.EndTurnEffect, endTurnEf, _Player, _Enemies[0]);
+            ApplyEffectSet(FightActionEnum.EndTurnDeckEffect, endTurnEf, _Player, _Enemies[0]);
             //TODO this is affected by calipers, barricade, etc.
 
             var endTurnPlayerEf = new EffectSet();
@@ -202,9 +220,11 @@ namespace StS
                 relic.EndTurn(_Player, _Enemies[0], relicEf);
             }
 
-            ApplyEffectSet(SimActionEnum.EndTurn, endTurnPlayerEf, _Player, _Enemies[0]);
-            ApplyEffectSet(SimActionEnum.EndTurn, endTurnEnemyEf, _Enemies[0], _Player);
-            ApplyEffectSet(SimActionEnum.EndTurn, relicEf, _Player, _Enemies[0]);
+            ApplyEffectSet(FightActionEnum.EndTurnOtherEffect, endTurnPlayerEf, _Player, _Enemies[0]);
+
+            ApplyEffectSet(FightActionEnum.EndTurnOtherEffect, endTurnEnemyEf, _Enemies[0], _Player);
+
+            ApplyEffectSet(FightActionEnum.EndTurnOtherEffect, relicEf, _Player, _Enemies[0]);
 
             _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
         }
@@ -214,11 +234,14 @@ namespace StS
 
         public IList<CardInstance> GetHand => _Deck.GetHand;
 
-        /// <summary>
-        /// Do nothing right now.
-        /// </summary>
         public void Died(IEntity entity)
         {
+            AddHistory(FightActionEnum.EnemyDied, enemy: entity);
+            if (entity.Dead)
+            {
+                throw new Exception("Can't die twice");
+            }
+            entity.Dead = true;
             switch (entity.EntityType)
             {
                 case EntityType.Enemy:
@@ -239,7 +262,7 @@ namespace StS
             {
                 var ef = new EffectSet();
                 relic.EndFight(_Deck, ef);
-                ApplyEffectSet(SimActionEnum.EndFightEffect, ef, _Player, _Player);
+                ApplyEffectSet(FightActionEnum.EndFightEffect, ef, _Player, _Player);
             }
         }
 
@@ -267,7 +290,7 @@ namespace StS
                     throw new Exception("Trying to play too expensive card");
                 }
 
-                var ec = cardInstance.EnergyCost(); ;
+                var ec = cardInstance.EnergyCost();
                 _Player.Energy -= ec;
                 _Deck.BeforePlayingCard(cardInstance);
             }
@@ -311,52 +334,39 @@ namespace StS
             //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
             _Deck.AfterPlayingCard(cardInstance, ef);
 
-            ApplyEffectSet(SimActionEnum.PlayCard, ef, _Player, target);
+            ApplyEffectSet(FightActionEnum.PlayCard, ef, _Player, target, card: cardInstance);
 
             _Deck.FinishCardPlay();
-
             return ef;
         }
 
-        public void ApplyEffectSet(SimActionEnum action, EffectSet ef, IEntity source, IEntity target)
+        public void ApplyEffectSet(FightActionEnum action, EffectSet ef, IEntity source, IEntity target, Potion potion = null, CardInstance card = null)
         {
-            var history = new List<string>();
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
 
             //What happens if a deckeffect has further effects like exhausting a card, and the player has a status that triggers on this?
+            var history = new List<string>();
+
             foreach (var f in ef.DeckEffect)
             {
-                f.Invoke(_Deck);
+                history.Add(f.Invoke(_Deck));
             }
 
             if (source == target)
             {
                 var combined = Combine(ef.SourceEffect, ef.TargetEffect);
                 GainBlock(source, combined, history);
-                ReceiveDamage(source, combined, history, out bool alive);
-                if (!alive)
-                {
-                    Died(source);
-                }
+                ReceiveDamage(source, combined, history);
                 ApplyStatus(source, combined.Status, history);
             }
             else
             {
                 GainBlock(source, ef.SourceEffect, history);
-                ReceiveDamage(target, ef.TargetEffect, history, out bool alive);
-                if (!alive)
-                {
-                    Died(target);
-                }
+                ReceiveDamage(target, ef.TargetEffect, history);
 
                 GainBlock(target, ef.TargetEffect, history);
-                ReceiveDamage(source, ef.SourceEffect, history, out bool alive2);
-                if (!alive2)
-                {
-                    Died(source);
-                    history.Add($"{source} Died");
-                }
+                ReceiveDamage(source, ef.SourceEffect, history);
 
                 ApplyStatus(source, ef.SourceEffect.Status, history);
                 ApplyStatus(target, ef.TargetEffect.Status, history);
@@ -365,23 +375,41 @@ namespace StS
             if (ef.PlayerEnergy != 0)
             {
                 _Player.Energy += ef.PlayerEnergy;
-                history.Add($"Player gained ${ef.PlayerEnergy} to {_Player.Energy}");
+                history.Add($"Gained ${ef.PlayerEnergy} to {_Player.Energy}");
             }
 
             foreach (var f in ef.PlayerEffect)
             {
-                f.Invoke(_Player);
+                history.Add(f.Invoke(_Player));
             }
 
-            foreach (var f in ef.FightEffects)
+            ef.FightEffect.ForEach(fe => history.Add(fe.Action.Invoke(this, _Deck)));
+
+            AddHistory(action, potion: potion, card: card, desc: history);
+
+            foreach (var en in _Enemies)
             {
-                f.Action.Invoke(this, _Deck);
+                if (!en.Dead)
+                {
+                    if (en.HP <= 0)
+                    {
+                        Died(en);
+                    }
+                }
             }
-
-            SimActionHistory.Add(new SimAction(action, desc: history));
+            if (_Player.HP <= 0)
+            {
+                if (!_Player.Dead)
+                {
+                    Died(_Player);
+                }
+            }
         }
 
 
+        /// <summary>
+        /// For use during a fight; add a status to an entity
+        /// </summary>
         public void ApplyStatus(IEntity entity, List<StatusInstance> sis, List<string> history)
         {
             foreach (var status in sis)
@@ -400,7 +428,7 @@ namespace StS
         public void GainBlock(IEntity entity, IndividualEffect ef, List<string> history)
         {
             //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
-            // (fore xample, exhausting a card with Feel No Pain on.)
+            // (for example, exhausting a card with Feel No Pain on.)
             var val = ef.InitialBlock;
             foreach (var prog in ef.BlockAdjustments.OrderBy(el => el.Order))
             {
@@ -410,13 +438,12 @@ namespace StS
             {
                 var gain = (int)val;
                 entity.Block += gain;
-                history.Add($"{entity} gained {gain}");
+                history.Add($"{entity} gained {gain}B");
             }
         }
 
-        public void ReceiveDamage(IEntity entity, IndividualEffect ef, List<string> history, out bool alive)
+        public void ReceiveDamage(IEntity entity, IndividualEffect ef, List<string> history)
         {
-            alive = true;
             //We don't actually want to 
             if (ef.InitialDamage != null)
             {
@@ -427,7 +454,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
-                history.Add($"{entity} was attacked {string.Join(',', usingVal)} damage while having {entity.Block} block");
+                history.Add($"Attacked {entity}{entity.HP}/{entity.HPMax} {entity.Block}B for {string.Join(',', usingVal)}");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -449,10 +476,11 @@ namespace StS
                         }
                         if (elCopy > 0)
                         {
-                            alive = entity.ApplyDamage(elCopy);
+                            entity.ApplyDamage(elCopy);
                         }
                     }
                 }
+                history.Add($"{entity.Details()}");
             }
         }
 
@@ -466,13 +494,10 @@ namespace StS
             return _Player.HP <= 0;
         }
 
-        internal void EnemyMove(EnemyAction enemyAction = null)
+        internal void EnemyMove()
         {
+            var enemyAction = _Enemies[0].GetAction();
             var history = new List<string>();
-            if (enemyAction == null)
-            {
-                enemyAction = _Enemies[0].GetAction();
-            }
             if (enemyAction == null)
             {
                 throw new Exception("No enemy action?");
@@ -480,7 +505,7 @@ namespace StS
             if (enemyAction.Buffs != null)
             {
                 ApplyStatus(_Enemies[0], enemyAction.Buffs, history);
-                SimActionHistory.Add(new SimAction(SimActionEnum.EnemyBuff, desc: history));
+                AddHistory(FightActionEnum.EnemyBuff, desc: history);
             }
             if (enemyAction.Attack != null)
             {
@@ -489,7 +514,7 @@ namespace StS
             if (enemyAction.PlayerStatusAttack != null)
             {
                 ApplyStatus(_Player, enemyAction.Buffs, history);
-                SimActionHistory.Add(new SimAction(SimActionEnum.EnemyStatusAttack, desc: history));
+                AddHistory(FightActionEnum.EnemyStatusAttack, desc: history);
             }
         }
 
@@ -522,18 +547,24 @@ namespace StS
 
             GainBlock(_Player, ef.TargetEffect, history);
             GainBlock(_Enemies[0], ef.SourceEffect, history);
-            ReceiveDamage(_Player, ef.TargetEffect, history, out bool alive);
-            if (!alive) Died(_Player);
-            ReceiveDamage(_Enemies[0], ef.SourceEffect, history, out bool alive2);
-            if (!alive2) Died(_Enemies[0]);
+            ReceiveDamage(_Player, ef.TargetEffect, history);
+            ReceiveDamage(_Enemies[0], ef.SourceEffect, history);
             ApplyStatus(_Player, ef.TargetEffect.Status, history);
             ApplyStatus(_Enemies[0], ef.SourceEffect.Status, history);
-            SimActionHistory.Add(new SimAction(SimActionEnum.EnemyAttack, desc: history));
+            AddHistory(FightActionEnum.EnemyAttack, card: cardInstance, desc: history);
+            if (_Enemies[0].HP <= 0)
+            {
+                Died(_Enemies[0]);
+            }
+            if (_Player.HP <= 0)
+            {
+                Died(_Player);
+            }
         }
 
         public override string ToString()
         {
-            return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]} History: {SimActionHistory.Count}";
+            return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]} History: {FightHistory.Count}";
         }
 
         internal void DrinkPotion(Player player, Potion potion, Enemy enemy)

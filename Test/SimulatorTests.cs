@@ -18,15 +18,20 @@ namespace StS
             var fs = new FightSimulator(cis, enemy, player);
             var results = fs.Sim();
             Console.WriteLine("==========New Fight===========");
+
+            var ii = 0;
             foreach (var fight in results)
             {
-                foreach (var h in fight.SimActionHistory)
+                foreach (var h in fight.FightHistory)
                 {
                     Console.WriteLine(h);
                 }
+                ii++;
+                if (ii > 10)
+                {
+                    break;
+                }
             }
-            var ae = 5;
         }
     }
-
 }

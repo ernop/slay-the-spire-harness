@@ -19,14 +19,14 @@ namespace StS
     }
     public class Cultist : Enemy, IEnemy
     {
-        public bool firstRound { get; set; } = true;
+        public bool FirstRound { get; set; } = true;
         public Cultist(int? hpMax = null, int? hp = null) : base(nameof(Cultist), hpMax, hp) { }
 
         public override EnemyAction GetAction()
         {
-            if (firstRound)
+            if (FirstRound)
             {
-                firstRound = false;
+                FirstRound = false;
                 var res = new EnemyAction(new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }, null, null);
                 return res;
             }
@@ -45,7 +45,10 @@ namespace StS
             {
                 Name = Name,
                 Block = Block,
-                StatusInstances = sis.ToList()
+                StatusInstances = sis.ToList(),
+                FirstRound = FirstRound,
+                HP = HP,
+                HPMax = HPMax
             };
         }
     }

@@ -90,6 +90,11 @@ namespace StS
         {
             var ec = EnergyCost();
             var upgrade = UpgradeCount > 0 ? "+" : "";
+            if (UpgradeCount > 1)
+            {
+                upgrade = $"+{UpgradeCount}";
+            }
+
             var extra = "";
             if (PerTurnOverrideEnergyCost != null)
             {
@@ -99,7 +104,8 @@ namespace StS
             {
                 extra = $"(Fight:{ec})";
             }
-            return $"{Card}{upgrade}C:{ec}{extra}";
+
+            return $"{Card}{upgrade}{extra}";
         }
 
         internal CardInstance Copy()

@@ -7,6 +7,11 @@ namespace StS
     public static class Helpers
     {
         public static bool PrintDetails = false;
+        public static Random Rnd { get; private set; }
+        public static void SetRandom(int seed)
+        {
+            Rnd = new Random(seed);
+        }
 
         public static bool IsVulnerable(Entity entity)
         {
@@ -148,14 +153,13 @@ namespace StS
         /// </summary>
         public static CardInstance SelectNonZeroCostCard(IList<CardInstance> hand)
         {
-            var rnd = new Random();
             var nonZeros = GetNonZeroCostsFromHand(hand);
             var len = nonZeros.Count();
             if (len == 0)
             {
                 return null;
             }
-            var num = rnd.Next(len);
+            var num = Helpers.Rnd.Next(len);
             return nonZeros.Skip(num).First();
         }
 

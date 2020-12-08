@@ -13,6 +13,7 @@ namespace StS.Tests
         [SetUp]
         public void Setup()
         {
+            Helpers.SetRandom(0);
         }
 
         public static void RunTest(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50,
@@ -382,8 +383,6 @@ namespace StS.Tests
             var initialCis = GetCis("Strike+", "Bash+", "Havok");
             var fight = new Fight(initialCis, player: player, enemy, true);
             fight.StartTurn(2);
-
-            var hand = fight.GetHand;
 
             //play havok; strike should be burned.
             fight.PlayCard(initialCis[2]);
@@ -1251,12 +1250,17 @@ namespace StS.Tests
                         break;
                     }
                 }
-                fight.EnemyMove();
 
                 if (fight.Status != FightStatus.Ongoing)
                 {
                     break;
                 }
+                fight.EnemyMove();
+                if (fight.Status != FightStatus.Ongoing)
+                {
+                    break;
+                }
+
 
                 fight.EndTurn();
                 fight.StartTurn(4);

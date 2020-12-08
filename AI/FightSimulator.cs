@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StS
 {
@@ -18,6 +19,7 @@ namespace StS
     /// </summary>
     public class FightSimulator
     {
+        private string _Output = "C:/dl/fight.txt";
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
         private List<CardInstance> _CIs { get; set; }
@@ -35,20 +37,67 @@ namespace StS
         public List<Fight> Sim()
         {
 
+            System.IO.File.WriteAllText(_Output, "");
             var fight = new Fight(_CIs, _Player, _Enemy);
             fight.StartTurn();
-            var res = Iter(fight);
+            var res = new List<Fight>();
+            Iter(fight, res);
+
+            var summary = Summarize(res);
+            System.IO.File.AppendAllLines(_Output, summary);
+            foreach (var f in res)
+            {
+                SaveFight(f);
+            }
             return res;
         }
 
-        private List<Fight> Iter(Fight fight)
+        public IEnumerable<string> Summarize(List<Fight> fights)
+        {
+            var counts = new Dictionary<Tuple<FightStatus, int, int>, int>();
+            var results = new Dictionary<FightStatus, int>();
+            results[FightStatus.Won] = 0;
+            results[FightStatus.Lost] = 0;
+            results[FightStatus.Ongoing] = 0;
+
+            foreach (var f in fights)
+            {
+                var key = new Tuple<FightStatus, int, int>(f.Status, Math.Max(f._Player.HP, 0), Math.Max(f._Enemies[0].HP, 0));
+                if (!counts.ContainsKey(key))
+                {
+                    counts[key] = 0;
+                }
+                counts[key]++;
+
+                results[f.Status]++;
+            }
+
+            foreach (var k in results.Keys)
+            {
+                yield return $"{k} {results[k]}";
+            }
+
+            foreach (var k in counts.Keys.OrderByDescending(el => el))
+            {
+                yield return $"{k.Item1} HP={k.Item2} en={k.Item3} Count={counts[k]}";
+            }
+
+
+        }
+
+        private void SaveFight(Fight f)
+        {
+            System.IO.File.AppendAllLines(_Output, f.FightHistory.Select(el => el.ToString()));
+        }
+
+        private List<Fight> Iter(Fight fight, List<Fight> res)
         {
             var actions = fight.GetAllActions();
-            Console.WriteLine($"Iter fight with action length: {fight.SimActionHistory.Count}");
-            var res = new List<Fight>();
-            if (fight.SimActionHistory.Count > 50)
+            var turns = fight.FightHistory.Where(el => el.FightActionType == FightActionEnum.EndTurn).Count();
+            if (turns > 6)
             {
-                Console.WriteLine("Break");
+                fight.AddHistory(FightActionEnum.TooLong);
+                res.Add(fight);
                 return res;
             }
             foreach (var action in actions)
@@ -58,13 +107,18 @@ namespace StS
                 switch (fc.Status)
                 {
                     case FightStatus.Ongoing:
-                        Iter(fc);
+                        Iter(fc, res);
                         break;
                     case FightStatus.Won:
-                        fc.SimActionHistory.Add(new SimAction(SimActionEnum.WonFight, desc: new List<string>() { $"Won with HP: {fc.GetPlayerHP()}" }));
+                        fc.AddHistory(FightActionEnum.WonFight, desc: new List<string>() { $"Won with HP: {fc.GetPlayerHP()}" });
+                        res.Add(fc);
+
                         break;
                     case FightStatus.Lost:
-                        fc.SimActionHistory.Add(new SimAction(SimActionEnum.LostFight, desc: new List<string>() { $"Lost with enemy hp: {fc.GetEnemyHP()}" }));
+                        fc.AddHistory(FightActionEnum.LostFight, desc: new List<string>() { $"Lost with enemy hp: {fc.GetEnemyHP()}" });
+
+                        res.Add(fc);
+
                         break;
                     default:
                         throw new Exception("Other status");
@@ -74,26 +128,20 @@ namespace StS
             return res;
         }
 
-        private void ApplyAction(Fight fight, SimAction action)
+        private void ApplyAction(Fight fight, FightAction action)
         {
-            fight.SimActionHistory.Add(action);
-            switch (action.SimActionType)
+            switch (action.FightActionType)
             {
-                case SimActionEnum.PlayCard:
-                    Console.WriteLine($"{action.Card}");
+                case FightActionEnum.PlayCard:
                     var copiedCard = fight.FindIdenticalCard(action.Card);
                     fight.PlayCard(copiedCard);
                     break;
-                case SimActionEnum.EndTurn:
-                    Console.WriteLine($"End Turn");
+                case FightActionEnum.EndTurn:
                     fight.EndTurn();
-                    //monsterTurn
-
                     fight.EnemyMove();
                     fight.StartTurn();
                     break;
-                case SimActionEnum.Potion:
-                    Console.WriteLine($"Drink {action.Potion}");
+                case FightActionEnum.Potion:
                     _Player.DrinkPotion(fight, action.Potion, _Enemy);
                     break;
                 default:

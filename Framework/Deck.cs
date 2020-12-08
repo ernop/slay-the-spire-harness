@@ -53,8 +53,7 @@ namespace StS
             {
                 return null;
             }
-            var rnd = new Random();
-            var res = Hand[rnd.Next(Hand.Count)];
+            var res = Hand[Helpers.Rnd.Next(Hand.Count)];
             return res;
         }
 
@@ -191,8 +190,7 @@ namespace StS
 
         public void ShuffleDrawPile()
         {
-            var r = new Random();
-            DrawPile = DrawPile.OrderBy(el => r.Next()).ToList();
+            DrawPile = DrawPile.OrderBy(el => Rnd.Next()).ToList();
         }
 
         //when you start a fight, copy cards into drawpile + hand;

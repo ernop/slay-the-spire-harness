@@ -17,15 +17,16 @@ namespace StS
             {
                 Action = (Fight f, Deck d) =>
                 {
-                    var theCard = d.Draw(null, 1, true, ef).SingleOrDefault();
+                    var theCard = d.Draw(targetCards: null, count: 1, reshuffle: true, ef: ef).SingleOrDefault();
                     if (theCard == null)
                     {
-                        return;
+                        return "Havok drew nothing";
                     }
                     f.PlayCard(theCard, forceExhaust: true, newCard: true);
+                    return $"Havok drew and played {theCard} which then exhausted";
                 }
             };
-            ef.FightEffects.Add(x);
+            ef.FightEffect.Add(x);
         }
     }
 }

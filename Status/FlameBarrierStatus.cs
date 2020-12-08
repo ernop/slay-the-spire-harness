@@ -20,7 +20,7 @@ namespace StS
 
             //we grab the progression from the damage pattern I'd receive, with default values of zero.
             //and this must be an enemy action.
-            if (statusIsTargeted && !playerAction && card.CardType==CardType.Attack)
+            if (statusIsTargeted && !playerAction && card.CardType == CardType.Attack)
             {
                 if (targetSet.InitialDamage == null)
                 {
@@ -28,7 +28,7 @@ namespace StS
                 }
                 else
                 {
-                    sourceSet.InitialDamage = targetSet.InitialDamage.Select(qq => intensity);
+                    sourceSet.InitialDamage = targetSet.InitialDamage.Select(qq => intensity).ToList();
                 }
             }
         }

@@ -23,6 +23,7 @@ namespace StS
         public int HP { get; set; }
         public int HPMax { get; set; }
         public int Block { get; set; }
+        public bool Dead { get; set; }
 
         public List<StatusInstance> StatusInstances { get; set; } = new List<StatusInstance>();
 
@@ -76,55 +77,27 @@ namespace StS
             }
         }
 
-
-
-
         /// <summary>
         /// after block is accounted.
         /// bool represents if they are still alive.
         /// </summary>
         public bool ApplyDamage(int amount)
         {
-            if (amount >= HP)
-            {
+            HP -= amount;
+            TakeDamage?.Invoke(this);
 
-                if (Helpers.PrintDetails)
-                {
-                    Console.WriteLine($"\t{Name} Died of overdamage.");
-                }
-                return false;
-            }
-            else
-            {
-                HP -= amount;
-                TakeDamage?.Invoke(this);
-
-                if (Helpers.PrintDetails)
-                {
-                    Console.WriteLine($"\t{Name} took {amount} Damage");
-                    if (amount == 0)
-                    {
-                        throw new Exception("Took zero damage?");
-                    }
-                }
-                return true;
-            }
+            return true;
         }
 
-        public void ApplyBlock(int amount)
+        public string Details()
         {
-            //TODO hook this into block-gaining interested parties.
-            Block += amount;
-            if (Helpers.PrintDetails)
-            {
-                Console.WriteLine($"\t{Name} Gained {amount} block.");
-            }
+            var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
+            return $"{Name} HP: {HP}/{HPMax} Block:{Block} {statuses}";
         }
 
         public override string ToString()
         {
-            var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
-            return $"{EntityType} '{Name}' HP: {HP}/{HPMax} Block:{Block} {statuses}";
+            return $"{Name}";
         }
     }
 }

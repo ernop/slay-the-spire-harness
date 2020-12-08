@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace StS
 {
-    public class Player : Entity
+    public class Player : Entity, IEntity
     {
         public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null, IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null) : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100
             )
@@ -29,6 +29,7 @@ namespace StS
         {
             var relics = Relics.Select(el => el.Copy());
             var newPlayer = new Player(CharacterType, HPMax, HP, relics);
+            newPlayer.Block = Block;
             newPlayer.Energy = Energy;
             newPlayer.Gold = Gold;
             newPlayer.Potions = Potions.Select(el => el.Copy()).ToList();
@@ -50,7 +51,19 @@ namespace StS
 
         public void DrinkPotion(Fight f, Potion p, Enemy e)
         {
-            p.Apply(f, this, e);
+            var ef = new EffectSet();
+            p.Apply(f, this, e, ef);
+            Entity target;
+            if (p.SelfTarget())
+            {
+                target = this;
+            }
+            else
+            {
+                target = e;
+            }
+            f.ApplyEffectSet(FightActionEnum.Potion, ef, this, target, potion: p);
+
         }
 
         public List<Potion> Potions { get; set; } = new List<Potion>();

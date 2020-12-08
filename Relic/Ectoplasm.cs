@@ -18,11 +18,12 @@
             if (Charges > 0)
             {
                 Charges--;
-                ef.FightEffects.Add(new OneEffect()
+                ef.FightEffect.Add(new OneEffect()
                 {
                     Action = (Fight f, Deck d) =>
                     {
                         f.SetEnemyHp(1);
+                        return "Set enemy HP to 1";
                     }
                 });
             }
