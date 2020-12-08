@@ -32,21 +32,21 @@ namespace StS
             _Player = player;
         }
 
-        public void Sim()
+        public List<Fight> Sim()
         {
 
             var fight = new Fight(_CIs, _Player, _Enemy);
             fight.StartTurn();
             var res = Iter(fight);
-
+            return res;
         }
 
         private List<Fight> Iter(Fight fight)
         {
             var actions = fight.GetAllActions();
-            Console.WriteLine($"Iter fight with action length: {fight.ActionHistory.Count}");
+            Console.WriteLine($"Iter fight with action length: {fight.SimActionHistory.Count}");
             var res = new List<Fight>();
-            if (fight.ActionHistory.Count > 50)
+            if (fight.SimActionHistory.Count > 50)
             {
                 Console.WriteLine("Break");
                 return res;
@@ -54,28 +54,32 @@ namespace StS
             foreach (var action in actions)
             {
                 var fc = fight.Copy();
-                var finishedFight = ApplyAction(fc, action);
-                if (finishedFight == null)
+                ApplyAction(fc, action);
+                switch (fc.Status)
                 {
-                    Iter(fc);
-                }
-                else
-                {
-                    res.Add(fc);
+                    case FightStatus.Ongoing:
+                        Iter(fc);
+                        break;
+                    case FightStatus.Won:
+                        fc.SimActionHistory.Add(new SimAction(SimActionEnum.WonFight, desc: new List<string>() { $"Won with HP: {fc.GetPlayerHP()}" }));
+                        break;
+                    case FightStatus.Lost:
+                        fc.SimActionHistory.Add(new SimAction(SimActionEnum.LostFight, desc: new List<string>() { $"Lost with enemy hp: {fc.GetEnemyHP()}" }));
+                        break;
+                    default:
+                        throw new Exception("Other status");
                 }
             }
+
             return res;
         }
 
-        /// <summary>
-        /// returns fight when reached the end.
-        /// </summary>
-        private Fight ApplyAction(Fight fight, SimAction action)
+        private void ApplyAction(Fight fight, SimAction action)
         {
-            fight.ActionHistory.Add(action);
+            fight.SimActionHistory.Add(action);
             switch (action.SimActionType)
             {
-                case SimActionEnum.Card:
+                case SimActionEnum.PlayCard:
                     Console.WriteLine($"{action.Card}");
                     var copiedCard = fight.FindIdenticalCard(action.Card);
                     fight.PlayCard(copiedCard);
@@ -94,14 +98,6 @@ namespace StS
                     break;
                 default:
                     break;
-            }
-            if (fight.Status == FightStatus.Ongoing)
-            {
-                return null;
-            }
-            else
-            {
-                return fight;
             }
         }
     }

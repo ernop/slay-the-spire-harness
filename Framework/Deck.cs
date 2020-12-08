@@ -63,7 +63,7 @@ namespace StS
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal void DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
+        internal List<CardInstance> DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -101,6 +101,8 @@ namespace StS
             {
                 TryAddToHand(effectedCard);
             }
+
+            return res;
         }
 
         internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
@@ -214,7 +216,6 @@ namespace StS
                 {
                     PutInDiscardPile(ci);
                 }
-
             }
         }
 

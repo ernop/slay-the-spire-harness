@@ -16,6 +16,7 @@ namespace StS
             {
                 var copy = new CardInstance(this, upgradeCount);
                 d.PutInDiscardPile(copy);
+                return "Duplicated Anger into discard pile";
             });
         }
     }

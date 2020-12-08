@@ -35,6 +35,7 @@ namespace StS
                 }
 
                 deck.MoveFromDiscardToDraw(headbuttTarget);
+                return $"Headbutt: Moved {headbuttTarget} to top of draw pile.";
             });
         }
     }

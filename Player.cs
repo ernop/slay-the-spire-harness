@@ -74,9 +74,12 @@ namespace StS
             return 5;
         }
 
-        internal void HealFor(int amount)
+        internal void HealFor(int amount, out string healRes)
         {
+            var before = HP;
             HP = Math.Min(HPMax, HP + amount);
+            var healAmt = HP - before;
+            healRes = $"Healed for {healAmt}";
         }
     }
 }

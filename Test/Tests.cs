@@ -17,7 +17,7 @@ namespace StS.Tests
 
         public static void RunTest(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50,
            int plbl = 0, int enbl = 0, int finalPlayerBlock = 0, int finalEnemyBlock = 0,
-           List<Relic> relics = null, List<CardInstance> cis = null, EnemyAction ea = null,
+           List<Relic> relics = null, List<CardInstance> cis = null, EnemyAttack ea = null,
            List<StatusInstance> playerStatuses = null, List<StatusInstance> enemyStatuses = null,
            List<StatusInstance> playerFinalStatuses = null,
            List<StatusInstance> enemyFinalStatuses = null,
@@ -72,7 +72,7 @@ namespace StS.Tests
             //For now no targeting for enemy cards.
             if (ea != null) //only if there was an action specified
             {
-                fight.EnemyMove(ea);
+                fight.EnemyPlayCard(ea);
             }
 
             Console.WriteLine($"Player:{player}");
@@ -139,11 +139,12 @@ namespace StS.Tests
         }
 
 
+
         [Test]
         public static void BasicTests()
         {
             var statuses = new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 8), new StatusInstance(new Weak(), 8) };
-            RunTest(name: "Shockwave+VulnWeakAttack", en2: 37, pl2: 26, cis: GetCis("Shockwave", "Shockwave+", "Strike+"), enemyFinalStatuses: statuses, ea: Attack(8, 4), playerEnergy: 10);
+            RunTest(name: "Shockwave+VulnWeakAttack", en2: 37, pl2: 26, cis: GetCis("Shockwave", "Shockwave+", "Strike+"), enemyFinalStatuses: statuses, ea: GetAttack(8, 4), playerEnergy: 10);
             RunTest(name: "BashIronwave", en2: 32, cis: GetCis("Bash", "IronWave+"), finalPlayerBlock: 7);
             RunTest(name: "BashInflameIronwave", en2: 27, cis: GetCis("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7, playerEnergy: 10);
 
@@ -191,17 +192,17 @@ namespace StS.Tests
             var torii = new Torii();
             RunTest(name: "Torii works", pl2: 47,
                 relics: new List<Relic>() { torii },
-                ea: Attack(5, 3));
+                ea: GetAttack(5, 3));
 
             RunTest(name: "Torii Strong Enemy", pl2: 10,
                 relics: new List<Relic>() { torii },
                 enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), 4) },
-                ea: Attack(6, 4));
+                ea: GetAttack(6, 4));
 
             RunTest(name: "Torii Strong Enemy Weakest attakc", pl2: 46,
                 relics: new List<Relic>() { torii },
                 enemyStatuses: new List<StatusInstance>() { new StatusInstance(new Strength(), 4) },
-                ea: Attack(1, 4));
+                ea: GetAttack(1, 4));
 
             TestMonkeyPawInflames();
             TestMonkeyPaw();
@@ -231,15 +232,15 @@ namespace StS.Tests
             var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
             RunTest(name: "Louse-Aggressive", en2: 41, cis: GetCis("Strike+"), enemyStatuses: si, finalEnemyBlock: 4);
 
-            RunTest(name: "Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCis("Strike+", "Disarm+"), ea: Attack(10, 1));
+            RunTest(name: "Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCis("Strike+", "Disarm+"), ea: GetAttack(10, 1));
 
-            RunTest(name: "Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCis("Strike+"), ea: Attack(10, 2),
+            RunTest(name: "Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCis("Strike+"), ea: GetAttack(10, 2),
                 playerStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) });
 
             var si2 = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
             RunTest(name: "Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0, playerEnergy: 10);
 
-            RunTest(name: "Enemy-attacks", pl2: 40, en2: 41, cis: GetCis("Strike+"), ea: Attack(10, 1));
+            RunTest(name: "Enemy-attacks", pl2: 40, en2: 41, cis: GetCis("Strike+"), ea: GetAttack(10, 1));
         }
 
         [Test]
@@ -412,6 +413,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[4]);
 
             fight.EnemyPlayCard(new EnemyAttack(3, 3));
+
 
             var dp = fight.GetDrawPile();
             Assert.AreEqual(2, dp.Count);
@@ -1175,11 +1177,11 @@ namespace StS.Tests
             RunTest(name: "Inflame-BodySlam-Vulned", en2: 23, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerEnergy: 10);
 
 
-            RunTest(name: "FlameBarrier", pl2: 50, en2: 34, cis: GetCis("FlameBarrier"), finalPlayerBlock: 8, finalEnemyBlock: 0, ea: Attack(1, 4));
-            RunTest(name: "FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalPlayerBlock: 22, finalEnemyBlock: 0, ea: Attack(1, 4));
-            RunTest(name: "FlameBarrier-block2", pl2: 50, finalPlayerBlock: 12, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalEnemyBlock: 0, ea: Attack(1, 4));
-            RunTest(name: "FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: Attack(1, 4), playerEnergy: 10);
-            RunTest(name: "FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: Attack(1, 4), playerEnergy: 10);
+            RunTest(name: "FlameBarrier", pl2: 50, en2: 34, cis: GetCis("FlameBarrier"), finalPlayerBlock: 8, finalEnemyBlock: 0, ea: GetAttack(1, 4));
+            RunTest(name: "FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalPlayerBlock: 22, finalEnemyBlock: 0, ea: GetAttack(1, 4));
+            RunTest(name: "FlameBarrier-block2", pl2: 50, finalPlayerBlock: 12, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalEnemyBlock: 0, ea: GetAttack(1, 4));
+            RunTest(name: "FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: GetAttack(1, 4), playerEnergy: 10);
+            RunTest(name: "FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: GetAttack(1, 4), playerEnergy: 10);
 
             RunTest(name: "ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
             RunTest(name: "FullBlocked", en2: 50, enbl: 26, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
@@ -1187,7 +1189,7 @@ namespace StS.Tests
             RunTest(name: "HeavyBlade", en2: 27, enbl: 20, cis: GetCis("HeavyBlade", "Inflame+", "HeavyBlade+"), finalEnemyBlock: 0, playerEnergy: 10);
 
             RunTest(name: "double-FlameBarrier-block", pl2: 50, finalPlayerBlock: 24, enbl: 0, en2: 10,
-                cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: Attack(1, 4), playerEnergy: 10);
+                cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), ea: GetAttack(1, 4), playerEnergy: 10);
             RunTest(name: "Combining statuses works", finalPlayerBlock: 28, cis: GetCis("Inflame+", "Inflame", "FlameBarrier+", "FlameBarrier"),
                 playerFinalStatuses: new List<StatusInstance>() {
                     new StatusInstance(new Strength(), 5),

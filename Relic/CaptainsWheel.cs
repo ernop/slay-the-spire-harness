@@ -1,8 +1,8 @@
 ﻿namespace StS
 {
-    public class Anchor : Relic
+    public class CaptainsWheel : Relic
     {
-        public override string Name => nameof(Anchor);
+        public override string Name => nameof(CaptainsWheel);
         internal int RoundNumber { get; set; }
 
         public override void StartTurn(Player player, IEnemy enemy, EffectSet relicEf)
@@ -14,15 +14,15 @@
                 throw new System.Exception("Shouldn't happen.");
             }
 
-            if (RoundNumber == 1)
+            if (RoundNumber == 3)
             {
-                relicEf.SourceEffect.InitialBlock = 10;
+                relicEf.SourceEffect.InitialBlock = 18;
             }
         }
 
         internal override Relic Copy()
         {
-            return new Anchor
+            return new CaptainsWheel
             {
                 RoundNumber = RoundNumber
             };

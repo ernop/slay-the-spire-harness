@@ -13,9 +13,11 @@ namespace StS
             var cardAmt = upgradeCount == 0 ? 1 : 2;
             var dmg = upgradeCount == 0 ? 9 : 10;
             ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+
             ef.DeckEffect.Add((Deck d) =>
             {
-                d.DrawToHand(targetCards, cardAmt, true, ef);
+                var drawn = d.DrawToHand(targetCards, cardAmt, true, ef);
+                return $"Drew {string.Join(',', drawn)}";
             });
         }
     }

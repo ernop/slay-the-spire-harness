@@ -12,19 +12,19 @@ namespace StS
         {
             if (card.CardType == CardType.Power)
             {
-                Action<Deck> makeOneCostZero = (Deck) =>
-                {
-                    var ci = SelectNonZeroCostCard(Deck.GetHand);
-                    if (ci != null)
-                    {
-                        Console.WriteLine($"monkey paw set {ci} to cost zero.");
-                        ci.PerTurnOverrideEnergyCost = 0;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"monkey paw had no card to reduce in value..");
-                    }
-                };
+                Func<Deck, string> makeOneCostZero = (Deck) =>
+                 {
+                     var ci = SelectNonZeroCostCard(Deck.GetHand);
+                     if (ci != null)
+                     {
+                         ci.PerTurnOverrideEnergyCost = 0;
+                         return $"monkey paw set {ci} to cost zero.";
+                     }
+                     else
+                     {
+                         return $"monkey paw had no card to reduce in value..";
+                     }
+                 };
                 ef.DeckEffect.Add(makeOneCostZero);
             }
         }

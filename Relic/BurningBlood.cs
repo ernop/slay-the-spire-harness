@@ -8,7 +8,8 @@
         {
             relicEf.PlayerEffect.Add((Player p) =>
             {
-                p.HealFor(6);
+                p.HealFor(6, out string healRes);
+                return $"{Player} healRes";
             });
         }
 

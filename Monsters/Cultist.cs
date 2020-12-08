@@ -20,7 +20,7 @@ namespace StS
     public class Cultist : Enemy, IEnemy
     {
         public bool firstRound { get; set; } = true;
-        public Cultist() : base(nameof(Cultist)) { }
+        public Cultist(int? hpMax = null, int? hp = null) : base(nameof(Cultist), hpMax, hp) { }
 
         public override EnemyAction GetAction()
         {
@@ -41,11 +41,9 @@ namespace StS
         public override IEnemy Copy()
         {
             var sis = StatusInstances.Select(el => el.Copy());
-            return new Cultist
+            return new Cultist(0, 0)
             {
                 Name = Name,
-                HP = HP,
-                HPMax = HPMax,
                 Block = Block,
                 StatusInstances = sis.ToList()
             };

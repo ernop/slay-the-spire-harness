@@ -200,5 +200,10 @@ namespace StS
             }
             return res;
         }
+
+        public static EnemyAttack GetAttack(int amount, int count)
+        {
+            return new EnemyAttack(amount, count);
+        }
     }
 }

@@ -16,8 +16,8 @@ namespace StS
             var d = _Deck.Copy();
 
             var newFight = new Fight(d, p, e);
-            var historyCopy = ActionHistory.Select(el => el.Copy());
-            newFight.ActionHistory = historyCopy.ToList();
+            var historyCopy = SimActionHistory.Select(el => el.Copy());
+            newFight.SimActionHistory = historyCopy.ToList();
             newFight.FirstTurnCalled = FirstTurnCalled;
             return newFight;
         }
@@ -56,7 +56,8 @@ namespace StS
             {
                 relic.StartFight(_Deck, ef);
             }
-            ApplyEffectSet(ef, _Player, _Enemies[0]);
+            ApplyEffectSet(SimActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
+
         }
 
         private Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -69,6 +70,16 @@ namespace StS
 
             var deck = new Deck(initialCis, preserveOrder);
             Init(deck, player, new List<IEnemy>() { enemy }, preserveOrder);
+        }
+
+        internal string GetPlayerHP()
+        {
+            return _Player.HP.ToString();
+        }
+
+        public string GetEnemyHP()
+        {
+            return string.Join(',', _Enemies.Select(el => el.HP.ToString()));
         }
 
         /// <summary>
@@ -92,7 +103,7 @@ namespace StS
             {
                 if (ci.EnergyCost() <= en && ci.Playable(hand) && !consideredCis.Contains(ci.ToString()))
                 {
-                    var sa = new SimAction(simActionType: SimActionEnum.Card, null, ci);
+                    var sa = new SimAction(simActionType: SimActionEnum.PlayCard, null, ci);
                     res.Add(sa);
                     consideredCis.Add(ci.ToString());
                 }
@@ -129,7 +140,7 @@ namespace StS
         private bool FirstTurnCalled = false;
 
         public int RoundNumber { get; set; }
-        public List<SimAction> ActionHistory { get; internal set; } = new List<SimAction>();
+        public List<SimAction> SimActionHistory { get; internal set; } = new List<SimAction>();
 
 
 
@@ -155,7 +166,7 @@ namespace StS
             {
                 relic.StartTurn(_Player, _Enemies[0], ef);
             }
-            ApplyEffectSet(ef, _Player, _Enemies[0]);
+            ApplyEffectSet(SimActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
         }
 
         public void EndTurn()
@@ -167,7 +178,7 @@ namespace StS
 
             var endTurnEf = new EffectSet();
             _Deck.TurnEnds(endTurnEf);
-            ApplyEffectSet(endTurnEf, _Player, _Enemies[0]);
+            ApplyEffectSet(SimActionEnum.EndTurnEffect, endTurnEf, _Player, _Enemies[0]);
             //TODO this is affected by calipers, barricade, etc.
 
             var endTurnPlayerEf = new EffectSet();
@@ -191,9 +202,9 @@ namespace StS
                 relic.EndTurn(_Player, _Enemies[0], relicEf);
             }
 
-            ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0]);
-            ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player);
-            ApplyEffectSet(relicEf, _Player, _Enemies[0]);
+            ApplyEffectSet(SimActionEnum.EndTurn, endTurnPlayerEf, _Player, _Enemies[0]);
+            ApplyEffectSet(SimActionEnum.EndTurn, endTurnEnemyEf, _Enemies[0], _Player);
+            ApplyEffectSet(SimActionEnum.EndTurn, relicEf, _Player, _Enemies[0]);
 
             _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
         }
@@ -228,14 +239,14 @@ namespace StS
             {
                 var ef = new EffectSet();
                 relic.EndFight(_Deck, ef);
-                ApplyEffectSet(ef, _Player, _Player);
+                ApplyEffectSet(SimActionEnum.EndFightEffect, ef, _Player, _Player);
             }
         }
 
         /// <summary>
         /// From monster POV, player is the enemy.
         /// </summary>
-        public void PlayCard(CardInstance cardInstance, List<CardInstance> cardTargets = null, bool forceExhaust = false, bool newCard = false)
+        public EffectSet PlayCard(CardInstance cardInstance, List<CardInstance> cardTargets = null, bool forceExhaust = false, bool newCard = false)
         {
             if (forceExhaust)
             {
@@ -255,7 +266,9 @@ namespace StS
                 {
                     throw new Exception("Trying to play too expensive card");
                 }
-                _Player.Energy -= cardInstance.EnergyCost();
+
+                var ec = cardInstance.EnergyCost(); ;
+                _Player.Energy -= ec;
                 _Deck.BeforePlayingCard(cardInstance);
             }
 
@@ -298,14 +311,16 @@ namespace StS
             //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
             _Deck.AfterPlayingCard(cardInstance, ef);
 
-            ApplyEffectSet(ef, _Player, target);
+            ApplyEffectSet(SimActionEnum.PlayCard, ef, _Player, target);
 
             _Deck.FinishCardPlay();
 
+            return ef;
         }
 
-        public void ApplyEffectSet(EffectSet ef, IEntity source, IEntity target)
+        public void ApplyEffectSet(SimActionEnum action, EffectSet ef, IEntity source, IEntity target)
         {
+            var history = new List<string>();
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
 
@@ -318,35 +333,40 @@ namespace StS
             if (source == target)
             {
                 var combined = Combine(ef.SourceEffect, ef.TargetEffect);
-                GainBlock(source, combined);
-                ReceiveDamage(source, combined, out bool alive);
+                GainBlock(source, combined, history);
+                ReceiveDamage(source, combined, history, out bool alive);
                 if (!alive)
                 {
                     Died(source);
                 }
-                ApplyStatus(source, combined.Status);
+                ApplyStatus(source, combined.Status, history);
             }
             else
             {
-                GainBlock(source, ef.SourceEffect);
-                ReceiveDamage(target, ef.TargetEffect, out bool alive);
+                GainBlock(source, ef.SourceEffect, history);
+                ReceiveDamage(target, ef.TargetEffect, history, out bool alive);
                 if (!alive)
                 {
                     Died(target);
                 }
 
-                GainBlock(target, ef.TargetEffect);
-                ReceiveDamage(source, ef.SourceEffect, out bool alive2);
+                GainBlock(target, ef.TargetEffect, history);
+                ReceiveDamage(source, ef.SourceEffect, history, out bool alive2);
                 if (!alive2)
                 {
                     Died(source);
+                    history.Add($"{source} Died");
                 }
 
-                ApplyStatus(source, ef.SourceEffect.Status);
-                ApplyStatus(target, ef.TargetEffect.Status);
+                ApplyStatus(source, ef.SourceEffect.Status, history);
+                ApplyStatus(target, ef.TargetEffect.Status, history);
             }
 
-            _Player.Energy += ef.PlayerEnergy;
+            if (ef.PlayerEnergy != 0)
+            {
+                _Player.Energy += ef.PlayerEnergy;
+                history.Add($"Player gained ${ef.PlayerEnergy} to {_Player.Energy}");
+            }
 
             foreach (var f in ef.PlayerEffect)
             {
@@ -358,27 +378,26 @@ namespace StS
                 f.Action.Invoke(this, _Deck);
             }
 
-            //We resolve damage after dealing with statuses the player may just have gained.
-            //i.e. we don't apply pen nib to the player til after attack is resolved.
+            SimActionHistory.Add(new SimAction(action, desc: history));
         }
 
 
-        public void ApplyStatus(IEntity entity, List<StatusInstance> sis)
+        public void ApplyStatus(IEntity entity, List<StatusInstance> sis, List<string> history)
         {
             foreach (var status in sis)
             {
                 entity.ApplyStatus(_Deck, status);
+                history.Add($"{entity} gained {status}");
             }
         }
 
         public void ApplyStatus(IEntity entity, StatusInstance si)
         {
-
             entity.ApplyStatus(_Deck, si);
         }
 
 
-        public void GainBlock(IEntity entity, IndividualEffect ef)
+        public void GainBlock(IEntity entity, IndividualEffect ef, List<string> history)
         {
             //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
             // (fore xample, exhausting a card with Feel No Pain on.)
@@ -389,10 +408,13 @@ namespace StS
             }
             if (val > 0)
             {
-                entity.Block += (int)val;
+                var gain = (int)val;
+                entity.Block += gain;
+                history.Add($"{entity} gained {gain}");
             }
         }
-        public void ReceiveDamage(IEntity entity, IndividualEffect ef, out bool alive)
+
+        public void ReceiveDamage(IEntity entity, IndividualEffect ef, List<string> history, out bool alive)
         {
             alive = true;
             //We don't actually want to 
@@ -405,6 +427,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
+                history.Add($"{entity} was attacked {string.Join(',', usingVal)} damage while having {entity.Block} block");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -445,6 +468,7 @@ namespace StS
 
         internal void EnemyMove(EnemyAction enemyAction = null)
         {
+            var history = new List<string>();
             if (enemyAction == null)
             {
                 enemyAction = _Enemies[0].GetAction();
@@ -455,7 +479,8 @@ namespace StS
             }
             if (enemyAction.Buffs != null)
             {
-                ApplyStatus(_Enemies[0], enemyAction.Buffs);
+                ApplyStatus(_Enemies[0], enemyAction.Buffs, history);
+                SimActionHistory.Add(new SimAction(SimActionEnum.EnemyBuff, desc: history));
             }
             if (enemyAction.Attack != null)
             {
@@ -463,12 +488,14 @@ namespace StS
             }
             if (enemyAction.PlayerStatusAttack != null)
             {
-                ApplyStatus(_Player, enemyAction.Buffs);
+                ApplyStatus(_Player, enemyAction.Buffs, history);
+                SimActionHistory.Add(new SimAction(SimActionEnum.EnemyStatusAttack, desc: history));
             }
         }
 
         public void EnemyPlayCard(EnemyCard enemyCard)
         {
+            var history = new List<string>();
             var source = _Enemies[0];
             var target = _Player;
             var ef = new EffectSet();
@@ -493,19 +520,20 @@ namespace StS
                 relic.CardPlayed(cardInstance.Card, ef, player: _Player, enemy: _Enemies[0]);
             }
 
-            GainBlock(_Player, ef.TargetEffect);
-            GainBlock(_Enemies[0], ef.SourceEffect);
-            ReceiveDamage(_Player, ef.TargetEffect, out bool alive);
+            GainBlock(_Player, ef.TargetEffect, history);
+            GainBlock(_Enemies[0], ef.SourceEffect, history);
+            ReceiveDamage(_Player, ef.TargetEffect, history, out bool alive);
             if (!alive) Died(_Player);
-            ReceiveDamage(_Enemies[0], ef.SourceEffect, out bool alive2);
+            ReceiveDamage(_Enemies[0], ef.SourceEffect, history, out bool alive2);
             if (!alive2) Died(_Enemies[0]);
-            ApplyStatus(_Player, ef.TargetEffect.Status);
-            ApplyStatus(_Enemies[0], ef.SourceEffect.Status);
+            ApplyStatus(_Player, ef.TargetEffect.Status, history);
+            ApplyStatus(_Enemies[0], ef.SourceEffect.Status, history);
+            SimActionHistory.Add(new SimAction(SimActionEnum.EnemyAttack, desc: history));
         }
 
         public override string ToString()
         {
-            return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]} History: {ActionHistory.Count}";
+            return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]} History: {SimActionHistory.Count}";
         }
 
         internal void DrinkPotion(Player player, Potion potion, Enemy enemy)

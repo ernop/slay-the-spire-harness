@@ -2,7 +2,6 @@
 
 namespace StS
 {
-
     public class Uppercut : IroncladAttackCard
     {
         public override string Name => nameof(Uppercut);
