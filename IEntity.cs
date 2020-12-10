@@ -16,5 +16,6 @@ namespace StS
         //public void ApplyBlock(int amount);
         public void ApplyStatus(Deck d, StatusInstance statusInstance);
         public string Details();
+        public IEntity CopyEntity(IEntity entity);
     }
 }

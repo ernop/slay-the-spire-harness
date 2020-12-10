@@ -44,6 +44,8 @@ namespace StS
             cards["Intimidate"] = new Intimidate();
             cards["Thunderclap"] = new Thunderclap();
             cards["Anger"] = new Anger();
+            cards["WildStrike"] = new WildStrike();
+            cards["Wound"] = new Wound();
 
             return cards;
         }

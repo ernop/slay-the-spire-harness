@@ -8,6 +8,7 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Enemy;
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        internal override bool Exhausts(int upgradeCount) => true;
 
         internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {

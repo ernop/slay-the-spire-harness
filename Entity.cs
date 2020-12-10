@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace StS
@@ -10,6 +9,10 @@ namespace StS
         {
             Name = name;
             EntityType = entityType;
+            if (HP > HPMax)
+            {
+                throw new System.Exception("Invalid HP>HPMax");
+            }
             HPMax = hpMax;
             HP = hp;
         }
@@ -49,11 +52,6 @@ namespace StS
             if (exiStatus == null)
             {
                 StatusInstances.Add(statusInstance);
-                if (Helpers.PrintDetails)
-                {
-                    Console.WriteLine($"\tGained {statusInstance}");
-                    Console.WriteLine(this);
-                }
                 statusInstance.Apply(d, this);
             }
             else
@@ -92,12 +90,30 @@ namespace StS
         public string Details()
         {
             var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
-            return $"{Name} HP: {HP}/{HPMax} Block:{Block} {statuses}";
+            return $"{Name} HP: {HP}/{HPMax} B:{Block} {statuses}";
         }
 
         public override string ToString()
         {
             return $"{Name}";
+        }
+
+        public IEntity CopyEntity(IEntity entity)
+        {
+            var sis = StatusInstances.Select(el => el.Copy()).ToList();
+            if (sis.Count > 0)
+            {
+                var ae = 4;
+            }
+            entity.Name = Name;
+            entity.Dead = Dead;
+            entity.Block = Block;
+            entity.EntityType = EntityType;
+            entity.Relics = Relics.Select(el => el.Copy()).ToList();
+            entity.StatusInstances = sis;
+            entity.HP = HP;
+            entity.HPMax = HPMax;
+            return entity;
         }
     }
 }

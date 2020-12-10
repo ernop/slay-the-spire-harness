@@ -26,7 +26,6 @@ namespace StS.Tests
            int? finalEnergy = null,
            int? expectedExhausePileCount = null)
         {
-            Console.WriteLine($"====Testcase {name}");
             if (cis == null)
             {
                 cis = new List<CardInstance>();
@@ -58,16 +57,9 @@ namespace StS.Tests
 
             player.Energy = playerEnergy ?? player.Energy;
 
-
-            Console.WriteLine($"Enemy: {enemy}");
-            Console.WriteLine($"Player: {player}");
-
             foreach (var ci in cis)
             {
                 fight.PlayCard(ci);
-
-                Console.WriteLine($"Player:{player}");
-                Console.WriteLine($"Enemy:{enemy}");
             }
 
             //For now no targeting for enemy cards.
@@ -76,16 +68,6 @@ namespace StS.Tests
                 fight.EnemyPlayCard(ea);
             }
 
-            Console.WriteLine($"Player:{player}");
-            Console.WriteLine($"Enemy:{enemy}");
-
-
-            if (Helpers.PrintDetails)
-            {
-                Console.WriteLine("\tFinal State:");
-                Console.WriteLine("\t" + player);
-                Console.WriteLine("\t" + enemy);
-            }
             if (player.HP != pl2)
             {
                 throw new Exception($"{name} Player hp={player.HP} expected to be={pl2}");
@@ -133,10 +115,6 @@ namespace StS.Tests
                     throw new Exception($"expected exhaust pile count: {expectedExhausePileCount.Value} actual {ex.Count}");
                 }
             }
-
-
-            Console.WriteLine($"====Testcase {name} is valid\n");
-
         }
 
 
@@ -287,6 +265,24 @@ namespace StS.Tests
             Assert.AreEqual(player.HP, 100);
         }
 
+
+        [Test]
+        public static void Test_WildStrike()
+        {
+            var player = new Player(relics: GetRelics("BurningBlood"));
+            var enemy = new GenericEnemy(hpMax: 30, hp: 30);
+            var initialCis = GetCis("Sentinel+", "TrueGrit", "WildStrike");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(2);
+            fight.PlayCard(initialCis[2]);
+            Assert.AreEqual(enemy.HP, 18);
+            Assert.AreEqual(2, fight.GetDrawPile().Count);
+            fight.EndTurn();
+            fight.StartTurn(2);
+            Assert.AreEqual(2, fight.GetHand.Count);
+            Assert.IsTrue(CompareHands(GetCis("Sentinel+", "Wound"), fight.GetHand, out var err), err);
+        }
+
         [Test]
         public static void Test_TrueGrit()
         {
@@ -348,7 +344,6 @@ namespace StS.Tests
             fight.StartTurn(6);
             player.Energy = 10;
             fight.PlayCard(initialCis[0]); //FNP
-            Console.WriteLine(fight);
             fight.PlayCard(initialCis[5], new List<CardInstance>() { initialCis[2] }); //exhaust the first strike. block 10+3=13
             Assert.AreEqual(13, player.Block); //TG=10 + 3 for exhaustion}
             fight.PlayCard(initialCis[1]); //FNP+
@@ -525,7 +520,6 @@ namespace StS.Tests
         [Test]
         public static void TestMonkeyPaw()
         {
-            Console.WriteLine($"Starting{nameof(TestMonkeyPaw)}");
             var player = new Player(relics: GetRelics("MonkeyPaw"));
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame+", "Bash+");
@@ -550,7 +544,6 @@ namespace StS.Tests
             {
                 throw new Exception($"Invalid hand; bash should have had cost zero. {message}");
             }
-            Console.WriteLine("==========");
         }
 
         [Test]
@@ -601,8 +594,6 @@ namespace StS.Tests
 
             var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 1, "Shockwave should have exhausted failed.");
-
-            Console.WriteLine("==========");
         }
 
         [Test]
@@ -623,8 +614,6 @@ namespace StS.Tests
 
             var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 0);
-
-            Console.WriteLine("==========");
         }
 
         [Test]
@@ -677,7 +666,6 @@ namespace StS.Tests
         [Test]
         public static void TestPerfectedStrike()
         {
-            Console.WriteLine($"Starting{nameof(TestPerfectedStrike)}");
             var player = new Player();
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Strike+", "PerfectedStrike+", "TwinStrike");
@@ -696,7 +684,6 @@ namespace StS.Tests
             {
                 throw new Exception($"{nameof(TestPerfectedStrike)}");
             }
-            Console.WriteLine("==========");
         }
         [Test]
         public static void TestClash()

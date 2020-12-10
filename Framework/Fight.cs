@@ -16,8 +16,11 @@ namespace StS
             var d = _Deck.Copy();
 
             var newFight = new Fight(d, p, e);
-            var historyCopy = FightHistory.Select(el => el.Copy());
-            newFight.FightHistory = historyCopy.ToList();
+
+            //we no longer copy history; each fight just stores the action at that step.
+            //var historyCopy = FightHistory.Select(el => el.Copy());
+            //newFight.FightHistory = historyCopy.ToList();
+
             newFight.FirstTurnCalled = FirstTurnCalled;
             newFight.TurnNumber = TurnNumber;
             return newFight;
@@ -51,14 +54,6 @@ namespace StS
 
             _Enemies = enemies;
             Status = FightStatus.Ongoing;
-
-            var ef = new EffectSet();
-            foreach (var relic in player.Relics)
-            {
-                relic.StartFight(_Deck, ef);
-            }
-
-            ApplyEffectSet(FightActionEnum.StartFight, ef, _Player, _Enemies[0]);
         }
 
         private Fight(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -120,44 +115,47 @@ namespace StS
             return res;
         }
 
-        internal CardInstance FindIdenticalCard(CardInstance card)
-        {
-            CardInstance res = null;
-            var cs = card.ToString();
-            foreach (var c in _Deck.GetHand)
-            {
-                if (c.ToString() == cs)
-                {
-                    return c;
-                }
-            }
-            if (res == null)
-            {
-                throw new Exception("No card.");
-            }
-            return res;
-        }
+
 
         private bool FirstTurnCalled = false;
 
         public int TurnNumber { get; set; }
         public List<FightAction> FightHistory { get; internal set; } = new List<FightAction>();
 
-
-
-        public void StartTurn(int? drawCount = null)
+        public void StartTurn(int? drawCount = null, List<CardInstance> initialHand = null)
         {
             if (TurnNumber == 0)
             {
                 //clear this.
-                _Player.StatusInstances = new List<StatusInstance>();
+
+                var startEf = new EffectSet();
+                foreach (var relic in _Player.Relics)
+                {
+                    relic.StartFight(_Deck, startEf);
+                }
+
+                ApplyEffectSet(FightActionEnum.StartFight, startEf, _Player, _Enemies[0]);
             }
             FirstTurnCalled = true;
             TurnNumber++;
-            drawCount = drawCount ?? _Player.GetDrawAmount();
             var ef = new EffectSet();
-            _Deck.NextTurnStarts(drawCount.Value, ef);
-            AddHistory(FightActionEnum.StartTurn, desc: new List<string>() { TurnNumber.ToString() });
+
+            if (initialHand == null)
+            {
+                drawCount = drawCount ?? _Player.GetDrawAmount();
+
+                _Deck.DrawCards(drawCount.Value, ef);
+            }
+            else
+            {
+                _Deck.ForceDrawCards(initialHand, ef);
+            }
+
+            AddHistory(FightActionEnum.StartTurn, desc: new List<string>() { TurnNumber.ToString(), "Drew:" + string.Join(',', _Deck.GetHand), _Player.Details(), _Enemies[0].Details() });
+            if (_Deck.GetHand.Count > 2)
+            {
+                var ae = 4;
+            }
             _Player.Energy = _Player.MaxEnergy();
             _Player.Block = 0;
             foreach (var status in _Player.StatusInstances)
@@ -172,6 +170,7 @@ namespace StS
             ApplyEffectSet(FightActionEnum.StartTurnEffect, ef, _Player, _Enemies[0]);
         }
 
+
         public void AddHistory(FightActionEnum type, Potion potion = null, CardInstance card = null, IEntity enemy = null, List<string> desc = null)
         {
             var fh = new FightAction(type, potion, card, enemy, desc);
@@ -180,7 +179,6 @@ namespace StS
             {
                 return;
             }
-
 
             FightHistory.Add(fh);
         }
@@ -234,9 +232,16 @@ namespace StS
 
         public IList<CardInstance> GetHand => _Deck.GetHand;
 
-        public void Died(IEntity entity)
+        public void Died(IEntity entity, bool player)
         {
-            AddHistory(FightActionEnum.EnemyDied, enemy: entity);
+            if (player)
+            {
+                AddHistory(FightActionEnum.LostFight);
+            }
+            else
+            {
+                AddHistory(FightActionEnum.EnemyDied, enemy: entity);
+            }
             if (entity.Dead)
             {
                 throw new Exception("Can't die twice");
@@ -264,6 +269,7 @@ namespace StS
                 relic.EndFight(_Deck, ef);
                 ApplyEffectSet(FightActionEnum.EndFightEffect, ef, _Player, _Player);
             }
+            _Player.StatusInstances = new List<StatusInstance>();
         }
 
         /// <summary>
@@ -393,7 +399,7 @@ namespace StS
                 {
                     if (en.HP <= 0)
                     {
-                        Died(en);
+                        Died(en, false);
                     }
                 }
             }
@@ -401,7 +407,7 @@ namespace StS
             {
                 if (!_Player.Dead)
                 {
-                    Died(_Player);
+                    Died(_Player, true);
                 }
             }
         }
@@ -454,7 +460,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
-                history.Add($"Attacked {entity}{entity.HP}/{entity.HPMax} {entity.Block}B for {string.Join(',', usingVal)}");
+                history.Add($"Attacked {entity} {entity.HP}/{entity.HPMax} {entity.Block}B for {string.Join(',', usingVal)}");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -554,11 +560,11 @@ namespace StS
             AddHistory(FightActionEnum.EnemyAttack, card: cardInstance, desc: history);
             if (_Enemies[0].HP <= 0)
             {
-                Died(_Enemies[0]);
+                Died(_Enemies[0], false);
             }
             if (_Player.HP <= 0)
             {
-                Died(_Player);
+                Died(_Player, true);
             }
         }
 

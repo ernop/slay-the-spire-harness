@@ -1,22 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace StS
 {
-    public class GenericEnemy : Enemy, IEnemy
-    {
-        public GenericEnemy(int? hpMax = null, int? hp = null) : base(nameof(GenericEnemy), hpMax ?? 50, hp ?? 50) { }
-
-        public override IEnemy Copy()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override EnemyAction GetAction()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
     public class Cultist : Enemy, IEnemy
     {
         public bool FirstRound { get; set; } = true;
@@ -38,18 +23,17 @@ namespace StS
         }
 
 
+        /// <summary>
+        /// Only need to copy the specific fields.
+        /// </summary>
         public override IEnemy Copy()
         {
-            var sis = StatusInstances.Select(el => el.Copy());
-            return new Cultist(0, 0)
+            var res = new Cultist()
             {
-                Name = Name,
-                Block = Block,
-                StatusInstances = sis.ToList(),
                 FirstRound = FirstRound,
-                HP = HP,
-                HPMax = HPMax
             };
+            CopyEntity(res);
+            return res;
         }
     }
 }

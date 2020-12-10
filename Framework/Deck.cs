@@ -157,6 +157,8 @@ namespace StS
         }
 
 
+
+
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
@@ -244,7 +246,20 @@ namespace StS
             DiscardPile.Add(ci);
         }
 
-        public void NextTurnStarts(int drawCount, EffectSet ef)
+        internal void ForceDrawCards(List<CardInstance> initialHand, EffectSet ef)
+        {
+            Hand = initialHand;
+            foreach (var ci in initialHand)
+            {
+                if (!DrawPile.Contains(ci))
+                {
+                    throw new Exception("Trying to draw a card I don't have");
+                }
+                DrawPile.Remove(ci);
+            }
+        }
+
+        public void DrawCards(int drawCount, EffectSet ef)
         {
             Hand = new List<CardInstance>();
 
@@ -334,6 +349,15 @@ namespace StS
             var ex = ExhaustPile.Select(el => el.Copy()).ToList();
             var d = new Deck(h, dr, dis, ex);
             return d;
+        }
+
+        /// <summary>
+        /// TODO: where in the draw pile does it add?
+        /// </summary>
+        internal void AddToDrawPile(CardInstance newCi)
+        {
+            //assuming we want to interleave it.
+            DrawPile.Add(newCi);
         }
     }
 }

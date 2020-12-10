@@ -16,6 +16,7 @@ namespace StS
         public int? PerTurnOverrideEnergyCost { get; set; } = null;
         public int? PerFightOverrideEnergyCost { get; set; } = null;
         public bool OverrideExhaust { get; set; }
+        public int Id { get; set; }
         public CardInstance(Card card, int upgradeCount)
         {
             Card = card ?? throw new ArgumentNullException(nameof(card));
@@ -72,10 +73,6 @@ namespace StS
         public void Play(EffectSet ef, IEntity source, IEntity target, List<CardInstance> cardTargets = null, Deck deck = null)
         {
             Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
-            if (Helpers.PrintDetails)
-            {
-                Console.WriteLine($"\tplayed card {this}");
-            }
         }
 
         public void OtherAction(Action action, EffectSet ef)

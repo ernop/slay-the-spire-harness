@@ -6,7 +6,6 @@ namespace StS
 {
     public static class Helpers
     {
-        public static bool PrintDetails = false;
         public static Random Rnd { get; private set; }
         public static void SetRandom(int seed)
         {
@@ -208,6 +207,102 @@ namespace StS
         public static EnemyAttack GetAttack(int amount, int count)
         {
             return new EnemyAttack(amount, count);
+        }
+
+        /// <summary>
+        /// Generate all sets of startinghands from a list of cis.
+        /// 
+        /// some uncertainty here if I should just gen unique subsets.
+        /// But I think for v1 just pick a straight combination
+        /// 
+        /// </summary>
+        public static List<List<CardInstance>> GenSubsets(IEnumerable<CardInstance> cis, int n)
+        {
+            var res = new List<List<CardInstance>>();
+            if (n == 1)
+            {
+                res.AddRange(cis.Select(el => new List<CardInstance>() { el.Copy() }));
+            }
+            else
+            {
+                foreach (var i in Enumerable.Range(1, cis.Count()))
+                {
+                    var subcis = cis.Skip(i);
+                    if (subcis.Count() < n - 1)
+                    {
+                        continue;
+                    }
+                    var subres = GenSubsets(subcis, n - 1);
+                    foreach (var su in subres)
+                    {
+                        su.Insert(0, cis.Skip(i - 1).First());
+                        res.Add(su);
+
+                    }
+                }
+            }
+            return res;
+        }
+
+        public class Counter
+        {
+            public List<CardInstance> Cis { get; set; }
+            public string Key { get; set; }
+            public int Count { get; set; }
+            public Counter(List<CardInstance> cis)
+            {
+                Key = string.Join(',', cis.Select(el => el.ToString()).OrderBy(el => el));
+                Cis = cis;
+                Count = 0;
+            }
+        }
+
+        /// <summary>
+        /// For a given set of draws, with repeats, weigh them by frequency
+        /// </summary>
+        public static List<Tuple<List<CardInstance>, int>> GenHandWeights(List<List<CardInstance>> startingHands)
+        {
+            var counters = new Dictionary<string, Counter>();
+            foreach (var sh in startingHands)
+            {
+                var key = string.Join(',', sh.Select(el => el.ToString()).OrderBy(el => el));
+                var counter = new Counter(sh);
+                if (!counters.ContainsKey(key))
+                {
+                    counters[key] = counter;
+                }
+                counters[key].Count++;
+            }
+            var res = new List<Tuple<List<CardInstance>, int>>();
+            foreach (var k in counters.Keys)
+            {
+                res.Add(new Tuple<List<CardInstance>, int>(counters[k].Cis, counters[k].Count));
+            }
+
+            return res;
+
+        }
+
+        public static CardInstance FindIdenticalCardInSource(IList<CardInstance> source, CardInstance card, IList<CardInstance> exclusions = null)
+        {
+            if (exclusions == null)
+            {
+                exclusions = new List<CardInstance>();
+            }
+            CardInstance res = null;
+            var cs = card.ToString();
+            foreach (var c in source)
+            {
+                if (!exclusions.Contains(c) && c.ToString() == cs)
+                {
+                    return c;
+                }
+            }
+            if (res == null)
+            {
+                throw new Exception("No card.");
+            }
+            return res;
         }
     }
 }

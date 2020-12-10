@@ -27,13 +27,14 @@ namespace StS
 
         internal Player Copy()
         {
-            var relics = Relics.Select(el => el.Copy());
-            var newPlayer = new Player(CharacterType, HPMax, HP, relics);
-            newPlayer.Block = Block;
+            //var relics = Relics.Select(el => el.Copy());
+            var newPlayer = new Player(CharacterType);
+            //newPlayer.Block = Block;
             newPlayer.Energy = Energy;
             newPlayer.Gold = Gold;
             newPlayer.Potions = Potions.Select(el => el.Copy()).ToList();
             //TODO not copying potions now.
+            CopyEntity(newPlayer);
             return newPlayer;
         }
 
@@ -63,7 +64,6 @@ namespace StS
                 target = e;
             }
             f.ApplyEffectSet(FightActionEnum.Potion, ef, this, target, potion: p);
-
         }
 
         public List<Potion> Potions { get; set; } = new List<Potion>();

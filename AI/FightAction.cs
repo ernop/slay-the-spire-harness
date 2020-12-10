@@ -27,13 +27,14 @@ namespace StS
 
         internal FightAction Copy()
         {
-            var ah = new FightAction(FightActionType, Potion?.Copy(), Card?.Copy(), Enemy, Desc);
-            return ah;
+            throw new System.Exception("Don't copy this");
+            //var ah = new FightAction(FightActionType, Potion?.Copy(), Card?.Copy(), Enemy, Desc);
+            //return ah;
         }
 
         public override string ToString()
         {
-            string label = FightActionType.ToString();
+            string label = "* " + FightActionType.ToString();
             var forceIncludeLabel = false;
             var extra = "";
 
@@ -45,12 +46,12 @@ namespace StS
                     forceIncludeLabel = true;
                     break;
                 case FightActionEnum.Potion:
-                    label = "Potion:" + Potion.ToString();
+                    label = "* Potion:" + Potion.ToString();
                     forceIncludeLabel = true;
                     break;
                 case FightActionEnum.EnemyDied:
                     forceIncludeLabel = true;
-                    label = $"Enemy {Enemy} died";
+                    label = $"* Enemy {Enemy} died";
                     break;
                 case FightActionEnum.StartTurn:
                 case FightActionEnum.EndTurn:
@@ -63,7 +64,7 @@ namespace StS
                     forceIncludeLabel = true;
                     break;
                 case FightActionEnum.StartFight:
-                    extra = "\n";
+                    //extra = "\n";
                     forceIncludeLabel = true;
                     break;
                 case FightActionEnum.StartFightEffect:
@@ -87,7 +88,7 @@ namespace StS
             var descPart = "";
             if (Desc?.Count > 0)
             {
-                descPart = $" {string.Join("\n\t", Desc)}";
+                descPart = $" {string.Join(" ", Desc)}";
             }
 
             return $"{extra}{label}{descPart}";
