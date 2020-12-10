@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 using NUnit.Framework;
 
 using static StS.Helpers;
@@ -58,6 +60,21 @@ namespace StS
             //enemy does mega damage after 2rd round
             //first round you should full attack and take the damage
             //because you always kill 2nd round
+        }
+
+        [Test]
+        public void Test_UsingPotionAndInflameDefending()
+        {
+            var cis = GetCis("Defend", "Defend", "Inflame", "Defend", "Strike");
+
+            var enemy = new GenericEnemy(15, 3, 10, 10);
+            var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
+            var fs = new FightSimulator(cis, enemy, player);
+            var res = fs.Sim();
+            foreach (var initialHandRes in res)
+            {
+                Assert.AreEqual(100, initialHandRes.GetValue());
+            }
         }
 
 

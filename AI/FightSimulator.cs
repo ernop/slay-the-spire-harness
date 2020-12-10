@@ -25,12 +25,14 @@ namespace StS
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
         private List<CardInstance> _CIs { get; set; }
+        private bool _DoOutput { get; set; }
 
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
         /// </summary>
-        public FightSimulator(List<CardInstance> cis, Enemy enemy, Player player)
+        public FightSimulator(List<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false)
         {
+            _DoOutput = doOutput;
             _CIs = cis;
             _Enemy = enemy;
             _Player = player;
@@ -41,7 +43,7 @@ namespace StS
         /// </summary>
         public List<FightNode> Sim()
         {
-            System.IO.File.WriteAllText(_Output, "");
+            if (_DoOutput) System.IO.File.WriteAllText(_Output, "");
             var fight = new Fight(_CIs, _Player, _Enemy);
 
             var res = new List<FightNode>();
@@ -160,6 +162,7 @@ namespace StS
         /// </summary>
         public void SaveResults(string path, List<FightNode> nodes)
         {
+            if (!_DoOutput) return;
             var res = new List<string>();
             var endingConditions = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.WonFight, FightActionEnum.LostFight, FightActionEnum.TooLong };
             foreach (var node in nodes)
@@ -238,11 +241,6 @@ namespace StS
             }
 
 
-        }
-
-        private void SaveFight(Fight f)
-        {
-            System.IO.File.AppendAllLines(_Output, f.FightHistory.Select(el => el.ToString()));
         }
     }
 }

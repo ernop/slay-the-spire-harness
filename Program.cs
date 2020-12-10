@@ -32,11 +32,11 @@ namespace StS
 
         static void TestAttacker()
         {
-            var cis = GetCis("Strike", "Defend", "Inflame", "Defend", "Defend");
+            var cis = GetCis("Pummel+", "Inflame", "Inflame", "Inflame", "Defend");
 
-            var enemy = new GenericEnemy(4, 4, 10, 10);
+            var enemy = new GenericEnemy(5, 1, 50, 50);
             var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
-            var fs = new FightSimulator(cis, enemy, player);
+            var fs = new FightSimulator(cis, enemy, player, true);
             var res = fs.Sim();
             foreach (var rootNode in res)
             {
