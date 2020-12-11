@@ -20,6 +20,7 @@
         EnemyBuff = 13,
         EnemyStatusAttack = 14,
         EnemyDied = 15,
+        EndEnemyTurn = 16,
 
         StartFight = 20,
         WonFight = 21,

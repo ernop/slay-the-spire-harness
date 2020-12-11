@@ -211,8 +211,6 @@ namespace StS.Tests
             RunTest(name: "Inflamed Nibbed SwordBoomerang+", en2: 4, cis: GetCis("Strike", "Inflame", "SwordBoomerang+"), relics: new List<Relic>() { penNib4 });
         }
 
-
-
         [Test]
         public static void EnemyBehaviorTests()
         {
@@ -258,7 +256,6 @@ namespace StS.Tests
             Assert.AreEqual(player.HP, 100);
         }
 
-
         [Test]
         public static void Test_MaxEnergy_Heal()
         {
@@ -289,7 +286,6 @@ namespace StS.Tests
             Assert.AreEqual(player.HP, 100);
         }
 
-
         [Test]
         public static void Test_Sentinel()
         {
@@ -303,7 +299,6 @@ namespace StS.Tests
             Assert.AreEqual(player.Block, 8);
             Assert.AreEqual(player.HP, 100);
         }
-
 
         [Test]
         public static void Test_WildStrike()
@@ -469,11 +464,6 @@ namespace StS.Tests
             Assert.AreEqual(10, player2.Gold);
         }
 
-        private static CardInstance GetEnemyAttack(int amount, int count)
-        {
-            return new CardInstance(new EnemyAttack(amount, count), 0);
-        }
-
         [Test]
         public static void Test_EssenceOfSteel()
         {
@@ -556,8 +546,6 @@ namespace StS.Tests
                 throw new Exception($"{nameof(TestHeadbutt)}: headbutt didn't work");
             }
         }
-
-
 
         [Test]
         public static void TestMonkeyPaw()
@@ -727,6 +715,7 @@ namespace StS.Tests
                 throw new Exception($"{nameof(TestPerfectedStrike)}");
             }
         }
+
         [Test]
         public static void TestClash()
         {
@@ -905,6 +894,8 @@ namespace StS.Tests
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
             fight.EndTurn();
             fight.StartTurn();
+            fight.EndTurn();
+            fight.EndEnemyTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>(), out string error2), $"Enemy status not cleared {error2}");
         }
 
@@ -921,6 +912,8 @@ namespace StS.Tests
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 4) }, out string error), error);
             fight.EndTurn();
             fight.StartTurn();
+            fight.EndTurn();
+            fight.EndEnemyTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) }, out string error2));
         }
 
@@ -1169,30 +1162,6 @@ namespace StS.Tests
 
         }
 
-        public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis, int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CharacterType? characterType = CharacterType.IronClad)
-        {
-            var player = new Player(characterType.Value, drawAmount: drawCount);
-            var enemy = new GenericEnemy();
-            var fight = new Fight(initialCis, player, enemy: enemy, true);
-
-            //initial card draw.
-            fight.StartTurn();
-
-            while (extraTurns > 0)
-            {
-                fight.EndTurn();
-                fight.StartTurn();
-                extraTurns--;
-            }
-
-            var hand = fight.GetHand;
-            Assert.IsTrue(CompareHands(hand, expectedCis, out string message));
-
-            if (energyAfter.HasValue)
-            {
-                Assert.AreEqual(player.Energy, energyAfter, $"Expected energy={energyAfter.Value} actual={player.Energy}");
-            }
-        }
 
         [Test]
         public static void DamageBlockTests()
@@ -1296,10 +1265,32 @@ namespace StS.Tests
             }
         }
 
-        public static List<StatusInstance> GetStatuses(Status status, int num)
+        public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis,
+            int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CharacterType? characterType = CharacterType.IronClad)
         {
-            return new List<StatusInstance>() { new StatusInstance(status, num) };
+            var player = new Player(characterType.Value, drawAmount: drawCount);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(initialCis, player, enemy: enemy, true);
+
+            //initial card draw.
+            fight.StartTurn();
+
+            while (extraTurns > 0)
+            {
+                fight.EndTurn();
+                fight.StartTurn();
+                extraTurns--;
+            }
+
+            var hand = fight.GetHand;
+            Assert.IsTrue(CompareHands(hand, expectedCis, out string message), message);
+
+            if (energyAfter.HasValue)
+            {
+                Assert.AreEqual(player.Energy, energyAfter, $"Expected energy={energyAfter.Value} actual={player.Energy}");
+            }
         }
+
 
         public static EnemyAction Attack(int amount, int count)
         {

@@ -21,7 +21,7 @@ namespace StS
         /// 
         /// Should I add player to this?  So that the deck will know where to send exhaust events?
         /// </summary>
-        public Deck([NotNull] List<CardInstance> cis, bool preserveOrder = false)
+        public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
         {
             BackupCards = cis?.Select(el => CopyCI(el)).ToList();
             var newList = new List<CardInstance>();

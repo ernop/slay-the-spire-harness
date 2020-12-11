@@ -51,6 +51,9 @@ namespace StS
                     label = $"* Enemy {Target} died";
                     break;
                 case FightActionEnum.StartTurn:
+                    //label = $"Start {Fight}";
+                    forceIncludeLabel = true;
+                    break;
                 case FightActionEnum.EndTurn:
                 case FightActionEnum.WonFight:
                 case FightActionEnum.LostFight:
@@ -72,6 +75,7 @@ namespace StS
 
                 case FightActionEnum.EndTurnDeckEffect:
                 case FightActionEnum.EndTurnOtherEffect:
+                case FightActionEnum.EndEnemyTurn:
                     break;
                 default:
                     throw new System.Exception();

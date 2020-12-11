@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -49,7 +50,7 @@ namespace StS.Tests
             var fs = new FightSimulator(cis, enemy, player, doOutput: true);
             var node = fs.Sim();
 
-            Assert.AreEqual(100, node.GetValue());
+            Assert.AreEqual(100, node.GetValue().Value);
 
             //set up fight where you have DDDDS, SSDDD and draw last 5 first
             //enemy has 18hp
@@ -68,7 +69,7 @@ namespace StS.Tests
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
 
-            Assert.AreEqual(100, node.GetValue());
+            Assert.AreEqual(100, node.GetValue().Value);
         }
 
 
@@ -82,7 +83,7 @@ namespace StS.Tests
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
 
-            Assert.AreEqual(99, node.GetValue());
+            Assert.AreEqual(99, node.GetValue().Value);
 
             //set up fight where you have DDDDS, SSDDD and draw last 5 first
             //enemy has 18hp
@@ -114,15 +115,78 @@ namespace StS.Tests
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
 
-            Assert.AreEqual(100, node.GetValue());
+            Assert.AreEqual(100, node.GetValue().Value);
+        }
 
+
+        [Test]
+        public void Test_Finds_Single_Line()
+        {
+            var cis = GetCis("Bash", "Strike");
+            var enemy = new GenericEnemy(100, 100, 32, 32);
+            var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion(), new StrengthPotion() }, relics: new List<Relic>() { new FusionHammer() });
+            var fs = new FightSimulator(cis, enemy, player);
+            var node = fs.Sim();
+            Assert.AreEqual(1, node.Randoms.Count);
+            //also assert there is only one good path.
+            var wins = node.Randoms.Where(el => el.GetValue().Value == 100);
+            Assert.AreEqual(1, wins.ToList().Count());
+            Assert.AreEqual(100, node.GetValue().Value);
+        }
+
+        [Test]
+        public void Test_Fails_Impossible_Fight_Barely()
+        {
+            var cis = GetCis("Bash", "Inflame", "Strike");
+            var enemy = new GenericEnemy(100, 100, 33, 33);
+            var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion() }, relics: new List<Relic>() { new FusionHammer() });
+            var fs = new FightSimulator(cis, enemy, player);
+            var node = fs.Sim();
+            Assert.AreEqual(1, node.Randoms.Count);
+            //also assert there is only one good path.
+            var best = node.Randoms.Max(el => el.GetValue());
+            Assert.AreEqual(-1, best.Value);
+            Assert.AreEqual(-1, node.GetValue().Value);
+        }
+
+        [Test]
+        public void Test_Longer_Setup()
+        {
+            //Correct strategy is to take damage the first round.
+            var cis = GetCis("Strike", "Defend", "Defend", "Inflame", /* AFTER */ "Inflame", "Inflame", "Inflame", "Defend");
+            var enemy = new GenericEnemy(1, 5, 14, 14, statuses: GetStatuses(new Feather(), 10));
+            var player = new Player(drawAmount: 4, hp: 10);
+            var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true);
+            var node = fs.Sim();
+            Assert.AreEqual(1, node.Randoms.Count);
+            //also assert there is only one good path.
+            var best = node.Randoms.Max(el => el.GetValue());
+
+            var bests = node.Randoms.Where(el => el.GetValue().Value == 5);
+            //this is good but there can still be dumb paths that are longer.
+
+            Assert.AreEqual(5, best.Value);
+            Assert.AreEqual(5, node.GetValue().Value);
+            node.Display(Output, true);
+        }
+
+        [Test]
+        public void Test_Fractions()
+        {
+            var cis = GetCis("Strike", "Defend", "Inflame");
+            var enemy = new GenericEnemy(100, 100, 1, 1);
+            var player = new Player(drawAmount: 1);
+            var fs = new FightSimulator(cis, enemy, player);
+            var node = fs.Sim();
+            Assert.AreEqual(3, node.Randoms.Count);
+            CollectionAssert.AreEqual(new HashSet<double>() { 100, -1, -1 }, node.Randoms.Select(el => el.GetValue().Value).ToHashSet());
         }
 
         [Test]
         public void Test_ExploringDrawSpace()
         {
             var cis = GetCis("Strike", "Defend");
-            var enemy = new GenericEnemy(5, 1, 1, 1, new List<StatusInstance>() { new StatusInstance(new Feather(), 5) });
+            var enemy = new GenericEnemy(0, 1, 1, 1, new List<StatusInstance>() { new StatusInstance(new Feather(), 5) });
             var player = new Player(hp: 1, maxEnergy: 1, drawAmount: 1);
             var fs = new FightSimulator(cis, enemy, player, false);
             var root = fs.Sim();
@@ -132,9 +196,13 @@ namespace StS.Tests
 
             foreach (var r in root.Randoms)
             {
+                var v = r.GetValue(true);
                 //endturn and play your single card.
                 Assert.AreEqual(2, r.Choices.Count);
                 Assert.AreEqual(0, r.Randoms.Count);
+
+                //player can always win the fight.
+                Assert.AreEqual(1, r.GetValue().Value);
             }
 
             //draw orders:

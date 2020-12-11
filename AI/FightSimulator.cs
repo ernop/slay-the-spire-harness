@@ -17,14 +17,14 @@ namespace StS
         private string _Output = "C:/dl/output.txt";
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
-        private List<CardInstance> _CIs { get; set; }
+        private IList<CardInstance> _CIs { get; set; }
         private bool _DoOutput { get; set; }
         private bool _OneStartingHandOnly { get; set; }
 
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
         /// </summary>
-        public FightSimulator(List<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false)
+        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false)
         {
             _CIs = cis;
             _Enemy = enemy;
@@ -42,10 +42,22 @@ namespace StS
         {
             if (_DoOutput) System.IO.File.WriteAllText(_Output, "");
             var fight = new Fight(_CIs, _Player, _Enemy);
+            List<Tuple<List<CardInstance>, int>> handsAndWeights;
+            FightNode rootNode;
 
-            var startingHands = GenSubsets(_CIs, Math.Min(_CIs.Count, _Player.GetDrawAmount()));
-            var handsAndWeights = GenHandWeights(startingHands);
-            var rootNode = new FightNode(parent: null, root: true, rnd: false, fight: fight);
+            if (_OneStartingHandOnly) //megahack to just take the last N cards of the given CIs, for testing
+            {
+                var skipAmt = _CIs.Count - _Player.GetDrawAmount();
+                var ll = _CIs.Skip(skipAmt).Take(_Player.GetDrawAmount()).ToList();
+                handsAndWeights = new List<Tuple<List<CardInstance>, int>>() { new Tuple<List<CardInstance>, int>(ll, 1) };
+            }
+            else
+            {
+                var startingHands = GenSubsets(_CIs, Math.Min(_CIs.Count, _Player.GetDrawAmount()));
+                handsAndWeights = GenHandWeights(startingHands);
+            }
+
+            rootNode = new FightNode(parent: null, root: true, rnd: false, fight: fight);
             foreach (var item in handsAndWeights)
             {
                 var sh = item.Item1;
@@ -118,6 +130,8 @@ namespace StS
                     child = new FightNode(child, rnd: false);
                     child.Fight.EnemyMove();
                     child.AddHistory();
+                    child.Fight.EndEnemyTurn();
+                    child.AddHistory();
                     if (child.Fight.Status == FightStatus.Ongoing)
                     {
                         child = new FightNode(child, rnd: false);
@@ -175,10 +189,11 @@ namespace StS
                     res.Add(desc);
 
 
-                    if (oneDrawNode.FightHistory.Any(el => RoundEndConditions.Contains(el.FightActionType)))
+                    if (RoundEndConditions.Contains(oneDrawNode.FightHistory.FightActionType))
                     {
                         break;
                     }
+
                     //follow the path down the (possibly multiple) best choices for the current turn.
                     oneDrawNode = oneDrawNode.Choices.FirstOrDefault(el => el.GetValue() == cn.GetValue());
                     if (oneDrawNode == null) //should never happen

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace StS
 {
@@ -14,7 +13,7 @@ namespace StS
     /// What is this, really? in no-redraw, no enemy choice world (where all choice is from player),
     /// it should be a single node in a tree such that player can always choose between children.
     /// </summary>
-    public class FightNode
+    public partial class FightNode
     {
         /// <summary>
         /// Create a child node.
@@ -60,11 +59,9 @@ namespace StS
         public Fight Fight { get; set; }
         public FightNode Parent { get; set; }
         private bool _Calculated { get; set; } = false;
-        private double _Value { get; set; } = 0;
+        private NodeValue _Value { get; set; }
         private FightNode _BestChild { get; set; }
-        public List<string> LastHistory { get; set; }
-
-        public List<FightAction> FightHistory { get; internal set; } = new List<FightAction>();
+        public FightAction FightHistory { get; internal set; }
 
         /// <summary>
         /// example: Play TrueGrit.
@@ -87,7 +84,7 @@ namespace StS
                 return;
             }
 
-            FightHistory.Add(fa);
+            FightHistory = fa;
         }
 
         private int Depth
@@ -108,37 +105,53 @@ namespace StS
         /// <summary>
         /// We are a choice.
         /// </summary>
-        internal void DisplayFirstRound(string path)
+        internal void Display(string path, bool all = false)
+        {
+            foreach (var r in Randoms)
+            {
+                var lastRound = DisplayRound(r, path);
+                while (lastRound != null)
+                {
+                    lastRound = DisplayRound(lastRound, path);
+                }
+            }
+        }
+
+        private FightNode DisplayRound(FightNode node, string path)
         {
             var bestChildren = new List<FightNode>();
-
-            var target = this;
+            var target = node;
             while (true)
             {
                 bestChildren.Add(target);
 
-                if (target.FightHistory.Any(el => Helpers.RoundEndConditions.Contains(el.FightActionType)))
+                if (Helpers.RoundEndConditions.Contains(target.FightHistory.FightActionType))
                 {
                     break;
                 }
-                target = target?._BestChild;
+                target = target._BestChild;
 
                 if (target == null)
                 {
                     break;
                 }
             }
-
             foreach (var b in bestChildren)
             {
                 Write(path, b.FightHistory);
             }
+
+            var lastRound = bestChildren[bestChildren.Count - 1];
+            if (lastRound.Fight.Status != FightStatus.Ongoing)
+            {
+                return null;
+            }
+            return lastRound.BestChild();
         }
 
-        private static void Write(string path, List<FightAction> l)
+        private static void Write(string path, FightAction l)
         {
-            var j = string.Join(',', l.Select(el => el.ToString()));
-            System.IO.File.AppendAllText(path, j + "\n");
+            System.IO.File.AppendAllText(path, l.ToString() + "\n");
         }
 
         internal void StartTurn(List<CardInstance> initialHand)
@@ -169,19 +182,21 @@ namespace StS
         {
             //if fight.history has startturn, then fighthistories before it should be considered to have one less turnnumber
             var tabs = new string(' ', Fight.TurnNumber * 2);
-            foreach (var h in FightHistory)
-            {
-                System.IO.File.AppendAllText(path, tabs);
-                var s = h.ToString();
-                var value = $" {GetValue()} ";
-                System.IO.File.AppendAllText(path, s + value + "\n");
-            }
+
+            System.IO.File.AppendAllText(path, tabs);
+            var s = FightHistory.ToString();
+            var value = $" {GetValue()} ";
+            System.IO.File.AppendAllText(path, s + value + "\n");
+
 
         }
 
-        public double GetValue()
+        /// <summary>
+        /// If lastRound is Defend+Strike, how about just Strike as the besT?
+        /// </summary>
+        public NodeValue GetValue(bool force = false)
         {
-            if (!_Calculated)
+            if (!_Calculated || force)
             {
                 _CalcValue();
             }
@@ -220,6 +235,8 @@ namespace StS
             {
                 return ChoiceType.Random;
             }
+
+            //fight is over
             return ChoiceType.Leaf;
         }
 
@@ -229,10 +246,14 @@ namespace StS
             {
                 case ChoiceType.Choice:
                     FightNode bestChild = null;
-                    var bestVal = double.MinValue;
+                    NodeValue bestVal = null;
                     foreach (var c in Choices)
                     {
                         var cval = c.GetValue();
+                        if (cval == null || bestVal == null)
+                        {
+                            var ae = 4;
+                        }
                         if (cval > bestVal)
                         {
                             bestVal = cval;
@@ -241,17 +262,33 @@ namespace StS
                     }
 
                     _BestChild = bestChild;
-                    _Value = bestVal;
+                    int cards;
+                    var NormalActionTypes = new List<FightActionEnum>() { FightActionEnum.PlayCard, FightActionEnum.Potion };
+
+                    if (FightHistory.FightActionType == FightActionEnum.PlayCard)
+                    {
+                        cards = _BestChild.GetValue().Cards + 1;
+                    }
+                    else if (FightHistory.FightActionType == FightActionEnum.Potion)
+                    {
+                        cards = _BestChild.GetValue().Cards;
+                    }
+                    else
+                    {
+                        cards = 0;
+                    }
+
+                    _Value = new NodeValue(bestVal.Value, cards);
                     break;
                 case ChoiceType.Random:
                     var rsum = 0.0d;
                     var rc = 0;
                     foreach (var c in Randoms)
                     {
-                        rsum += c.GetValue();
+                        rsum += c.GetValue().Value;
                         rc++;
                     }
-                    _Value = rsum * 1.0 / rc;
+                    _Value = new NodeValue(rsum * 1.0 / rc, 0);
                     //TODO okay to not assign bestchild? it doesn't make sense over random.
                     break;
                 case ChoiceType.Leaf:
@@ -269,7 +306,7 @@ namespace StS
                             val = -1 * Fight._Enemies[0].HP;
                             break;
                     }
-                    _Value = val;
+                    _Value = new NodeValue(val, 0);
                     _BestChild = null;
                     break;
             }
@@ -277,7 +314,7 @@ namespace StS
 
         public override string ToString()
         {
-            return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()}";
+            return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()} Action:{FightHistory}";
         }
     }
 }

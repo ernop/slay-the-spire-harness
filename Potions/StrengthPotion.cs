@@ -2,6 +2,8 @@
 {
     public class StrengthPotion : Potion
     {
+        public override string Name => nameof(StrengthPotion);
+
         public override void Apply(Fight f, Player player, IEnemy enemy, EffectSet ef)
         {
             var si = new StatusInstance(new Strength(), 2);

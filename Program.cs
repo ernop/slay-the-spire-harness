@@ -7,15 +7,15 @@ namespace StS
 {
     class Program
     {
-        static string _Output = "C:/dl/output.txt";
         static void Main(string[] args)
         {
             Helpers.SetRandom(0);
             //TestSimple();
+            TestCultist();
 
         }
 
-        
+
 
         static void TestCultist()
         {
@@ -23,11 +23,10 @@ namespace StS
 
             var enemy = new Cultist(hp: 1);
             var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player);
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true);
             var node = fs.Sim();
 
-            node.DisplayFirstRound(_Output);
-
+            node.Display(Helpers.Output);
         }
 
         static void TestAttacker()
@@ -41,11 +40,11 @@ namespace StS
 
             foreach (var draw in node.Randoms)
             {
-                System.IO.File.AppendAllText(_Output, "==One draw.");
-                draw.DisplayFirstRound(_Output);
+                System.IO.File.AppendAllText(Output, "==One draw.");
+                draw.Display(Output);
             }
 
-            fs.SaveResults(_Output, node);
+            fs.SaveResults(Output, node);
         }
     }
 }

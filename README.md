@@ -43,6 +43,8 @@ Todos
  
 
 Todos Done
+==
+
  - unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
  - There is no reason for this to have two parameters; one which gets mapped is enough.
  - base tests for finding best lines in simple fights

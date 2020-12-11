@@ -6,6 +6,7 @@ namespace StS
 {
     public static class Helpers
     {
+        public static string Output = "C:/dl/output.txt";
         public static List<FightActionEnum> RoundEndConditions = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.WonFight, FightActionEnum.LostFight, FightActionEnum.TooLong };
         public static Random Rnd { get; private set; }
         public static void SetRandom(int seed)
@@ -321,6 +322,11 @@ namespace StS
                 res.Add(found);
             }
             return res;
+        }
+
+        public static List<StatusInstance> GetStatuses(Status status, int num)
+        {
+            return new List<StatusInstance>() { new StatusInstance(status, num) };
         }
 
     }

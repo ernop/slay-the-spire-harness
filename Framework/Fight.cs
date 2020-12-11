@@ -24,8 +24,6 @@ namespace StS
         private Deck _Deck { get; set; }
         public FightStatus Status { get; set; }
         public int TurnNumber { get; set; }
-
-
         public IList<CardInstance> GetExhaustPile => _Deck.GetExhaustPile;
         public IList<CardInstance> GetDiscardPile => _Deck.GetDiscardPile;
         public IList<CardInstance> GetHand => _Deck.GetHand;
@@ -59,7 +57,7 @@ namespace StS
             Init(d, player, enemies, preserveOrder);
         }
 
-        public Fight(List<CardInstance> initialCis, Player player, IEnemy enemy, bool preserveOrder = false)
+        public Fight(IList<CardInstance> initialCis, Player player, IEnemy enemy, bool preserveOrder = false)
         {
 
             var deck = new Deck(initialCis, preserveOrder);
@@ -93,8 +91,15 @@ namespace StS
                 }
             }
 
+            var seenPots = new HashSet<string>();
             foreach (var pot in _Player.Potions)
             {
+                var key = pot.ToString();
+                if (seenPots.Contains(key))
+                {
+                    continue;
+                }
+                seenPots.Add(key);
                 var sa = new FightAction(FightActionEnum.Potion, potion: pot);
                 res.Add(sa);
             }
@@ -162,7 +167,7 @@ namespace StS
                 throw new Exception("Calling EndTurn without firstturn started.");
             }
 
-            history.Add($"End Turn {TurnNumber} ({_Player.Energy})");
+            history.Add($"Turn: {TurnNumber} ({_Player.Energy})");
 
             var endTurnEf = new EffectSet();
             _Deck.TurnEnds(endTurnEf);
@@ -170,7 +175,7 @@ namespace StS
             //TODO this is affected by calipers, barricade, etc.
 
             var endTurnPlayerEf = new EffectSet();
-            var endTurnEnemyEf = new EffectSet();
+
 
             var relicEf = new EffectSet();
 
@@ -180,11 +185,6 @@ namespace StS
             }
             _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
 
-            foreach (var si in ((Entity)_Enemies[0]).StatusInstances)
-            {
-                si.EndTurn((Entity)_Enemies[0], endTurnEnemyEf);
-            }
-
             foreach (var relic in _Player.Relics)
             {
                 relic.EndTurn(_Player, _Enemies[0], relicEf);
@@ -192,13 +192,22 @@ namespace StS
 
             ApplyEffectSet(endTurnPlayerEf, _Player, _Enemies[0], history);
 
-            ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player, history);
-
             ApplyEffectSet(relicEf, _Player, _Enemies[0], history);
 
-            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
-
             LastAction = new FightAction(FightActionEnum.EndTurn, null, null, null, history);
+        }
+
+        public void EndEnemyTurn()
+        {
+            var history = new List<string>();
+            var endTurnEnemyEf = new EffectSet();
+            foreach (var si in ((Entity)_Enemies[0]).StatusInstances)
+            {
+                si.EndTurn((Entity)_Enemies[0], endTurnEnemyEf);
+            }
+            ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player, history);
+            _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
+            LastAction = new FightAction(FightActionEnum.EndEnemyTurn, null, null, null, history);
         }
 
         private void Died(IEntity entity, List<string> history)
