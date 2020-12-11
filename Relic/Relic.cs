@@ -12,8 +12,8 @@
         public virtual void StartFight(Deck d, EffectSet ef) { }
         public virtual void EndFight(Deck d, EffectSet ef) { }
 
-        public virtual void StartTurn(Player player, IEnemy enemy, EffectSet ef) { }
-        public virtual void EndTurn(Player player, IEnemy enemy, EffectSet ef) { }
+        public virtual void StartTurn(Player player, IEntity enemy, EffectSet ef) { }
+        public virtual void EndTurn(Player player, IEntity enemy, EffectSet ef) { }
 
         internal abstract Relic Copy();
 

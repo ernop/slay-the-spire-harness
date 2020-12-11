@@ -6,8 +6,10 @@ namespace StS
 {
     public class Player : Entity, IEntity
     {
-        public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null, IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null) : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100
-            )
+        public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null,
+            IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null,
+            int? maxEnergy = null, int? drawAmount = null)
+            : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100)
         {
             CharacterType = type;
             if (relics != null)
@@ -23,6 +25,8 @@ namespace StS
                 //TODO check max potion slots?
                 Potions = potions.ToList();
             }
+            _MaxEnergy = maxEnergy ?? 3;
+            _DrawAmount = drawAmount ?? 5;
         }
 
         internal Player Copy()
@@ -33,14 +37,22 @@ namespace StS
             newPlayer.Energy = Energy;
             newPlayer.Gold = Gold;
             newPlayer.Potions = Potions.Select(el => el.Copy()).ToList();
+            newPlayer._MaxEnergy = _MaxEnergy;
+            newPlayer._DrawAmount = _DrawAmount;
+
             //TODO not copying potions now.
             CopyEntity(newPlayer);
             return newPlayer;
         }
 
+
         public CharacterType CharacterType { get; }
+
         public int Energy { get; set; }
         public int Gold { get; private set; }
+        private int _DrawAmount { get; set; }
+        private int _MaxEnergy { get; set; }
+
         public void GainGold(int amount)
         {
             if (Relics.SingleOrDefault(el => el.Name == "Ectoplasm") != null)
@@ -50,27 +62,13 @@ namespace StS
             Gold += amount;
         }
 
-        public void DrinkPotion(Fight f, Potion p, Enemy e)
-        {
-            var ef = new EffectSet();
-            p.Apply(f, this, e, ef);
-            Entity target;
-            if (p.SelfTarget())
-            {
-                target = this;
-            }
-            else
-            {
-                target = e;
-            }
-            f.ApplyEffectSet(FightActionEnum.Potion, ef, this, target, potion: p);
-        }
+
 
         public List<Potion> Potions { get; set; } = new List<Potion>();
 
         public int MaxEnergy()
         {
-            var value = 3;
+            var value = _MaxEnergy;
             foreach (var relic in Relics)
             {
                 if (relic.ExtraEnergy)
@@ -83,8 +81,8 @@ namespace StS
 
         internal int GetDrawAmount()
         {
-            ///todo this should be affected by statuses.
-            return 5;
+            ///TODO this should be affected by statuses.
+            return _DrawAmount;
         }
 
         internal void HealFor(int amount, out string healRes)

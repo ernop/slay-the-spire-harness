@@ -2,7 +2,7 @@
 
 using static StS.Helpers;
 
-namespace StS.PermutationTests
+namespace StS.Tests
 {
     public class PermutationTests
     {

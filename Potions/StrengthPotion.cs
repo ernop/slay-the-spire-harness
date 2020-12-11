@@ -2,7 +2,7 @@
 {
     public class StrengthPotion : Potion
     {
-        public override void Apply(Fight f, Player player, Enemy enemy, EffectSet ef)
+        public override void Apply(Fight f, Player player, IEnemy enemy, EffectSet ef)
         {
             var si = new StatusInstance(new Strength(), 2);
             ef.TargetEffect.Status.Add(si);

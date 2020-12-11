@@ -5,7 +5,7 @@
         public override string Name => nameof(CaptainsWheel);
         internal int RoundNumber { get; set; }
 
-        public override void StartTurn(Player player, IEnemy enemy, EffectSet relicEf)
+        public override void StartTurn(Player player, IEntity enemy, EffectSet relicEf)
         {
             RoundNumber++;
 

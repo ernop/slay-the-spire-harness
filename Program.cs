@@ -11,10 +11,11 @@ namespace StS
         static void Main(string[] args)
         {
             Helpers.SetRandom(0);
-
-            TestAttacker();
+            //TestSimple();
 
         }
+
+        
 
         static void TestCultist()
         {
@@ -23,25 +24,28 @@ namespace StS
             var enemy = new Cultist(hp: 1);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
-            var res = fs.Sim();
-            foreach (var rootNode in res)
-            {
-                rootNode.Display(_Output);
-            }
+            var node = fs.Sim();
+
+            node.DisplayFirstRound(_Output);
+
         }
 
         static void TestAttacker()
         {
-            var cis = GetCis("Pummel+", "Inflame", "Inflame", "Inflame", "Defend");
+            var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Defend", "Strike", "Strike", "Strike", "Strike", "Strike");
 
-            var enemy = new GenericEnemy(5, 1, 50, 50);
+            var enemy = new GenericEnemy(20, 1, 50, 50);
             var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
             var fs = new FightSimulator(cis, enemy, player, true);
-            var res = fs.Sim();
-            foreach (var rootNode in res)
+            var node = fs.Sim();
+
+            foreach (var draw in node.Randoms)
             {
-                rootNode.Display(_Output);
+                System.IO.File.AppendAllText(_Output, "==One draw.");
+                draw.DisplayFirstRound(_Output);
             }
+
+            fs.SaveResults(_Output, node);
         }
     }
 }

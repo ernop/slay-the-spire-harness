@@ -8,7 +8,7 @@ namespace StS
         public EnemyAttack Attack { get; set; }
         public List<StatusInstance> PlayerStatusAttack { get; set; }
 
-        public EnemyAction(List<StatusInstance> buff, EnemyAttack attack, List<StatusInstance> playerStatusAttack)
+        public EnemyAction(List<StatusInstance> buff = null, EnemyAttack attack = null, List<StatusInstance> playerStatusAttack = null)
         {
             Buffs = buff;
             Attack = attack;

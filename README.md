@@ -21,9 +21,14 @@ Stages
 
 Todos
 ==
-
- - I should try out events to handle some of these really rare connections. i.e. no other status except PlatedArmor cares when a player takes attack damage; why should I call ApplyStatus on every status whenever that happens?  And i don't just want to have cutouts directly in the damage code.
- -- better to emit events when something happens and platedarmor just listens.
+ - minimal example of C/RC situation and verify that all paths are considered
+ - absolute/montecarlo - which way to go? for very small fights absolute is okay.
+ - I need helper methods to visualize the Choice/RandomChoice method
+ - better "show full turn" methods
+ - why isn't it finding all good lines?
+ - tests for exhaustion of all good lines. make sure it finds all.
+ - picking the shorter line to a win 
+ - better to emit events when something happens and platedarmor just listens.
  - fix output so I can see what's going on - bad experience when running through nunit.
  - Are enemy attacks/actions best characterized as cards?  Would make it easier in some ways since enemy "turns" could be the same as players.
  - deck concepts - exhaust, draw, etc.  New test classes just for this
@@ -35,8 +40,11 @@ Todos
  - cards that have multiple "versions" of sims, i.e. headbutt or any card that has targets, needs to specify targets somehow? so the AI can monte carlo over them.
  - fix tests to have standard format and test autodetection.
  - console application for testing
- - how to generally get a narrative account of a fight?  textmode StS
+ 
 
 Todos Done
  - unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
  - There is no reason for this to have two parameters; one which gets mapped is enough.
+ - base tests for finding best lines in simple fights
+ - how to generally get a narrative account of a fight?  textmode StS
+ - I should try out events to handle some of these really rare connections. i.e. no other status except PlatedArmor cares when a player takes attack damage; why should I call ApplyStatus on every status whenever that happens?  And i don't just want to have cutouts directly in the damage code.

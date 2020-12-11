@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 using static StS.Helpers;
 
-namespace StS
+namespace StS.Tests
 {
     public class SimTests
     {
@@ -27,10 +27,7 @@ namespace StS
             var results = fs.Sim();
 
             var ii = 0;
-            foreach (var fight in results)
-            {
 
-            }
         }
 
         [Test]
@@ -49,12 +46,11 @@ namespace StS
 
             var enemy = new GenericEnemy(10, 1, 8, 8);
             var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player);
-            var res = fs.Sim();
-            foreach (var initialHandRes in res)
-            {
-                Assert.AreEqual(100, initialHandRes.GetValue());
-            }
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true);
+            var node = fs.Sim();
+
+            Assert.AreEqual(100, node.GetValue());
+
             //set up fight where you have DDDDS, SSDDD and draw last 5 first
             //enemy has 18hp
             //enemy does mega damage after 2rd round
@@ -70,11 +66,9 @@ namespace StS
             var enemy = new GenericEnemy(15, 3, 10, 10);
             var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
             var fs = new FightSimulator(cis, enemy, player);
-            var res = fs.Sim();
-            foreach (var initialHandRes in res)
-            {
-                Assert.AreEqual(100, initialHandRes.GetValue());
-            }
+            var node = fs.Sim();
+
+            Assert.AreEqual(100, node.GetValue());
         }
 
 
@@ -86,11 +80,10 @@ namespace StS
             var enemy = new GenericEnemy(11, 1, 8, 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
-            var res = fs.Sim();
-            foreach (var initialHandRes in res)
-            {
-                Assert.AreEqual(99, initialHandRes.GetValue());
-            }
+            var node = fs.Sim();
+
+            Assert.AreEqual(99, node.GetValue());
+
             //set up fight where you have DDDDS, SSDDD and draw last 5 first
             //enemy has 18hp
             //enemy does mega damage after 2rd round
@@ -119,11 +112,41 @@ namespace StS
             var enemy = new GenericEnemy(4, 4, 8, 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
-            var res = fs.Sim();
-            foreach (var initialHandRes in res)
+            var node = fs.Sim();
+
+            Assert.AreEqual(100, node.GetValue());
+
+        }
+
+        [Test]
+        public void Test_ExploringDrawSpace()
+        {
+            var cis = GetCis("Strike", "Defend");
+            var enemy = new GenericEnemy(5, 1, 1, 1, new List<StatusInstance>() { new StatusInstance(new Feather(), 5) });
+            var player = new Player(hp: 1, maxEnergy: 1, drawAmount: 1);
+            var fs = new FightSimulator(cis, enemy, player, false);
+            var root = fs.Sim();
+            //there should be two randomChoice nodes
+            Assert.AreEqual(0, root.Choices.Count);
+            Assert.AreEqual(2, root.Randoms.Count);
+
+            foreach (var r in root.Randoms)
             {
-                Assert.AreEqual(100, initialHandRes.GetValue());
+                //endturn and play your single card.
+                Assert.AreEqual(2, r.Choices.Count);
+                Assert.AreEqual(0, r.Randoms.Count);
             }
+
+            //draw orders:
+            // S* -win
+            // DS* win
+            // DD* lose
+            //so Value should be 75 and the tree should be exhausted.
+
+            // S win
+            // D
+            //  S  win
+            //  D  lose
         }
     }
 }

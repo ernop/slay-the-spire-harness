@@ -5,8 +5,7 @@ namespace StS
 
 
     /// <summary>
-    /// play a card, endTurn, drink potion
-    /// Expand this to have a description of what happened.
+    /// Player did something; then the list of accumulated actions.
     /// </summary>
     public class FightAction
     {
@@ -14,22 +13,20 @@ namespace StS
         public Potion Potion { get; private set; }
         public CardInstance Card { get; private set; }
         public List<string> Desc { get; private set; }
-        public IEntity Enemy { get; private set; }
+        public IEntity Target { get; private set; }
 
-        public FightAction(FightActionEnum fightActionType, Potion potion = null, CardInstance card = null, IEntity enemy = null, List<string> desc = null)
+        public FightAction(FightActionEnum fightActionType, Potion potion = null, CardInstance card = null, IEntity target = null, List<string> desc = null)
         {
             FightActionType = fightActionType;
             Potion = potion?.Copy();
             Card = card?.Copy();
-            Enemy = enemy;
+            Target = target;
             Desc = desc;
         }
 
         internal FightAction Copy()
         {
             throw new System.Exception("Don't copy this");
-            //var ah = new FightAction(FightActionType, Potion?.Copy(), Card?.Copy(), Enemy, Desc);
-            //return ah;
         }
 
         public override string ToString()
@@ -51,7 +48,7 @@ namespace StS
                     break;
                 case FightActionEnum.EnemyDied:
                     forceIncludeLabel = true;
-                    label = $"* Enemy {Enemy} died";
+                    label = $"* Enemy {Target} died";
                     break;
                 case FightActionEnum.StartTurn:
                 case FightActionEnum.EndTurn:

@@ -317,7 +317,7 @@ namespace StS
             }
         }
 
-        internal void FinishCardPlay()
+        internal void CardPlayCleanup()
         {
             if (PutIntoDiscardAfterApplyingEffectSet != null)
             {
