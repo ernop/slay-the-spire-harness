@@ -11,6 +11,8 @@ namespace StS
     /// How much will things actually blow up?  With fully unique deck (no repeat cards)
     /// 
     /// How about just normal play and do lots of sims vs a dumb simple enemy without.
+    /// 
+    /// TODO: it'd be beter
     /// </summary>
     public class FightSimulator
     {

@@ -7,7 +7,6 @@ namespace StS
         public int Amount { get; set; }
         public int Count { get; set; }
 
-
         public GenericEnemy(int amount = 3, int count = 3, int? hpMax = null, int? hp = null, List<StatusInstance> statuses = null) : base(nameof(GenericEnemy), hpMax ?? 50, hp ?? 50)
         {
             Amount = amount;
@@ -17,7 +16,6 @@ namespace StS
                 StatusInstances = statuses;
             }
         }
-
 
         public override EnemyAction GetAction()
         {

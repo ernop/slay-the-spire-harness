@@ -29,10 +29,10 @@
             }
             else if (a.Value == b.Value)
             {
-                return (a.Cards > b.Cards);
+                //fewer cards played is better
+                return a.Cards < b.Cards;
             }
 
-            //a.value < b.value
             return false;
 
         }

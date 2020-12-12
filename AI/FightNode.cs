@@ -87,7 +87,7 @@ namespace StS
             FightHistory = fa;
         }
 
-        private int Depth
+        public int Depth
         {
             get
             {
@@ -187,8 +187,6 @@ namespace StS
             var s = FightHistory.ToString();
             var value = $" {GetValue()} ";
             System.IO.File.AppendAllText(path, s + value + "\n");
-
-
         }
 
         /// <summary>

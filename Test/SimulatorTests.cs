@@ -118,7 +118,6 @@ namespace StS.Tests
             Assert.AreEqual(100, node.GetValue().Value);
         }
 
-
         [Test]
         public void Test_Finds_Single_Line()
         {
@@ -153,8 +152,8 @@ namespace StS.Tests
         public void Test_Longer_Setup()
         {
             //Correct strategy is to take damage the first round.
-            var cis = GetCis("Strike", "Defend", "Defend", "Inflame", /* AFTER */ "Inflame", "Inflame", "Inflame", "Defend");
-            var enemy = new GenericEnemy(1, 5, 14, 14, statuses: GetStatuses(new Feather(), 10));
+            var cis = GetCis("Defend", "Strike", "Defend", "Inflame", /* AFTER */ "Inflame", "Inflame", "Inflame", "Defend");
+            var enemy = new GenericEnemy(amount: 1, count: 5, hpMax: 14, hp: 14, statuses: GetStatuses(new Feather(), 10));
             var player = new Player(drawAmount: 4, hp: 10);
             var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true);
             var node = fs.Sim();
@@ -168,6 +167,30 @@ namespace StS.Tests
             Assert.AreEqual(5, best.Value);
             Assert.AreEqual(5, node.GetValue().Value);
             node.Display(Output, true);
+            //Assert.IsFalse(true);
+
+            var winNode = GetBestLeaf(node.Randoms.First());
+            var d = winNode.Depth;
+            Assert.AreEqual(9, d); //draw i i i endturn monsterend start i s
+
+            Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
+            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
+            //this makes sure it doesn't spuriously play a defend first in the last turn.
+        }
+
+        public FightNode GetBestLeaf(FightNode f)
+        {
+            var res = f;
+            while (true)
+            {
+                var bc = res.BestChild();
+                if (bc == null)
+                {
+                    break;
+                }
+                res = bc;
+            }
+            return res;
         }
 
         [Test]
@@ -177,8 +200,12 @@ namespace StS.Tests
             var av2 = new NodeValue(4, 4);
             var bv = new NodeValue(6, 4);
             Assert.IsTrue(bv > av);
+            Assert.IsFalse(bv < av);
             Assert.IsTrue(av == av2);
+            Assert.IsTrue(av == av);
+            Assert.IsFalse(av != av);
             Assert.IsTrue(av < bv);
+            Assert.IsFalse(av > bv);
         }
 
         [Test]
