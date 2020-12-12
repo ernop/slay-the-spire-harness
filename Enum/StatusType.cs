@@ -15,6 +15,7 @@
         PlatedArmor = 9,
         FeelNoPainStatus = 10,
         Frail = 11,
+        EvolveStatus = 12,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

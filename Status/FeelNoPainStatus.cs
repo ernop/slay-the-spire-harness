@@ -37,6 +37,8 @@ namespace StS
             var si = Entity.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.FeelNoPainStatus);
             if (si == null)
             {
+                //we bind the event once on creation, then unbind when it decays to zero.
+                //we get the SI so we know the intensity.
                 return;
             }
             //can we just set player block? No never.  Because there are things like "do damage when gain block".

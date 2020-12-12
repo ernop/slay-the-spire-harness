@@ -46,6 +46,11 @@ namespace StS
         public override CardType CardType => CardType.Skill;
     }
 
+    public abstract class IroncladPowerCard : PowerCard
+    {
+        public override CharacterType CharacterType => CharacterType.IronClad;
+    }
+
     public abstract class PowerCard : Card
     {
         public override TargetType TargetType => TargetType.Player;

@@ -319,13 +319,14 @@ namespace StS
             _Deck.CardPlayCleanup();
         }
 
-        private void ApplyEffectSet(EffectSet ef, IEntity source, IEntity target, List<string> history, Potion potion = null, CardInstance card = null)
+        private void ApplyEffectSet(EffectSet ef, IEntity source, IEntity target, List<string> history, Potion potion = null, CardInstance card = null, bool subEffectSet = false)
         {
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
 
             //What happens if a deckeffect has further effects like exhausting a card, and the player has a status that triggers on this?
 
+            //TODO this is complicated.  Evolve actually adds new deckeffects in the deckeffect evaluation.
             foreach (var f in ef.DeckEffect)
             {
                 history.Add(f.Invoke(_Deck));
@@ -378,6 +379,16 @@ namespace StS
                 if (!_Player.Dead)
                 {
                     Died(_Player, history);
+                }
+            }
+
+            if (!subEffectSet)
+            {
+                while (ef.NextEffectSet.Count > 0)
+                {
+                    var next = ef.NextEffectSet.First();
+                    ef.NextEffectSet.RemoveAt(0);
+                    ApplyEffectSet(next, source, target, history, potion, card);
                 }
             }
         }
@@ -462,32 +473,16 @@ namespace StS
         public void EnemyMove(int amount, int count)
         {
             var ea = new EnemyAction(attack: new EnemyAttack(amount, count));
-            ApplyEnemyAction(ea);
+            EnemyMove(ea);
         }
+
         public void EnemyMove()
         {
             var action = _Enemies[0].GetAction();
-            ApplyEnemyAction(action);
+            EnemyMove(action);
         }
 
-        public void EnemyMove(EnemyAction action)
-        {
-            ApplyEnemyAction(action);
-        }
-
-        private void EnemyBuff(List<StatusInstance> sis)
-        {
-            var ea = new EnemyAction(buff: sis);
-            ApplyEnemyAction(ea);
-        }
-
-        private void EnemyPlayerStatusAttack(List<StatusInstance> sis)
-        {
-            var ea = new EnemyAction(playerStatusAttack: sis);
-            ApplyEnemyAction(ea);
-        }
-
-        private void ApplyEnemyAction(EnemyAction enemyAction)
+        public void EnemyMove(EnemyAction enemyAction)
         {
             if (enemyAction == null)
             {

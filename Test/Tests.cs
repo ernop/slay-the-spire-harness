@@ -918,6 +918,75 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Evolve()
+        {
+            var player = new Player(drawAmount: 4);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis(
+                "Strike", "Strike", "Strike", "Strike", "Wound",
+                "Wound", "Strike", "Inflame", "Defend", "Strike",
+                "Wound", "Evolve", "Evolve+", "PommelStrike", "PommelStrike");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(); //E E+ PS PS
+            fight.PlayCard(initialCis[12]); //evolve+
+            fight.PlayCard(initialCis[13]);
+            Assert.IsTrue(CompareHands(GetCis("Evolve", "PommelStrike", "Wound", "Strike", "Defend"), fight.GetHand, out var m), m);
+        }
+
+        [Test]
+        public static void Test_Evolve2()
+        {
+            var player = new Player(drawAmount: 4);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis(
+                "Strike", "Strike", "Strike", "Strike", "Wound",
+                "Wound", "Strike", "Inflame", "Wound", "Strike",
+                "Wound", "Evolve", "Evolve+", "PommelStrike", "PommelStrike");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(); //E E+ PS PS
+            fight.PlayCard(initialCis[12]); //evolve+
+            fight.PlayCard(initialCis[13]);
+            Assert.IsTrue(CompareHands(GetCis("Evolve", "PommelStrike", "Wound", "Strike", "Wound", "Inflame", "Strike"), fight.GetHand, out var m), m);
+        }
+
+        [Test]
+        public static void Test_Evolve3()
+        {
+            var player = new Player(drawAmount: 4);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis(
+                "Strike", "Strike", "Strike", "Strike", "Clash",
+                "Defend", "Strike", "Inflame", "Wound", "Wound",
+                "Wound", "Evolve", "Evolve+", "PommelStrike", "PommelStrike");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(); //E E+ PS PS
+            fight.PlayCard(initialCis[12]); //evolve+
+            fight.PlayCard(initialCis[13]);
+            Assert.IsTrue(CompareHands(GetCis("Evolve", "PommelStrike", "Wound", "Wound", "Wound", "Inflame", "Strike", "Defend", "Clash"), fight.GetHand, out var m), m);
+        }
+
+        [Test]
+        public static void Test_Evolve4_Overdraw()
+        {
+            var player = new Player(drawAmount: 4);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis(
+                "Strike", "Strike", "Strike", "Footwork", "Clash",
+                "Defend", "Strike", "Wound", "Wound", "Wound",
+                "Wound", "Evolve", "Evolve+", "PommelStrike", "PommelStrike");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn(); //E E+ PS PS
+            fight.PlayCard(initialCis[12]); //evolve+
+            Assert.AreEqual(0, fight.GetDiscardPile.Count);
+            fight.PlayCard(initialCis[13]);
+            Assert.IsTrue(CompareHands(GetCis("Evolve", "PommelStrike", "Wound", "Wound", "Wound", "Wound", "Strike", "Defend", "Clash", "Footwork"), fight.GetHand, out var m), m);
+
+            //Strike bumped to discard
+            Assert.AreEqual(2, fight.GetDiscardPile.Count);
+            Assert.IsTrue(CompareHands(GetCis("PommelStrike", "Strike"), fight.GetDiscardPile, out var err), err);
+        }
+
+        [Test]
         public static void Test_Anchor()
         {
             var player = new Player();

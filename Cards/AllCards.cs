@@ -46,6 +46,7 @@ namespace StS
             cards["Anger"] = new Anger();
             cards["WildStrike"] = new WildStrike();
             cards["Wound"] = new Wound();
+            cards["Evolve"] = new Evolve();
 
             return cards;
         }

@@ -29,6 +29,16 @@ namespace StS
         /// The ultimate power; can see everything.
         /// </summary>
         public List<OneEffect> FightEffect { get; set; } = new List<OneEffect>();
+        public List<EffectSet> NextEffectSet { get; set; } = new List<EffectSet>();
+
+        internal void AddNextEf(EffectSet newEf)
+        {
+            //if (NextEffectSet != null)
+            //{
+            //    throw new Exception("Cannot have multiple nexteffs.");
+            //}
+            NextEffectSet.Add(newEf);
+        }
 
         public override string ToString()
         {
@@ -43,6 +53,7 @@ namespace StS
 
             return res;
         }
+
 
     }
 

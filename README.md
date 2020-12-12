@@ -21,6 +21,7 @@ Stages
 
 Todos
 ==
+ - evolve needs structure adjustments.  ef can modify itself with more work.
  - minimal example of C/RC situation and verify that all paths are considered
  - absolute/montecarlo - which way to go? for very small fights absolute is okay.
  - I need helper methods to visualize the Choice/RandomChoice method

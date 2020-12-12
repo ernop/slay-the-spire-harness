@@ -1,11 +1,12 @@
 ﻿namespace StS
 {
+    
+
     /// <summary>
     /// The one used by the pillbugs where they get damage when you attack them.
     /// </summary>
     public class Aggressive : Status
     {
-
         public override string Name => nameof(Aggressive);
 
         public override StatusType StatusType => StatusType.Aggressive;
@@ -45,4 +46,5 @@
             }
         }
     }
+
 }

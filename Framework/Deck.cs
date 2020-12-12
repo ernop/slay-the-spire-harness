@@ -11,6 +11,7 @@ namespace StS
 
     public class Deck
     {
+
         /// <summary>
         /// initial deck state: all cards in "DrawPile"
         /// Note that we put them in order based on order submitted - no randomization.
@@ -98,7 +99,7 @@ namespace StS
 
             foreach (var effectedCard in res)
             {
-                TryAddToHand(effectedCard);
+                TryAddToHand(effectedCard, ef);
             }
 
             return res;
@@ -144,20 +145,19 @@ namespace StS
         /// <summary>
         /// add to hand if hand isn't too bigyet.
         /// </summary>
-        private void TryAddToHand(CardInstance ci)
+        private void TryAddToHand(CardInstance ci, EffectSet ef)
         {
+
             if (Hand.Count < 10)
             {
                 Hand.Add(ci);
+                DrawCard?.Invoke(ci, ef);
             }
             else
             {
                 DiscardPile.Add(ci);
             }
         }
-
-
-
 
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
@@ -181,6 +181,9 @@ namespace StS
 
         public event NotifyDeckShuffle DeckShuffle;
         public delegate void NotifyDeckShuffle(EffectSet ef);
+
+        public event NotifyDrawCard DrawCard;
+        public delegate void NotifyDrawCard(CardInstance ci, EffectSet ef);
 
         internal Deck(List<CardInstance> hand, List<CardInstance> draw, List<CardInstance> discard, List<CardInstance> ex)
         {
@@ -270,7 +273,7 @@ namespace StS
                 {
                     var el = DrawPile.Last();
                     DrawPile.Remove(el);
-                    Hand.Add(el);
+                    TryAddToHand(el, ef);
                 }
                 else
                 {
