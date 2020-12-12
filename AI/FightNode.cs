@@ -91,7 +91,7 @@ namespace StS
         {
             get
             {
-                var res = 0;
+                var res = 1;
                 var target = this;
                 while (target.Parent != null)
                 {
