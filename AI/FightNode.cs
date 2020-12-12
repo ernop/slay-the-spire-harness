@@ -13,7 +13,7 @@ namespace StS
     /// What is this, really? in no-redraw, no enemy choice world (where all choice is from player),
     /// it should be a single node in a tree such that player can always choose between children.
     /// </summary>
-    public partial class FightNode
+    public class FightNode
     {
         /// <summary>
         /// Create a child node.
@@ -246,14 +246,10 @@ namespace StS
             {
                 case ChoiceType.Choice:
                     FightNode bestChild = null;
-                    NodeValue bestVal = null;
+                    var bestVal = new NodeValue(int.MinValue, int.MaxValue);
                     foreach (var c in Choices)
                     {
                         var cval = c.GetValue();
-                        if (cval == null || bestVal == null)
-                        {
-                            var ae = 4;
-                        }
                         if (cval > bestVal)
                         {
                             bestVal = cval;
@@ -263,7 +259,6 @@ namespace StS
 
                     _BestChild = bestChild;
                     int cards;
-                    var NormalActionTypes = new List<FightActionEnum>() { FightActionEnum.PlayCard, FightActionEnum.Potion };
 
                     if (FightHistory.FightActionType == FightActionEnum.PlayCard)
                     {

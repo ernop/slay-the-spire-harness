@@ -1,48 +1,54 @@
 ﻿namespace StS
 {
-
-
-
-    public partial class FightNode
+    /// <summary>
+    /// Node value is HP, or at least how much damage you did,
+    /// *then* minimum number of cards played.
+    /// </summary>
+    public class NodeValue
     {
-        public class NodeValue
+        public NodeValue(double value, int cards)
         {
-            public NodeValue(double value, int cards)
-            {
-                Value = value;
+            Value = value;
 
-                //How many cards played this round.
-                Cards = cards;
-            }
+            //How many cards played this round. inherited from non-round ending child bestnode.
+            Cards = cards;
+        }
 
-            public double Value { get; set; }
-            public int Cards { get; set; }
+        public double Value { get; set; }
+        public int Cards { get; set; }
 
-            public static bool operator <(NodeValue a, NodeValue b)
+        public static bool operator <(NodeValue a, NodeValue b)
+        {
+            return b > a;
+        }
+        public static bool operator >(NodeValue a, NodeValue b)
+        {
+            if (a.Value > b.Value)
             {
-                return !a.Compare(b);
+                return true;
             }
-            public static bool operator >(NodeValue a, NodeValue b)
+            else if (a.Value == b.Value)
             {
-                return a.Compare(b);
-            }
-            public bool Compare(NodeValue other)
-            {
-                if (other == null)
-                {
-                    return true;
-                }
-                if (Value == other.Value)
-                {
-                    return Cards < other.Cards;
-                }
-                return Value > other.Value;
+                return (a.Cards > b.Cards);
             }
 
-            public override string ToString()
-            {
-                return $"NV {Value} C:{Cards}";
-            }
+            //a.value < b.value
+            return false;
+
+        }
+        public static bool operator ==(NodeValue a, NodeValue b)
+        {
+            return a.Value == b.Value && a.Cards == b.Cards;
+        }
+
+        public static bool operator !=(NodeValue a, NodeValue b)
+        {
+            return !(a.Value == b.Value && a.Cards == b.Cards);
+        }
+
+        public override string ToString()
+        {
+            return $"NV {Value} C:{Cards}";
         }
     }
 }

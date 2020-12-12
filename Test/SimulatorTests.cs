@@ -171,6 +171,17 @@ namespace StS.Tests
         }
 
         [Test]
+        public void Test_NodeValue()
+        {
+            var av = new NodeValue(4, 4);
+            var av2 = new NodeValue(4, 4);
+            var bv = new NodeValue(6, 4);
+            Assert.IsTrue(bv > av);
+            Assert.IsTrue(av == av2);
+            Assert.IsTrue(av < bv);
+        }
+
+        [Test]
         public void Test_Fractions()
         {
             var cis = GetCis("Strike", "Defend", "Inflame");
