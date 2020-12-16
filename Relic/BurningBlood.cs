@@ -6,11 +6,13 @@
 
         public override void EndFight(Deck d, EffectSet relicEf)
         {
-            relicEf.PlayerEffect.Add((Player p) =>
+            var oe = new OneEffect();
+            oe.Action = (Fight f, Deck d) =>
             {
-                p.HealFor(6, out string healRes);
-                return $"{Player} healRes";
-            });
+                f._Player.HealFor(6, out string healres);
+                return $"Burning Blood Heal {healres}";
+            };
+            relicEf.FightEffect.Add(oe);
         }
 
         internal override Relic Copy() => new BurningBlood();

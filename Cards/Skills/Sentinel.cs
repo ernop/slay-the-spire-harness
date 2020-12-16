@@ -17,7 +17,7 @@ namespace StS
             }
         }
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
 
             int amount;
@@ -29,7 +29,7 @@ namespace StS
             {
                 amount = 8;
             }
-            ef.TargetEffect.InitialBlock = amount;
+            ef.PlayerEffect.InitialBlock = amount;
         }
     }
 }

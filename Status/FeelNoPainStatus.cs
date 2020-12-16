@@ -19,13 +19,13 @@ namespace StS
 
         private IEntity Entity { get; set; }
 
-        public override void Apply(Deck d, Entity e)
+        public override void Apply(Fight f, Deck d, Entity e)
         {
             d.ExhaustCard += FeelNoPainStatusResponseToExhaustion;
             Entity = e;
         }
 
-        public override void Unapply(Deck d, Entity e)
+        public override void Unapply(Fight f, Deck d, Entity e)
         {
             d.ExhaustCard -= FeelNoPainStatusResponseToExhaustion;
             Entity = null;
@@ -42,7 +42,7 @@ namespace StS
                 return;
             }
             //can we just set player block? No never.  Because there are things like "do damage when gain block".
-            ef.SourceEffect.BlockAdjustments.Add(new Progression("FNP Blocks", (el, entity) =>
+            ef.PlayerEffect.BlockAdjustments.Add(new Progression("FNP Blocks", (el, entity) =>
             {
                 return el + si.Intensity;
             }));

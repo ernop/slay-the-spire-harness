@@ -12,9 +12,8 @@ namespace StS
         public List<StatusInstance> StatusInstances { get; set; }
         public List<Relic> Relics { get; set; }
         public bool Dead { get; set; }
-        public bool ApplyDamage(int amount);
-        //public void ApplyBlock(int amount);
-        public void ApplyStatus(Deck d, StatusInstance statusInstance);
+        public bool ApplyDamage(int amount, EffectSet ef, CardInstance ci);
+        public void ApplyStatus(Fight f, Deck d, StatusInstance statusInstance);
         public string Details();
         public IEntity CopyEntity(IEntity entity);
     }

@@ -7,23 +7,23 @@ namespace StS
 {
     class Program
     {
+
+        static List<CardInstance> InitialHand = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend");
+
         static void Main(string[] args)
         {
             Helpers.SetRandom(0);
             //TestSimple();
             TestCultist();
-
         }
-
-
 
         static void TestCultist()
         {
-            var cis = GetCis("Strike", "Defend", "Inflame", "Carnage", "Disarm", "Thunderclap", "IronWave+");
+            var cis = InitialHand;
 
-            var enemy = new Cultist(hp: 1);
-            var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true);
+            var enemy = new Cultist(hp: 51);
+            var player = new Player(hp: 51);
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true);
             var node = fs.Sim();
 
             node.Display(Helpers.Output);

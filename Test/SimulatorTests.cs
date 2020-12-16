@@ -166,7 +166,7 @@ namespace StS.Tests
 
             Assert.AreEqual(5, best.Value);
             Assert.AreEqual(5, node.GetValue().Value);
-            node.Display(Output, true);
+
             //Assert.IsFalse(true);
 
             var winNode = GetBestLeaf(node.Randoms.First());
@@ -201,6 +201,7 @@ namespace StS.Tests
 
             var winNode = GetBestLeaf(node.Randoms.First());
             var d = winNode.Depth;
+            var h = winNode.AALeafHistory();
             Assert.AreEqual(8, d); //draw d endturn monsterend start i p
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);

@@ -12,13 +12,13 @@
 
         internal override bool Permanent => true;
 
-        internal override void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int num, bool statusIsTargeted, bool playerAction)
+        internal override void CardWasPlayed(Card card, IndividualEffect playerSet, IndividualEffect enemySet, int intensity, bool statusIsTargeted, bool playerAction)
         {
         }
 
-        internal override void EndTurn(Entity parent, StatusInstance instance, EffectSet endTurnEf)
+        internal override void StatusEndTurn(Entity parent, StatusInstance instance, IndividualEffect statusHolderIe, IndividualEffect otherIe)
         {
-            endTurnEf.SourceEffect.Status.Add(new StatusInstance(new Strength(), instance.Intensity));
+            statusHolderIe.Status.Add(new StatusInstance(new Strength(), instance.Intensity));
         }
     }
 }

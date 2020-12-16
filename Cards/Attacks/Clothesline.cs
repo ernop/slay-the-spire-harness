@@ -9,7 +9,7 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int dmg;
             StatusInstance si;
@@ -23,8 +23,8 @@ namespace StS
                 dmg = 14;
                 si = new StatusInstance(new Weak(), 3);
             }
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
-            ef.TargetEffect.Status.Add(si);
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.Status.Add(si);
         }
     }
 }

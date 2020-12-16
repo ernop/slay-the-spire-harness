@@ -13,18 +13,18 @@ namespace StS
         internal override bool Scalable => true;
 
         internal override bool Permanent => true;
-        private Entity Entity { get; set; }
+        private IEntity Entity { get; set; }
 
-        public override void Apply(Deck d, Entity e)
+        public override void Apply(Fight f, Deck d, Entity e)
         {
             d.DrawCard += EvolveCardDrawnEvent;
             Entity = e;
         }
 
-        public override void Unapply(Deck d, Entity e)
+        public override void Unapply(Fight f, Deck d, Entity e)
         {
             d.DrawCard -= EvolveCardDrawnEvent;
-            Entity = null;
+            Entity = e;
         }
 
         internal void EvolveCardDrawnEvent(CardInstance ci, EffectSet ef)

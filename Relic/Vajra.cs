@@ -1,25 +1,12 @@
-﻿using System.Linq;
-
-namespace StS
+﻿namespace StS
 {
     public class Vajra : Relic
     {
-        public int Intensity { get; set; } = 0;
-        internal override Relic Copy() => new Torii();
+        internal override Relic Copy() => new Vajra();
         public override string Name => nameof(Vajra);
-
-        public override void CardPlayed(Card card, EffectSet ef, IEntity player, IEntity enemy)
+        public override void StartFight(Deck d, EffectSet ef)
         {
-            if (Intensity > 0 && card.CardType == CardType.Attack)
-            {
-                ef.TargetEffect.DamageAdjustments.Add(new AttackProgression("VajraEffect", (el) => el.Select(qq => qq + Intensity).ToList()));
-            }
-
-        }
-
-        public override string ToString()
-        {
-            return $"Vajra:{Intensity}";
+            ef.PlayerEffect.Status.Add(new StatusInstance(new Strength(), 1));
         }
     }
 }

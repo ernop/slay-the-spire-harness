@@ -47,6 +47,9 @@ namespace StS
             cards["WildStrike"] = new WildStrike();
             cards["Wound"] = new Wound();
             cards["Evolve"] = new Evolve();
+            cards["Trip"] = new Trip();
+            cards["GhostlyArmor"] = new GhostlyArmor();
+            cards["RecklessCharge"] = new RecklessCharge();
 
             return cards;
         }

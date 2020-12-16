@@ -8,9 +8,9 @@ namespace StS
         public override string Name => nameof(HeavyBlade);
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            var str = source.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
+            var str = player.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             int dmg;
             if (str == null)
             {
@@ -21,7 +21,7 @@ namespace StS
                 var mult = upgradeCount == 0 ? 3 : 5;
                 dmg = 14 + mult * str.Intensity;
             }
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
         }
     }
 }

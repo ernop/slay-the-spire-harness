@@ -7,7 +7,7 @@ namespace StS
         public override string Name => nameof(Uppercut);
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int weak;
             int vuln;
@@ -21,9 +21,9 @@ namespace StS
                 weak = 2;
                 vuln = 2;
             }
-            ef.TargetEffect.InitialDamage = new List<int>() { 13 };
-            ef.TargetEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln));
-            ef.TargetEffect.Status.Add(new StatusInstance(new Weak(), weak));
+            ef.EnemyEffect.InitialDamage = new List<int>() { 13 };
+            ef.EnemyEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln));
+            ef.EnemyEffect.Status.Add(new StatusInstance(new Weak(), weak));
         }
     }
 }

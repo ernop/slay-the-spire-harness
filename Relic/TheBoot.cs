@@ -11,7 +11,7 @@ namespace StS
         {
             if (card.CardType == CardType.Attack)
             {
-                ef.TargetEffect.DamageAdjustments.Add(new AttackProgression("TheBoot", (input) => input.Select(el => Math.Max(el, 5)), 10));
+                ef.EnemyEffect.DamageAdjustments.Add(new AttackProgression("TheBoot", (input) => input.Select(el => Math.Max(el, 5)), 10));
             }
         }
 

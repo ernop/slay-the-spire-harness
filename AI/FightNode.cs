@@ -87,34 +87,66 @@ namespace StS
             FightHistory = fa;
         }
 
+        private int _Depth { get; set; } = int.MinValue;
         public int Depth
         {
             get
             {
-                var res = 1;
-                var target = this;
-                while (target.Parent != null)
+                if (_Depth == int.MinValue)
                 {
-                    res++;
-                    target = target.Parent;
+                    var res = 1;
+                    var target = this;
+                    while (target.Parent != null)
+                    {
+                        res++;
+                        target = target.Parent;
+                    }
+                    _Depth = res;
                 }
-                return res;
+                return _Depth;
             }
         }
 
         /// <summary>
         /// We are a choice.
         /// </summary>
-        internal void Display(string path, bool all = false)
+        internal void Display(string path, bool all = false, bool leaf = false)
         {
-            foreach (var r in Randoms)
+            if (leaf)
             {
-                var lastRound = DisplayRound(r, path);
-                while (lastRound != null)
+                //find parent.
+                var target = this;
+                while (target.Parent.Choices.Count != 0)
                 {
-                    lastRound = DisplayRound(lastRound, path);
+                    target = target.Parent;
+                }
+
+                target.Display(path);
+            }
+            else
+            {
+                foreach (var r in Randoms)
+                {
+                    var lastRound = DisplayRound(r, path);
+                    while (lastRound != null)
+                    {
+                        lastRound = DisplayRound(lastRound, path);
+                    }
                 }
             }
+        }
+
+        public IEnumerable<string> AALeafHistory()
+        {
+            var res = new List<string>();
+            var target = this;
+            while (target != null)
+            {
+                res.Add(target.ToString());
+                target = target.Parent;
+            }
+            res.Reverse();
+            return res;
         }
 
         private FightNode DisplayRound(FightNode node, string path)
@@ -308,6 +340,23 @@ namespace StS
         public override string ToString()
         {
             return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()} Action:{FightHistory}";
+        }
+
+        public class TurnSummary
+        {
+            public List<TurnSummary> Choices { get; set; }
+            public List<TurnSummary> Randoms { get; set; }
+
+        }
+
+        public class FightNodeSummary
+        {
+            public TurnSummary Root { get; set; }
+
+            public FightNodeSummary(FightNode root)
+            {
+
+            }
         }
     }
 }

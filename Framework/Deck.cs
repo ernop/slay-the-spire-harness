@@ -355,7 +355,7 @@ namespace StS
         }
 
         /// <summary>
-        /// TODO: where in the draw pile does it add?
+        /// TODO: make this add to a random place in the draw pile.
         /// </summary>
         internal void AddToDrawPile(CardInstance newCi)
         {

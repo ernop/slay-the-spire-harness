@@ -1,35 +1,24 @@
-﻿using System.Linq;
-
-namespace StS
+﻿namespace StS
 {
     /// <summary>
     /// This needs to notice when the player receives attack damage.
     /// </summary>
     public class PlatedArmor : Status
     {
-        private void PlatedArmorTookDamage(Entity e)
+
+
+        private Entity Entity { get; set; }
+
+        public override void Apply(Fight f, Deck d, Entity e)
         {
-            var si = e.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.PlatedArmor);
-            if (si == null)
-            {
-                throw new System.Exception("Event should have been removed already");
-                return;
-            }
-            si.Intensity--;
-            if (si.Intensity < 0)
-            {
-                si.Intensity = 0;
-            }
+            e.TakeDamage += PlatedArmorAttackedAndTookDamage;
+            Entity = e;
         }
 
-        public override void Apply(Deck d, Entity e)
+        public override void Unapply(Fight f, Deck d, Entity e)
         {
-            e.TakeDamage += PlatedArmorTookDamage;
-        }
-
-        public override void Unapply(Deck d, Entity e)
-        {
-            e.TakeDamage -= PlatedArmorTookDamage;
+            e.TakeDamage -= PlatedArmorAttackedAndTookDamage;
+            Entity = null;
         }
 
         public override string Name => nameof(PlatedArmor);
@@ -37,6 +26,7 @@ namespace StS
         public override StatusType StatusType => StatusType.PlatedArmor;
 
         public override bool NegativeStatus => false;
+        public override bool CanAddNegative => false;
 
         internal override bool Scalable => true;
 
@@ -45,9 +35,17 @@ namespace StS
         /// <summary>
         /// Todo this is still kinda messy
         /// </summary>
-        internal override void StartTurn(Entity parent, StatusInstance instance, EffectSet endTurnEf)
+        internal override void StatusStartTurn(Entity parent, StatusInstance instance, IndividualEffect statusHolderIe, IndividualEffect otherId)
         {
-            endTurnEf.SourceEffect.InitialBlock = instance.Intensity;
+            statusHolderIe.InitialBlock = instance.Intensity;
+        }
+
+        private void PlatedArmorAttackedAndTookDamage(EffectSet ef, int damageAmount, CardInstance ci)
+        {
+            if (ci.Card.CardType == CardType.Attack && damageAmount > 0)
+            {
+                ef.PlayerEffect.Status.Add(new StatusInstance(new PlatedArmor(), -1));
+            }
         }
     }
 }

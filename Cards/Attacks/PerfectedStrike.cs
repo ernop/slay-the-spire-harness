@@ -16,13 +16,13 @@ namespace StS
 
         internal override bool Exhausts(int upgradeCount) => false;
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var mult = upgradeCount == 0 ? 2 : 3;
 
             var others = deck.BackupCards.Where(el => RelatedCards.Contains(el.Card.Name)).Count();
             var dmg = 6 + mult * others;
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
         }
     }
 }

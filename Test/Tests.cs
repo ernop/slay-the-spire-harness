@@ -32,6 +32,10 @@ namespace StS.Tests
             }
 
             var player = new Player(hpMax: pl, hp: pl);
+            if (playerStatuses != null)
+            {
+                player.StatusInstances = playerStatuses;
+            }
             if (relics != null)
             {
                 player.Relics = relics;
@@ -49,12 +53,7 @@ namespace StS.Tests
 
             //todo player.GetDrawAmount()
             fight.StartTurn();
-
-            //these apply after the fight started. conceptually having tests that set up artificial situations is going to cause lots of problems.
-            player.StatusInstances = playerStatuses ?? new List<StatusInstance>();
             player.Block = plbl;
-
-
             player.Energy = playerEnergy ?? player.Energy;
 
             foreach (var ci in cis)
@@ -164,9 +163,8 @@ namespace StS.Tests
         [Test]
         public static void Test_Vajra()
         {
-            var vajraOne = new Vajra { Intensity = 1 };
             RunTest(name: "Strike, Strike+ works", en2: 33, cis: GetCis("Strike", "Strike+"),
-                relics: new List<Relic>() { vajraOne });
+                relics: GetRelics("Vajra"));
         }
 
         [Test]
@@ -212,15 +210,23 @@ namespace StS.Tests
         }
 
         [Test]
-        public static void EnemyBehaviorTests()
+        public static void Test_Bash()
+        {
+            RunTest(name: "Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCis("Strike+"), amount: 10, count: 2,
+                    playerStatuses: GetStatuses(new Vulnerable(), 3));
+        }
+
+        [Test]
+        public static void Test_Disarm()
+        {
+            RunTest(name: "Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCis("Strike+", "Disarm+"), amount: 10, count: 1);
+        }
+
+        [Test]
+        public static void Test_Aggressive()
         {
             var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
             RunTest(name: "Louse-Aggressive", en2: 41, cis: GetCis("Strike+"), enemyStatuses: si, finalEnemyBlock: 4);
-
-            RunTest(name: "Enemy-attacks-disarmed", pl2: 43, en2: 41, cis: GetCis("Strike+", "Disarm+"), amount: 10, count: 1);
-
-            RunTest(name: "Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCis("Strike+"), amount: 10, count: 2,
-                playerStatuses: GetStatuses(new Vulnerable(), 3));
 
             var si2 = GetStatuses(new Aggressive(), 4);
             RunTest(name: "Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0, playerEnergy: 10);
@@ -437,7 +443,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
-            //play havok; strike should be burned.
+            //play havok; fb should be burned.
             fight.PlayCard(initialCis[4]);
 
             fight.EnemyMove(3, 3);
@@ -1168,6 +1174,29 @@ namespace StS.Tests
             Assert.AreEqual(2, fight.GetDiscardPile.Count);
         }
 
+        //TODO fix this - fix targeting.
+        //[Test]
+        //public static void Test_LetterOpener()
+        //{
+        //    var relics = GetRelics("LetterOpener");
+        //    var player = new Player(relics: relics);
+
+        //    var enemy = new GenericEnemy();
+        //    var initialCis = GetCis("Pummel", "Defend", "Defend", "Defend", "Defend");
+        //    var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+        //    fight.StartTurn();
+        //    fight.PlayCard(initialCis[1]);
+        //    Assert.AreEqual(50, enemy.HP);
+        //    fight.PlayCard(initialCis[2]);
+        //    Assert.AreEqual(50, enemy.HP);
+        //    fight.PlayCard(initialCis[3]);
+        //    Assert.AreEqual(45, enemy.HP);
+        //    fight.PlayCard(initialCis[4]);
+        //    Assert.AreEqual(45, enemy.HP);
+        //    fight.PlayCard(initialCis[0]);
+        //    Assert.AreEqual(37, enemy.HP);
+        //}
+
         [Test]
         public static void Test_Neow()
         {
@@ -1233,6 +1262,21 @@ namespace StS.Tests
 
 
         [Test]
+        public static void FlameBarrierTests1()
+        {
+            RunTest(name: "FlameBarrier", pl2: 50, en2: 34, cis: GetCis("FlameBarrier"), finalPlayerBlock: 8, finalEnemyBlock: 0, amount: 1, count: 4);
+        }
+
+        [Test]
+        public static void FlameBarrierTests2()
+        {
+            RunTest(name: "FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalPlayerBlock: 22, finalEnemyBlock: 0, amount: 1, count: 4);
+            RunTest(name: "FlameBarrier-block2", pl2: 50, finalPlayerBlock: 12, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalEnemyBlock: 0, amount: 1, count: 4);
+            RunTest(name: "FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), amount: 1, count: 4, playerEnergy: 10);
+            RunTest(name: "FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), amount: 1, count: 4, playerEnergy: 10);
+        }
+
+        [Test]
         public static void DamageBlockTests()
         {
             //TODO this needs fixing.  When the player is weak and target is vuln, do we math.floor both times? or just once at the end.
@@ -1243,11 +1287,6 @@ namespace StS.Tests
             RunTest(name: "Inflame-BodySlam-Vulned", en2: 23, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerEnergy: 10);
 
 
-            RunTest(name: "FlameBarrier", pl2: 50, en2: 34, cis: GetCis("FlameBarrier"), finalPlayerBlock: 8, finalEnemyBlock: 0, amount: 1, count: 4);
-            RunTest(name: "FlameBarrier-player-block1", plbl: 10, pl2: 50, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalPlayerBlock: 22, finalEnemyBlock: 0, amount: 1, count: 4);
-            RunTest(name: "FlameBarrier-block2", pl2: 50, finalPlayerBlock: 12, en2: 36, enbl: 10, cis: GetCis("FlameBarrier+"), finalEnemyBlock: 0, amount: 1, count: 4);
-            RunTest(name: "FlameBarrier-block3", pl2: 50, enbl: 41, finalPlayerBlock: 24, finalEnemyBlock: 1, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), amount: 1, count: 4, playerEnergy: 10);
-            RunTest(name: "FlameBarrier-block4", pl2: 50, enbl: 39, en2: 49, finalPlayerBlock: 24, finalEnemyBlock: 0, cis: GetCis("Inflame+", "Inflame+", "FlameBarrier+", "FlameBarrier"), amount: 1, count: 4, playerEnergy: 10);
 
             RunTest(name: "ClearingEnemyBlock", en2: 34, enbl: 10, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
             RunTest(name: "FullBlocked", en2: 50, enbl: 26, cis: GetCis("Strike+", "Bash", "Strike"), finalEnemyBlock: 0, playerEnergy: 10);
@@ -1291,6 +1330,8 @@ namespace StS.Tests
                 relics: new List<Relic>() { Relics["BustedCrown"], Relics["FusionHammer"] }, en2: 44);
 
         }
+
+
 
         [Test]
         public static void TestFights()

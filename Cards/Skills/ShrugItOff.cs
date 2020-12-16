@@ -13,13 +13,13 @@ namespace StS
         /// <summary>
         /// for the AI to control, just specify targets.
         /// </summary>
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targetCards = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.TargetEffect.InitialBlock = upgradeCount == 0 ? 8 : 11;
+            ef.PlayerEffect.InitialBlock = upgradeCount == 0 ? 8 : 11;
             ef.DeckEffect.Add((Deck d) =>
             {
-                var drawn = d.DrawToHand(targetCards, 1, true, ef);
-                return $"Drew: {string.Join(',',drawn)}";
+                var drawn = d.DrawToHand(targets, 1, true, ef);
+                return $"Drew: {string.Join(',', drawn)}";
             });
         }
     }

@@ -7,7 +7,7 @@
         public override void Apply(Fight f, Player player, IEnemy enemy, EffectSet ef)
         {
             var si = new StatusInstance(new Strength(), 2);
-            ef.TargetEffect.Status.Add(si);
+            ef.PlayerEffect.Status.Add(si);
         }
 
         public override bool SelfTarget() => true;

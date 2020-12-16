@@ -15,9 +15,9 @@ namespace StS
         /// 1. AI forcing a certain random choice
         /// 2. Normal play of the upgraded card, specifying the target
         /// </summary>
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.TargetEffect.InitialBlock = upgradeCount == 0 ? 7 : 10;
+            ef.PlayerEffect.InitialBlock = upgradeCount == 0 ? 7 : 10;
             ef.DeckEffect.Add((Deck d) =>
             {
                 if (targets == null)
@@ -43,7 +43,7 @@ namespace StS
                         throw new System.Exception();
                     }
                     d.ExhaustFromHand(ci, ef);
-                    return $"True Grit: Exhausted {target} by by specification.";
+                    return $"True Grit: Exhausted {ci} by by specification.";
                 }
             });
         }

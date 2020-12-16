@@ -23,9 +23,9 @@ namespace StS
             Count = count;
         }
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.TargetEffect.InitialDamage = Repeat(Amount, Count);
+            ef.PlayerEffect.InitialDamage = Repeat(Amount, Count);
         }
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 0;

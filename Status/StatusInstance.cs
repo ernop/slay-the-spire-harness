@@ -23,14 +23,14 @@ namespace StS
         /// <summary>
         /// Initialize event linkages for a status
         /// </summary>
-        public virtual void Apply(Deck d, Entity e)
+        public virtual void Apply(Fight f, Deck d, Entity e)
         {
-            Status.Apply(d, e);
+            Status.Apply(f, d, e);
         }
 
-        public virtual void Unapply(Deck d, Entity e)
+        public virtual void Unapply(Fight f, Deck d, Entity e)
         {
-            Status.Unapply(d, e);
+            Status.Unapply(f, d, e);
         }
 
         /// <summary>
@@ -87,12 +87,12 @@ namespace StS
             }
         }
 
-        public void StartTurn(Entity parent, EffectSet startTurnEf)
+        public void StartTurn(Entity parent, IndividualEffect statusHolderIe, IndividualEffect otherIe)
         {
-            Status.StartTurn(parent, this, startTurnEf);
+            Status.StatusStartTurn(parent, this, statusHolderIe, otherIe);
         }
 
-        public void EndTurn(Entity parent, EffectSet endTurnEf)
+        public void EndTurn(Entity parent, IndividualEffect statusHolderIe, IndividualEffect otherIe)
         {
             if (!Status.Permanent)
             {
@@ -111,7 +111,7 @@ namespace StS
                 //throw new Exception("Expired status being applied.");
             }
 
-            Status.EndTurn(parent, this, endTurnEf);
+            Status.StatusEndTurn(parent, this, statusHolderIe, otherIe);
         }
 
         public override string ToString()

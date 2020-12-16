@@ -14,9 +14,9 @@
         /// <summary>
         /// When a status really gets applied.
         /// </summary>
-        public virtual void Apply(Deck d, Entity e) { }
+        public virtual void Apply(Fight f, Deck d, Entity e) { }
 
-        public virtual void Unapply(Deck d, Entity e) { }
+        public virtual void Unapply(Fight f, Deck d, Entity e) { }
 
         /// <summary>
         /// Some scalable statues are permanent (str, dex) (but removed when zero), while others are impermanent like flame barrier
@@ -29,9 +29,11 @@
         /// </summary>
         internal abstract bool Permanent { get; }
 
-        internal virtual void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int num, bool statusIsTargeted, bool playerAction) { }
+        internal virtual void CardWasPlayed(Card card, IndividualEffect playerSet, IndividualEffect enemySet, int num, bool statusIsTargeted, bool playerAction) { }
 
-        internal virtual void EndTurn(Entity parent, StatusInstance instance, EffectSet endTurnEf) { }
-        internal virtual void StartTurn(Entity parent, StatusInstance instance, EffectSet endTurnEf) { }
+        internal virtual void StatusEndTurn(Entity parent, StatusInstance instance, IndividualEffect statusHolderIe, IndividualEffect otherId) { }
+        internal virtual void StatusStartTurn(Entity parent, StatusInstance instance, IndividualEffect statusHolderIe, IndividualEffect otherId) { }
+
+        public virtual bool CanAddNegative => true;
     }
 }

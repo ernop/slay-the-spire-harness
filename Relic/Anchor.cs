@@ -9,14 +9,14 @@
         {
             RoundNumber++;
 
-            if (relicEf.SourceEffect.InitialBlock != 0)
+            if (relicEf.PlayerEffect.InitialBlock != 0)
             {
                 throw new System.Exception("Shouldn't happen.");
             }
 
             if (RoundNumber == 1)
             {
-                relicEf.SourceEffect.InitialBlock = 10;
+                relicEf.PlayerEffect.InitialBlock = 10;
             }
         }
 

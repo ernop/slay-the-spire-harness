@@ -8,15 +8,15 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targetCards = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var cardAmt = upgradeCount == 0 ? 1 : 2;
             var dmg = upgradeCount == 0 ? 9 : 10;
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
 
             ef.DeckEffect.Add((Deck d) =>
             {
-                var drawn = d.DrawToHand(targetCards, cardAmt, true, ef);
+                var drawn = d.DrawToHand(targets, cardAmt, true, ef);
                 return $"Drew {string.Join(',', drawn)}";
             });
         }

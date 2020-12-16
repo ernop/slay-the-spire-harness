@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using static StS.Helpers;
-
 namespace StS
 {
     public class Fight
@@ -109,21 +107,25 @@ namespace StS
             return res;
         }
 
+        private void StartFight(List<string> history)
+        {
+            var startEf = new EffectSet();
+            foreach (var relic in _Player.Relics)
+            {
+                relic.Apply(this, _Deck, _Player);
+                relic.StartFight(_Deck, startEf);
+            }
+
+            ApplyEffectSet(startEf, _Player, _Enemies[0], history);
+        }
+
         public void StartTurn(List<CardInstance> initialHand = null)
         {
             var history = new List<string>();
 
             if (TurnNumber == 0)
             {
-                //clear this.
-
-                var startEf = new EffectSet();
-                foreach (var relic in _Player.Relics)
-                {
-                    relic.StartFight(_Deck, startEf);
-                }
-
-                ApplyEffectSet(startEf, _Player, _Enemies[0], history);
+                StartFight(history);
             }
 
             TurnNumber++;
@@ -147,8 +149,9 @@ namespace StS
 
             foreach (var status in _Player.StatusInstances)
             {
-                status.StartTurn(_Player, ef);
+                status.StartTurn(_Player, ef.PlayerEffect, ef.EnemyEffect);
             }
+
             foreach (var relic in _Player.Relics)
             {
                 relic.StartTurn(_Player, _Enemies[0], ef);
@@ -181,7 +184,7 @@ namespace StS
 
             foreach (var si in _Player.StatusInstances)
             {
-                si.EndTurn(_Player, endTurnPlayerEf);
+                si.EndTurn(_Player, endTurnPlayerEf.PlayerEffect, endTurnPlayerEf.EnemyEffect);
             }
             _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
 
@@ -203,9 +206,10 @@ namespace StS
             var endTurnEnemyEf = new EffectSet();
             foreach (var si in ((Entity)_Enemies[0]).StatusInstances)
             {
-                si.EndTurn((Entity)_Enemies[0], endTurnEnemyEf);
+                si.EndTurn((Entity)_Enemies[0], endTurnEnemyEf.EnemyEffect, endTurnEnemyEf.PlayerEffect);
             }
-            ApplyEffectSet(endTurnEnemyEf, _Enemies[0], _Player, history);
+
+            ApplyEffectSet(endTurnEnemyEf, _Player, _Enemies[0], history);
             _Enemies[0].StatusInstances = _Enemies[0].StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
             LastAction = new FightAction(FightActionEnum.EndEnemyTurn, null, null, null, history);
         }
@@ -237,7 +241,7 @@ namespace StS
             {
                 var ef = new EffectSet();
                 relic.EndFight(_Deck, ef);
-                ApplyEffectSet(ef, _Player, _Player, history);
+                ApplyEffectSet(ef, _Player, _Enemies[0], history);
             }
             _Player.StatusInstances = new List<StatusInstance>();
         }
@@ -289,18 +293,18 @@ namespace StS
 
             //set the initial effect, or status.
             var ef = new EffectSet();
-            cardInstance.Play(ef, _Player, target, cardTargets, _Deck);
+            cardInstance.Play(ef, _Player, _Enemies[0], cardTargets, _Deck);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in _Player.StatusInstances)
             {
                 var statusIsTargeted = _Player == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, true);
+                si.Apply(cardInstance.Card, ef.PlayerEffect, ef.EnemyEffect, statusIsTargeted, true);
             }
             foreach (var si in _Enemies[0].StatusInstances)
             {
                 var statusIsTargeted = _Enemies[0] == target;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, true);
+                si.Apply(cardInstance.Card, ef.PlayerEffect, ef.EnemyEffect, statusIsTargeted, true);
             }
 
             foreach (var relic in _Player.Relics)
@@ -313,13 +317,13 @@ namespace StS
             //make sure to apply card effects before putting the just played card into discard, so it can't be drawn again by its own action.
             _Deck.AfterPlayingCard(cardInstance, ef);
 
-            ApplyEffectSet(ef, _Player, target, history: history, card: cardInstance);
+            ApplyEffectSet(ef, _Player, _Enemies[0], history: history, ci: cardInstance);
 
             LastAction = new FightAction(FightActionEnum.PlayCard, null, cardInstance, null, history);
             _Deck.CardPlayCleanup();
         }
 
-        private void ApplyEffectSet(EffectSet ef, IEntity source, IEntity target, List<string> history, Potion potion = null, CardInstance card = null, bool subEffectSet = false)
+        private void ApplyEffectSet(EffectSet ef, Player player, IEnemy enemy, List<string> history, Potion potion = null, CardInstance ci = null, bool subEffectSet = false)
         {
             //TODO not clear if this order is the most sensible really or not.
             //complex effects like afterImage + playing defend with neg dex.
@@ -332,24 +336,24 @@ namespace StS
                 history.Add(f.Invoke(_Deck));
             }
 
-            if (source == target)
-            {
-                var combined = Combine(ef.SourceEffect, ef.TargetEffect);
-                GainBlock(source, combined, history);
-                ReceiveDamage(source, combined, history);
-                ApplyStatus(source, combined.Status, history);
-            }
-            else
-            {
-                GainBlock(source, ef.SourceEffect, history);
-                ReceiveDamage(target, ef.TargetEffect, history);
+            //if (source == target)
+            //{
+            //    var combined = Combine(ef.PlayerEffect, ef.EnemyEffect);
+            //    GainBlock(source, combined, history);
+            //    ReceiveDamage(source, combined, history);
+            //    ApplyStatus(source, combined.Status, history);
+            //}
+            //else
+            //{
+            GainBlock(player, ef.PlayerEffect, history);
+            ReceiveDamage(enemy, ef.EnemyEffect, ef, history, ci);
 
-                GainBlock(target, ef.TargetEffect, history);
-                ReceiveDamage(source, ef.SourceEffect, history);
+            GainBlock(enemy, ef.EnemyEffect, history);
+            ReceiveDamage(player, ef.PlayerEffect, ef, history, ci);
 
-                ApplyStatus(source, ef.SourceEffect.Status, history);
-                ApplyStatus(target, ef.TargetEffect.Status, history);
-            }
+            ApplyStatus(player, ef.PlayerEffect.Status, history);
+            ApplyStatus(enemy, ef.EnemyEffect.Status, history);
+            //}
 
             if (ef.PlayerEnergy != 0)
             {
@@ -357,10 +361,10 @@ namespace StS
                 history.Add($"Gained ${ef.PlayerEnergy} to {_Player.Energy}");
             }
 
-            foreach (var f in ef.PlayerEffect)
-            {
-                history.Add(f.Invoke(_Player));
-            }
+            //foreach (var f in ef.PlayerEffect)
+            //{
+            //    history.Add(f.Invoke(_Player));
+            //}
 
             ef.FightEffect.ForEach(fe => history.Add(fe.Action.Invoke(this, _Deck)));
 
@@ -388,11 +392,10 @@ namespace StS
                 {
                     var next = ef.NextEffectSet.First();
                     ef.NextEffectSet.RemoveAt(0);
-                    ApplyEffectSet(next, source, target, history, potion, card);
+                    ApplyEffectSet(next, player, enemy, history, potion, ci);
                 }
             }
         }
-
 
         /// <summary>
         /// For use during a fight; add a status to an entity
@@ -401,7 +404,7 @@ namespace StS
         {
             foreach (var status in sis)
             {
-                entity.ApplyStatus(_Deck, status);
+                entity.ApplyStatus(this, _Deck, status);
                 history.Add($"{entity} gained {status}");
             }
         }
@@ -428,13 +431,13 @@ namespace StS
             }
         }
 
-        private void ReceiveDamage(IEntity entity, IndividualEffect ef, List<string> history)
+        private void ReceiveDamage(IEntity entity, IndividualEffect ie, EffectSet ef, List<string> history, CardInstance ci)
         {
             //We don't actually want to 
-            if (ef.InitialDamage != null)
+            if (ie.InitialDamage != null)
             {
-                var val = ef.InitialDamage.Select(el => (double)el);
-                foreach (var prog in ef.DamageAdjustments.OrderBy(el => el.Order))
+                var val = ie.InitialDamage.Select(el => (double)el);
+                foreach (var prog in ie.DamageAdjustments.OrderBy(el => el.Order))
                 {
                     val = prog.Fun(val);
                 }
@@ -462,7 +465,7 @@ namespace StS
                         }
                         if (elCopy > 0)
                         {
-                            entity.ApplyDamage(elCopy);
+                            entity.ApplyDamage(elCopy, ef, ci);
                         }
                     }
                 }
@@ -514,21 +517,24 @@ namespace StS
         public void _Attack(int amount, int count, List<string> history)
         {
             var cardInstance = new CardInstance(new EnemyAttack(amount, count), 0);
-            var source = _Enemies[0];
-            var target = _Player;
+            var enemy = _Enemies[0];
+            var player = _Player;
             var ef = new EffectSet();
 
-            cardInstance.Play(ef, _Player, _Enemies[0]);
 
-            foreach (var si in source.StatusInstances)
+
+            cardInstance.Play(ef, _Player, _Enemies[0]);
+            _Player.NotifyAttacked(ef);
+
+            foreach (var si in enemy.StatusInstances)
             {
                 var statusIsTargeted = false;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
+                si.Apply(cardInstance.Card, ef.EnemyEffect, ef.PlayerEffect, statusIsTargeted, false);
             }
-            foreach (var si in target.StatusInstances)
+            foreach (var si in player.StatusInstances)
             {
                 var statusIsTargeted = true;
-                si.Apply(cardInstance.Card, ef.SourceEffect, ef.TargetEffect, statusIsTargeted, false);
+                si.Apply(cardInstance.Card, ef.EnemyEffect, ef.PlayerEffect, statusIsTargeted, false);
             }
 
             //this won't be right for Torii for example.
@@ -537,12 +543,15 @@ namespace StS
                 relic.CardPlayed(cardInstance.Card, ef, player: _Player, enemy: _Enemies[0]);
             }
 
-            GainBlock(_Player, ef.TargetEffect, history);
-            GainBlock(_Enemies[0], ef.SourceEffect, history);
-            ReceiveDamage(_Player, ef.TargetEffect, history);
-            ReceiveDamage(_Enemies[0], ef.SourceEffect, history);
-            ApplyStatus(_Player, ef.TargetEffect.Status, history);
-            ApplyStatus(_Enemies[0], ef.SourceEffect.Status, history);
+            GainBlock(_Player, ef.PlayerEffect, history);
+            GainBlock(_Enemies[0], ef.EnemyEffect, history);
+            ReceiveDamage(_Enemies[0], ef.EnemyEffect, ef, history, cardInstance);
+            ReceiveDamage(_Player, ef.PlayerEffect, ef, history, cardInstance);
+
+
+
+            ApplyStatus(_Player, ef.PlayerEffect.Status, history);
+            ApplyStatus(_Enemies[0], ef.EnemyEffect.Status, history);
 
             if (_Enemies[0].HP <= 0)
             {
@@ -576,7 +585,7 @@ namespace StS
                 target = e;
             }
 
-            ApplyEffectSet(ef, _Player, target, history);
+            ApplyEffectSet(ef, _Player, e, history);
             LastAction = new FightAction(FightActionEnum.Potion, p, null, target, history);
         }
 

@@ -6,7 +6,7 @@ namespace StS
     {
         public override string Name => nameof(IronWave);
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int dmg;
             int block;
@@ -21,8 +21,8 @@ namespace StS
                 block = 7;
             }
 
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
-            ef.SourceEffect.InitialBlock = block;
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.PlayerEffect.InitialBlock = block;
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿
+using System.Linq;
+
+using static StS.Helpers;
 
 namespace StS
 {
@@ -13,24 +16,29 @@ namespace StS
         internal override bool Permanent => false;
 
         internal override bool Scalable => true;
+        private Entity Entity { get; set; }
 
-        internal override void CardWasPlayed(Card card, IndividualEffect sourceSet, IndividualEffect targetSet, int intensity, bool statusIsTargeted, bool playerAction)
+        public override void Apply(Fight f, Deck d, Entity e)
         {
+            e.BeAttacked += AttackResponse;
+            Entity = e;
+        }
+
+        public override void Unapply(Fight f, Deck d, Entity e)
+        {
+            e.BeAttacked += AttackResponse;
+            Entity = null;
+        }
+
+        private void AttackResponse(EffectSet ef)
+        {
+            var si = Entity.StatusInstances.Single(el => el.Status.Name == nameof(FlameBarrierStatus));
             //triggers when player with this status is targeted.
 
             //we grab the progression from the damage pattern I'd receive, with default values of zero.
             //and this must be an enemy action.
-            if (statusIsTargeted && !playerAction && card.CardType == CardType.Attack)
-            {
-                if (targetSet.InitialDamage == null)
-                {
-                    throw new System.Exception("How did you get here?");
-                }
-                else
-                {
-                    sourceSet.InitialDamage = targetSet.InitialDamage.Select(qq => intensity).ToList();
-                }
-            }
+
+            ef.EnemyEffect.InitialDamage = Repeat(si.Intensity, ef.PlayerEffect.InitialDamage.Count);
         }
     }
 }

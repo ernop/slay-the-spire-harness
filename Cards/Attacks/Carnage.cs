@@ -9,10 +9,10 @@ namespace StS
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
         internal override bool Ethereal(int upgradeCount) => true;
 
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var dmg = upgradeCount == 0 ? 20 : 28;
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
         }
     }
 }

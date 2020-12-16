@@ -11,7 +11,7 @@
                 AttackCount = (AttackCount + 1) % 10;
                 if (AttackCount == 9)
                 {
-                    ef.SourceEffect.Status.Add(new StatusInstance(new PenNibStatus(), 1));
+                    ef.PlayerEffect.Status.Add(new StatusInstance(new PenNibStatus(), 1));
                 }
             }
         }

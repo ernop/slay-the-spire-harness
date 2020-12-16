@@ -5,7 +5,7 @@
         public override string Name => nameof(BagOfEyes);
         public override void StartFight(Deck d, EffectSet relicEf)
         {
-            relicEf.TargetEffect.Status.Add(new StatusInstance(new Vulnerable(), 1));
+            relicEf.EnemyEffect.Status.Add(new StatusInstance(new Vulnerable(), 1));
         }
 
         public override void CardPlayed(Card card, EffectSet ef, IEntity player, IEntity enemy) { }

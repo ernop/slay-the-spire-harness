@@ -17,9 +17,17 @@ namespace StS
             HP = hp;
         }
 
-        public event NotifyTookDamage TakeDamage;
+        public event NotifyBeAttacked BeAttacked;
 
-        public delegate void NotifyTookDamage(Entity e);
+        public delegate void NotifyBeAttacked(EffectSet ef);
+
+        public event TakeDamageResponse TakeDamage;
+
+        public delegate void TakeDamageResponse(EffectSet ef, int damageAmount, CardInstance ci);
+        public void NotifyAttacked(EffectSet ef)
+        {
+            BeAttacked?.Invoke(ef);
+        }
 
         public EntityType EntityType { get; set; }
         public string Name { get; set; }
@@ -45,14 +53,19 @@ namespace StS
             return false;
         }
 
-        public void ApplyStatus(Deck d, StatusInstance statusInstance)
+        public void ApplyStatus(Fight f, Deck d, StatusInstance statusInstance)
         {
             if (CheckTurnip(statusInstance)) return;
             var exiStatus = StatusInstances.SingleOrDefault(el => el.Status.StatusType == statusInstance.Status.StatusType);
             if (exiStatus == null)
             {
+                if (statusInstance.Intensity < 0 && !statusInstance.Status.CanAddNegative)
+                {
+                    return;
+                }
+
                 StatusInstances.Add(statusInstance);
-                statusInstance.Apply(d, this);
+                statusInstance.Apply(f, d, this);
             }
             else
             {
@@ -69,7 +82,7 @@ namespace StS
                 if (exiStatus.Duration == 0 || exiStatus.Intensity == 0)
                 {
                     StatusInstances.Remove(exiStatus);
-                    exiStatus.Unapply(d, this);
+                    exiStatus.Unapply(f, d, this);
                 }
                 //we never apply the new status so it's inactive. we just mined it for intensity.
             }
@@ -78,11 +91,13 @@ namespace StS
         /// <summary>
         /// after block is accounted.
         /// bool represents if they are still alive.
+        /// For use by essence of steel status too.
         /// </summary>
-        public bool ApplyDamage(int amount)
+        public bool ApplyDamage(int amount, EffectSet ef, CardInstance ci)
         {
             HP -= amount;
-            TakeDamage?.Invoke(this);
+            //this is for any damage type.
+            TakeDamage?.Invoke(ef, amount, ci);
 
             return true;
         }

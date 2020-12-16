@@ -12,11 +12,11 @@
             if (RoundNumber == 2)
             {
                 //Why am I sure I can override this?
-                if (relicEf.SourceEffect.InitialBlock != 0)
+                if (relicEf.PlayerEffect.InitialBlock != 0)
                 {
                     throw new System.Exception("Shouldn't happen.");
                 }
-                relicEf.SourceEffect.InitialBlock = 14;
+                relicEf.PlayerEffect.InitialBlock = 14;
             }
         }
 

@@ -70,9 +70,9 @@ namespace StS
             return true;
         }
 
-        public void Play(EffectSet ef, IEntity source, IEntity target, List<CardInstance> cardTargets = null, Deck deck = null)
+        public void Play(EffectSet ef, Player player, IEnemy enemy, List<CardInstance> cardTargets = null, Deck deck = null)
         {
-            Card.Play(ef, source, target, UpgradeCount, cardTargets, deck);
+            Card.Play(ef, player, enemy, UpgradeCount, cardTargets, deck);
         }
 
         public void OtherAction(Action action, EffectSet ef)

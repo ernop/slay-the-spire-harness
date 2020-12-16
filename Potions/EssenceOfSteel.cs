@@ -9,7 +9,7 @@
         public override void Apply(Fight fight, Player player, IEnemy enemy, EffectSet ef)
         {
             var si = new StatusInstance(new PlatedArmor(), 4);
-            ef.TargetEffect.Status.Add(si);
+            ef.PlayerEffect.Status.Add(si);
         }
 
         internal override Potion Copy() => new EssenceOfSteel();

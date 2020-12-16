@@ -23,16 +23,19 @@ namespace StS
         private bool _DoOutput { get; set; }
         private bool _OneStartingHandOnly { get; set; }
 
+        private int _Depth { get; set; }
+
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
         /// </summary>
-        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false)
+        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false, int depth = 3)
         {
             _CIs = cis;
             _Enemy = enemy;
             _Player = player;
             _DoOutput = doOutput;
             _OneStartingHandOnly = oneStartingHandOnly;
+            _Depth = depth;
         }
 
         /// <summary>
@@ -88,7 +91,7 @@ namespace StS
         {
             var actions = fn.Fight.GetAllActions();
             var turns = fn.Fight.TurnNumber;
-            if (turns > 4)
+            if (turns > _Depth)
             {
                 fn.Fight.LastAction = new FightAction(FightActionEnum.TooLong);
                 fn.AddHistory();
@@ -104,6 +107,7 @@ namespace StS
                         Iter(childNode);
                         break;
                     case FightStatus.Won:
+                        //childNode.Display(_Output, leaf: true);
                         break;
                     case FightStatus.Lost:
                         break;

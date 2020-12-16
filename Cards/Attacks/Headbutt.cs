@@ -13,7 +13,7 @@ namespace StS
         /// There needs to be a way to specify extra parameters to play, for things like:
         /// TrueGrit, etc.
         /// </summary>
-        internal override void Play(EffectSet ef, IEntity source, IEntity target, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             int dmg;
             if (upgradeCount == 0)
@@ -24,7 +24,7 @@ namespace StS
             {
                 dmg = 12;
             }
-            ef.TargetEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
 
             ef.DeckEffect.Add((Deck deck) =>
             {
