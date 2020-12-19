@@ -142,6 +142,16 @@ namespace StS
             return res;
         }
 
+        internal void StartFight()
+        {
+            //TODO how to be sure we cover the entire deck? what configuration is it in now?
+            //Idea is the deck has continuity over time and is only created at the very start.
+            foreach (var ci in DrawPile)
+            {
+                ci.StartFight();
+            }
+        }
+
         /// <summary>
         /// add to hand if hand isn't too bigyet.
         /// </summary>
@@ -209,7 +219,7 @@ namespace StS
             while (Hand.Count > 0)
             {
                 var ci = Hand[0];
-                ci.LeavingHand();
+                ci.LeavingHand(ef);
                 Hand.Remove(ci);
                 if (ci.Ethereal())
                 {
@@ -217,7 +227,7 @@ namespace StS
                 }
                 else
                 {
-                    PutInDiscardPile(ci);
+                    AddToDiscardPile(ci);
                 }
             }
         }
@@ -239,14 +249,6 @@ namespace StS
             }
             Hand.Remove(ci);
             Exhaust(ci, ef);
-        }
-
-        /// <summary>
-        /// Doesn't trigger "Discard" events.
-        /// </summary>
-        public void PutInDiscardPile(CardInstance ci)
-        {
-            DiscardPile.Add(ci);
         }
 
         internal void ForceDrawCards(List<CardInstance> initialHand, EffectSet ef)
@@ -308,7 +310,7 @@ namespace StS
             }
             else
             {
-                ci.LeavingHand();
+                ci.LeavingHand(ef);
                 if (ci.Exhausts())
                 {
                     Exhaust(ci, ef);
@@ -361,6 +363,12 @@ namespace StS
         {
             //assuming we want to interleave it.
             DrawPile.Add(newCi);
+        }
+
+        internal void AddToDiscardPile(CardInstance newCi)
+        {
+            //assuming we want to interleave it.
+            DiscardPile.Add(newCi);
         }
     }
 }

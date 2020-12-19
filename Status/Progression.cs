@@ -31,14 +31,14 @@ namespace StS
     public class AttackProgression
     {
         public string Desc { get; set; }
-        public Func<IEnumerable<double>, IEnumerable<double>> Fun { get; set; }
+        public Func<IList<double>, IList<double>> Fun { get; set; }
 
         /// <summary>
         /// This should be used to take over InitialDamage and only have damageadjustments.
         /// </summary>
         public int Order { get; set; }
 
-        public AttackProgression(string desc, Func<IEnumerable<double>, IEnumerable<double>> func, int order = 1)
+        public AttackProgression(string desc, Func<IList<double>, IList<double>> func, int order = 1)
         {
             Desc = desc;
             Fun = func;

@@ -6,7 +6,7 @@ namespace StS
 {
     public class Player : Entity, IEntity
     {
-        public Player(CharacterType type = CharacterType.IronClad, int? hpMax = null, int? hp = null,
+        public Player(CardDomain type = CardDomain.IronClad, int? hpMax = null, int? hp = null,
             IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null,
             int? maxEnergy = null, int? drawAmount = null)
             : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100)
@@ -46,7 +46,7 @@ namespace StS
         }
 
 
-        public CharacterType CharacterType { get; }
+        public CardDomain CharacterType { get; }
 
         public int Energy { get; set; }
         public int Gold { get; private set; }
@@ -92,7 +92,5 @@ namespace StS
             var healAmt = HP - before;
             healRes = $"Healed for {healAmt}";
         }
-
-        
     }
 }

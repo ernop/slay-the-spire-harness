@@ -329,5 +329,27 @@ namespace StS
             return new List<StatusInstance>() { new StatusInstance(status, num) };
         }
 
+        public static FightNode GetBestLeaf(FightNode f)
+        {
+            if (f.Choices.Count == 0)
+            {
+                if (f.Randoms.Count == 1)
+                {
+                    return GetBestLeaf(f.Randoms.First());
+                }
+            }
+            var res = f;
+            while (true)
+            {
+                var bc = res.BestChild();
+                if (bc == null)
+                {
+                    break;
+                }
+                res = bc;
+            }
+            return res;
+        }
+
     }
 }

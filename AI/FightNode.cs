@@ -144,6 +144,12 @@ namespace StS
             {
                 res.Add(target.ToString());
                 target = target.Parent;
+                if (target.Choices.Count == 0)
+                {
+                    //we don't follow history back through random nodes.
+                    //this will make this method useless for non-short fights
+                    break;
+                }
             }
             res.Reverse();
             return res;
@@ -275,6 +281,10 @@ namespace StS
             switch (GetChoiceType())
             {
                 case ChoiceType.Choice:
+                    if (FightHistory == null)
+                    {
+                        throw new Exception("This should not happen");
+                    }
                     FightNode bestChild = null;
                     var bestVal = new NodeValue(int.MinValue, int.MaxValue);
                     foreach (var c in Choices)

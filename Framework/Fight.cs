@@ -15,6 +15,8 @@ namespace StS
             var newFight = new Fight(d, p, e);
 
             newFight.TurnNumber = TurnNumber;
+            newFight.Status = Status;
+
             return newFight;
         }
         public List<IEnemy> _Enemies { get; set; }
@@ -36,9 +38,9 @@ namespace StS
             return _Player.HP.ToString();
         }
 
-        public string GetEnemyHP()
+        public int GetEnemyHP()
         {
-            return string.Join(',', _Enemies.Select(el => el.HP.ToString()));
+            return _Enemies[0].HP;
         }
 
         private void Init(Deck d, Player player, List<IEnemy> enemies, bool preserveOrder = false)
@@ -115,6 +117,7 @@ namespace StS
                 relic.Apply(this, _Deck, _Player);
                 relic.StartFight(_Deck, startEf);
             }
+            _Deck.StartFight();
 
             ApplyEffectSet(startEf, _Player, _Enemies[0], history);
         }
@@ -173,19 +176,24 @@ namespace StS
             history.Add($"Turn: {TurnNumber} ({_Player.Energy})");
 
             var endTurnEf = new EffectSet();
+
+
+            foreach (var ci in _Deck.GetHand)
+            {
+                ci.LeftInHandAtEndOfTurn(endTurnEf.PlayerEffect);
+            }
+
             _Deck.TurnEnds(endTurnEf);
             ApplyEffectSet(endTurnEf, _Player, _Enemies[0], history);
-            //TODO this is affected by calipers, barricade, etc.
 
-            var endTurnPlayerEf = new EffectSet();
-
-
+            //todo why do I have two EFs here?
             var relicEf = new EffectSet();
-
+            var endTurnPlayerEf = new EffectSet();
             foreach (var si in _Player.StatusInstances)
             {
                 si.EndTurn(_Player, endTurnPlayerEf.PlayerEffect, endTurnPlayerEf.EnemyEffect);
             }
+
             _Player.StatusInstances = _Player.StatusInstances.Where(el => el.Duration != 0 && el.Intensity != 0).ToList();
 
             foreach (var relic in _Player.Relics)
@@ -336,24 +344,13 @@ namespace StS
                 history.Add(f.Invoke(_Deck));
             }
 
-            //if (source == target)
-            //{
-            //    var combined = Combine(ef.PlayerEffect, ef.EnemyEffect);
-            //    GainBlock(source, combined, history);
-            //    ReceiveDamage(source, combined, history);
-            //    ApplyStatus(source, combined.Status, history);
-            //}
-            //else
-            //{
             GainBlock(player, ef.PlayerEffect, history);
             ReceiveDamage(enemy, ef.EnemyEffect, ef, history, ci);
 
             GainBlock(enemy, ef.EnemyEffect, history);
             ReceiveDamage(player, ef.PlayerEffect, ef, history, ci);
-
             ApplyStatus(player, ef.PlayerEffect.Status, history);
             ApplyStatus(enemy, ef.EnemyEffect.Status, history);
-            //}
 
             if (ef.PlayerEnergy != 0)
             {
@@ -361,10 +358,6 @@ namespace StS
                 history.Add($"Gained ${ef.PlayerEnergy} to {_Player.Energy}");
             }
 
-            //foreach (var f in ef.PlayerEffect)
-            //{
-            //    history.Add(f.Invoke(_Player));
-            //}
 
             ef.FightEffect.ForEach(fe => history.Add(fe.Action.Invoke(this, _Deck)));
 
@@ -433,13 +426,19 @@ namespace StS
 
         private void ReceiveDamage(IEntity entity, IndividualEffect ie, EffectSet ef, List<string> history, CardInstance ci)
         {
+            if (ie.InitialDamage == null && ie.DamageAdjustments?.Count > 0)
+            {
+                throw new Exception("should not happen");
+                //Vuln will only add a progression if initialdamage != null
+            }
+
             //We don't actually want to 
             if (ie.InitialDamage != null)
             {
                 var val = ie.InitialDamage.Select(el => (double)el);
                 foreach (var prog in ie.DamageAdjustments.OrderBy(el => el.Order))
                 {
-                    val = prog.Fun(val);
+                    val = prog.Fun(val.ToList());
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
@@ -547,8 +546,6 @@ namespace StS
             GainBlock(_Enemies[0], ef.EnemyEffect, history);
             ReceiveDamage(_Enemies[0], ef.EnemyEffect, ef, history, cardInstance);
             ReceiveDamage(_Player, ef.PlayerEffect, ef, history, cardInstance);
-
-
 
             ApplyStatus(_Player, ef.PlayerEffect.Status, history);
             ApplyStatus(_Enemies[0], ef.EnemyEffect.Status, history);

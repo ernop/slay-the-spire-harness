@@ -21,9 +21,9 @@ namespace StS
         {
             var cis = InitialHand;
 
-            var enemy = new Cultist(hp: 51);
+            var enemy = new Cultist(hp: 51, hpMax: 51);
             var player = new Player(hp: 51);
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true);
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, depth: 5);
             var node = fs.Sim();
 
             node.Display(Helpers.Output);

@@ -11,7 +11,7 @@ namespace StS
         public override string Name => nameof(EnemyAttack);
         public override CardType CardType => CardType.Attack;
 
-        public override CharacterType CharacterType => CharacterType.Enemy;
+        public override CardDomain CardDomain => CardDomain.Enemy;
         public int Amount { get; set; }
         public int Count { get; set; }
 

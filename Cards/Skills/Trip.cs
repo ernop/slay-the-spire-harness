@@ -8,7 +8,7 @@ namespace StS
     {
         public override string Name => nameof(Trip);
 
-        public override CharacterType CharacterType => CharacterType.Colorless;
+        public override CardDomain CardDomain => CardDomain.Colorless;
 
         public override TargetType TargetType => TargetType.Enemy;
 

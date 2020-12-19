@@ -60,6 +60,36 @@ namespace StS.Tests
         }
 
         [Test]
+        public void Test_UsingEnlightenment_ToFindPath()
+        {
+            var cis = GetCis("Strike", "Strike", "HeavyBlade", "Enlightenment+", "Bash");
+
+            var enemy = new Cultist(hp: 80, hpMax: 80);
+            var player = new Player(hp: 1); //player must kill turn 2.
+
+            //best line: play e+, bash (8+vuln), hb (21), strike (9) = 38.
+            //turn 2: redraw same cards but play differently.  HB (21) S(9) b(12) = 42
+            var fs = new FightSimulator(cis, enemy, player, depth: 3);
+            var node = fs.Sim();
+
+            Assert.AreEqual(1, node.GetValue().Value);
+            //assert the right cards were played.
+            var bestLeaf = GetBestLeaf(node);
+            var h = bestLeaf.AALeafHistory();
+
+            Assert.AreEqual(12, h.Count());
+            Assert.AreEqual(0, bestLeaf.Fight.GetEnemyHP());
+            //assert there is only one path.
+            var firstReal = node.Randoms.First();
+            var valids = firstReal.Choices.Where(el => el.GetValue().Value > 0);
+            Assert.AreEqual(1, valids.Count());
+            var path = valids.First();
+            var v = path.GetValue();
+            Assert.AreEqual(1, path.GetValue().Value);
+            //Assert.AreEqual(1, path.GetValue().Cards);
+        }
+
+        [Test]
         public void Test_UsingPotionAndInflameDefending()
         {
             var cis = GetCis("Defend", "Defend", "Inflame", "Defend", "Strike");
@@ -170,8 +200,11 @@ namespace StS.Tests
             //Assert.IsFalse(true);
 
             var winNode = GetBestLeaf(node.Randoms.First());
+
+            var hh = winNode.AALeafHistory();
+
             var d = winNode.Depth;
-            Assert.AreEqual(10, d); //draw i i i endturn monsterend start i s + outers
+            Assert.AreEqual(10, hh.Count()); //draw i i i endturn monsterend start i s + outers
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
             Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
@@ -202,27 +235,14 @@ namespace StS.Tests
             var winNode = GetBestLeaf(node.Randoms.First());
             var d = winNode.Depth;
             var h = winNode.AALeafHistory();
-            Assert.AreEqual(8, d); //draw d endturn monsterend start i p
+            Assert.AreEqual(8, h.Count()); //draw d endturn monsterend start i p
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
             Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
-        public FightNode GetBestLeaf(FightNode f)
-        {
-            var res = f;
-            while (true)
-            {
-                var bc = res.BestChild();
-                if (bc == null)
-                {
-                    break;
-                }
-                res = bc;
-            }
-            return res;
-        }
+
 
         [Test]
         public void Test_NodeValue()

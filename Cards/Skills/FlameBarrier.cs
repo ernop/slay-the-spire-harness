@@ -6,7 +6,7 @@ namespace StS
     {
         public override string Name => nameof(FlameBarrier);
 
-        public override CharacterType CharacterType => CharacterType.IronClad;
+        public override CardDomain CardDomain => CardDomain.IronClad;
 
         public override TargetType TargetType => TargetType.Player;
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;

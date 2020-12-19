@@ -1246,6 +1246,74 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Enlightenment()
+        {
+            var player = new Player(drawAmount: 2);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Pummel", "HeavyBlade", "Bash+", "Enlightenment", "Bash");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+
+            Assert.AreEqual(2, initialCis[4].EnergyCost());
+            fight.PlayCard(initialCis[3]);
+            Assert.AreEqual(1, initialCis[4].EnergyCost());
+            fight.EndTurn();
+            fight.StartTurn();
+            foreach (var ci in fight.GetDiscardPile)
+            {
+                Assert.IsNull(ci.PerFightOverrideEnergyCost);
+                Assert.IsNull(ci.PerTurnOverrideEnergyCost);
+            }
+            //problem: when I initialize the fight I make a copy of the cards.
+        }
+
+        [Test]
+        public static void Test_Burn()
+        {
+            var player = new Player(drawAmount: 2);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Immolate", "PommelStrike+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            Assert.AreEqual(0, fight.GetDiscardPile.Count);
+
+            fight.PlayCard(initialCis[0]); // => discard = immolate + burn
+            Assert.AreEqual(2, fight.GetDiscardPile.Count);
+
+            fight.PlayCard(initialCis[1]); //=> draw immolate + burn
+            Assert.AreEqual(2, fight.GetHand.Count);
+            Assert.IsTrue(CompareHands(GetCis("Burn", "Immolate"), fight.GetHand, out var err), err);
+            fight.EndTurn();
+            Assert.AreEqual(98, player.HP);
+        }
+
+        [Test]
+        public static void Test_EnlightenmentPlus()
+        {
+            var player = new Player(drawAmount: 2);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Pummel", "HeavyBlade", "Bash+", "Enlightenment+", "Bash");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+
+            Assert.AreEqual(2, initialCis[4].EnergyCost());
+            fight.PlayCard(initialCis[3]);
+            Assert.AreEqual(1, initialCis[4].EnergyCost());
+            fight.EndTurn();
+            fight.StartTurn();
+            foreach (var ci in fight.GetDiscardPile)
+            {
+                if (ci.Card.Name == nameof(Enlightenment))
+                {
+                    continue;
+                }
+                Assert.AreEqual(1, ci.PerFightOverrideEnergyCost);
+                Assert.AreEqual(1, ci.EnergyCost());
+            }
+            //problem: when I initialize the fight I make a copy of the cards.
+        }
+
+        [Test]
         public static void DrawTests()
         {
             TestDrawOnly("Basic-Hand-two-from-six", GetCis("Strike+", "Bash", "Inflame", "Shockwave", "LimitBreak", "Footwork"), GetCis("LimitBreak", "Footwork"), 2);
@@ -1376,7 +1444,7 @@ namespace StS.Tests
         }
 
         public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis,
-            int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CharacterType? characterType = CharacterType.IronClad)
+            int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CardDomain? characterType = CardDomain.IronClad)
         {
             var player = new Player(characterType.Value, drawAmount: drawCount);
             var enemy = new GenericEnemy();

@@ -6,7 +6,7 @@ namespace StS
     {
         public override string Name => nameof(Wound);
 
-        public override CharacterType CharacterType => CharacterType.Colorless;
+        public override CardDomain CardDomain => CardDomain.Colorless;
 
         public override TargetType TargetType => TargetType.Player;
 

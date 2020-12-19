@@ -6,7 +6,7 @@ namespace StS
     {
         public abstract string Name { get; }
         public string Text { get; }
-        public abstract CharacterType CharacterType { get; }
+        public abstract CardDomain CardDomain { get; }
         public abstract CardType CardType { get; }
         public abstract TargetType TargetType { get; }
         internal abstract void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null);
@@ -33,12 +33,14 @@ namespace StS
         {
             return Name;
         }
+
+        public virtual void LeftInHandAtEndOfTurn(IndividualEffect playerEffect, int upgradeCount) { }
     }
 
 
     public abstract class IroncladSkillCard : SkillCard
     {
-        public override CharacterType CharacterType => CharacterType.IronClad;
+        public override CardDomain CardDomain => CardDomain.IronClad;
     }
 
     public abstract class SkillCard : Card
@@ -48,7 +50,7 @@ namespace StS
 
     public abstract class IroncladPowerCard : PowerCard
     {
-        public override CharacterType CharacterType => CharacterType.IronClad;
+        public override CardDomain CardDomain => CardDomain.IronClad;
     }
 
     public abstract class PowerCard : Card
@@ -64,7 +66,7 @@ namespace StS
 
     public abstract class IroncladAttackCard : AttackCard
     {
-        public override CharacterType CharacterType => CharacterType.IronClad;
+        public override CardDomain CardDomain => CardDomain.IronClad;
     }
 
     public abstract class AttackCard : Card
@@ -73,12 +75,13 @@ namespace StS
         public override CardType CardType => CardType.Attack;
 
     }
+
     public abstract class StatusCard : Card
     {
         public override CardType CardType => CardType.Status;
     }
     public abstract class EnemyCard : Card
     {
-        public override CharacterType CharacterType => CharacterType.Enemy;
+        public override CardDomain CardDomain => CardDomain.Enemy;
     }
 }

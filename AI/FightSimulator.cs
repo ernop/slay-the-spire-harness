@@ -75,14 +75,11 @@ namespace StS
                 oneDraw.AddHistory();
                 Iter(oneDraw);
 
-                //TODO let's just do one starting hand for now.
                 if (_OneStartingHandOnly)
                 {
                     break;
                 }
             }
-
-            //SaveResults(_Output, rootNode);
 
             return rootNode;
         }
@@ -95,6 +92,7 @@ namespace StS
             {
                 fn.Fight.LastAction = new FightAction(FightActionEnum.TooLong);
                 fn.AddHistory();
+
                 return;
             }
             foreach (var action in actions)
@@ -136,6 +134,7 @@ namespace StS
                     child = new FightNode(child, rnd: false);
                     child.Fight.EnemyMove();
                     child.AddHistory();
+                    child = new FightNode(child, rnd: false);
                     child.Fight.EndEnemyTurn();
                     child.AddHistory();
                     if (child.Fight.Status == FightStatus.Ongoing)

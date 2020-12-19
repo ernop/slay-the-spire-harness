@@ -81,10 +81,8 @@ namespace StS
                     throw new System.Exception();
             }
 
-            if (!forceIncludeLabel && Desc.Count == 0)
-            {
-                return "";
-            }
+
+            //we always return a fighthistory.
 
             var descPart = "";
             if (Desc?.Count > 0)

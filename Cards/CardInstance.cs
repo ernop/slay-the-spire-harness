@@ -40,9 +40,10 @@ namespace StS
         /// <summary>
         /// Called when in hand at end of turn, OR when actively discarded.
         /// </summary>
-        public void LeavingHand()
+        public void LeavingHand(EffectSet ef)
         {
             PerTurnOverrideEnergyCost = null;
+            //HandleLeavingHand(ef);
         }
 
         public int EnergyCost()
@@ -112,6 +113,17 @@ namespace StS
             ci.PerFightOverrideEnergyCost = PerFightOverrideEnergyCost;
             ci.OverrideExhaust = OverrideExhaust;
             return ci;
+        }
+
+        internal void StartFight()
+        {
+            PerTurnOverrideEnergyCost = null;
+            PerFightOverrideEnergyCost = null;
+        }
+
+        internal void LeftInHandAtEndOfTurn(IndividualEffect playerEffect)
+        {
+            Card.LeftInHandAtEndOfTurn(playerEffect, UpgradeCount);
         }
     }
 }

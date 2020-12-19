@@ -50,6 +50,11 @@ namespace StS
             cards["Trip"] = new Trip();
             cards["GhostlyArmor"] = new GhostlyArmor();
             cards["RecklessCharge"] = new RecklessCharge();
+            cards["Apotheosis"] = new Apotheosis();
+            cards["AscendersBane"] = new AscendersBane();
+            cards["Enlightenment"] = new Enlightenment();
+            cards["Immolate"] = new Immolate();
+            cards["Burn"] = new Burn();
 
             return cards;
         }

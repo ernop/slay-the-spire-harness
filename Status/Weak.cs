@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace StS
 {
@@ -18,8 +17,12 @@ namespace StS
         {
             if (card.CardType == CardType.Attack && !statusIsTargeted)
             {
-                targetSet.DamageAdjustments.Add(new AttackProgression("Weak", (el) => el.Select(qq => qq > 0 ? qq * 0.75 : 0).ToList()));
+                if (targetSet.InitialDamage != null)
+                {
+                    targetSet.DamageAdjustments.Add(new AttackProgression("Weak", (el) => el.Select(qq => qq > 0 ? qq * 0.75 : 0).ToList()));
+                }
             }
         }
     }
 }
+
