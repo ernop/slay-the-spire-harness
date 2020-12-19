@@ -119,17 +119,17 @@ namespace StS
             string explanation;
             if (Status.Permanent)
             {
-                explanation = " I:" + Intensity; //str
+                explanation = Intensity.ToString(); //str
             }
             else
             {
                 if (Status.Scalable)
                 {
-                    explanation = " I:" + Intensity; //flame barrier
+                    explanation = Intensity.ToString(); //flame barrier
                 }
                 else
                 {
-                    explanation = " D:" + Duration;
+                    explanation = Duration.ToString();
                 }
             }
 

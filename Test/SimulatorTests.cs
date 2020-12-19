@@ -77,7 +77,7 @@ namespace StS.Tests
             var bestLeaf = GetBestLeaf(node);
             var h = bestLeaf.AALeafHistory();
 
-            Assert.AreEqual(12, h.Count());
+            Assert.AreEqual(11, h.Count());
             Assert.AreEqual(0, bestLeaf.Fight.GetEnemyHP());
             //assert there is only one path.
             var firstReal = node.Randoms.First();
@@ -183,7 +183,10 @@ namespace StS.Tests
         {
             //Correct strategy is to take damage the first round.
             var cis = GetCis("Defend", "Strike", "Defend", "Inflame", /* AFTER */ "Inflame", "Inflame", "Inflame", "Defend");
-            var enemy = new GenericEnemy(amount: 1, count: 5, hpMax: 14, hp: 14, statuses: GetStatuses(new Feather(), 10));
+
+            var enemyStatuses = GetStatuses(new Feather(), 10);
+            enemyStatuses.AddRange(GetStatuses(new Strength(), -10));
+            var enemy = new GenericEnemy(amount: 1, count: 5, hpMax: 14, hp: 14, statuses: enemyStatuses);
             var player = new Player(drawAmount: 4, hp: 10);
             var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true);
             var node = fs.Sim();
@@ -204,7 +207,7 @@ namespace StS.Tests
             var hh = winNode.AALeafHistory();
 
             var d = winNode.Depth;
-            Assert.AreEqual(10, hh.Count()); //draw i i i endturn monsterend start i s + outers
+            Assert.AreEqual(9, hh.Count()); //draw i i i endturn monsterend start i s + outers
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
             Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
@@ -214,9 +217,12 @@ namespace StS.Tests
         [Test]
         public void Test_SelfControl_SavingPummelAndDefending()
         {
-            //Correct strategy is to take damage the first round.
-            var cis = GetCis("Defend", "Inflame", "Defend", "Inflame", "Pummel");
-            var enemy = new GenericEnemy(amount: 1, count: 5, hp: 16, statuses: GetStatuses(new Feather(), 10));
+            var cis = GetCis("Pummel", "Inflame", "Inflame",    /* first round cards: */ "Defend", "Defend", "Inflame", "Inflame", "Inflame");
+            // correct strat: take 5 first round, playing all inflames then pummel.
+            var enemyStatuses = GetStatuses(new Feather(), 10);
+            enemyStatuses.AddRange(GetStatuses(new Strength(), -10));
+            var enemy = new GenericEnemy(amount: 1, count: 5, hp: 48, statuses: enemyStatuses);
+            //after 2nd round enemy will kill player.
             var player = new Player(hp: 10);
             var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true);
             var node = fs.Sim();
@@ -224,18 +230,22 @@ namespace StS.Tests
             //also assert there is only one good path.
             var best = node.Randoms.Max(el => el.GetValue());
 
-            var bests = node.Randoms.Where(el => el.GetValue().Value == 5);
+            //var bests = node.Randoms.Where(el => el.GetValue().Value == 5);
             //this is good but there can still be dumb paths that are longer.
 
-            Assert.AreEqual(10, best.Value);
-            Assert.AreEqual(10, node.GetValue().Value);
-            node.Display(Output, true);
+            //var bf = bests.First();
+            //var wn = GetBestLeaf(bf);
+            //var hh = wn.AALeafHistory();
+
+            Assert.AreEqual(5, best.Value);
+            Assert.AreEqual(5, node.GetValue().Value);
+            //node.Display(Output, true);
             //Assert.IsFalse(true);
 
             var winNode = GetBestLeaf(node.Randoms.First());
             var d = winNode.Depth;
             var h = winNode.AALeafHistory();
-            Assert.AreEqual(8, h.Count()); //draw d endturn monsterend start i p
+            Assert.AreEqual(10, h.Count()); //draw d endturn monsterend start i p
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
             Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);

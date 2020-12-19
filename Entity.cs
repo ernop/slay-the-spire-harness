@@ -105,7 +105,11 @@ namespace StS
         public string Details()
         {
             var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
-            return $"{Name} HP: {HP}/{HPMax} B:{Block} {statuses}";
+            if (statuses.Length > 0)
+            {
+                statuses = " " + statuses;
+            }
+            return $"{Name} {HP}/{HPMax} B{Block}{statuses}";
         }
 
         public override string ToString()

@@ -20,13 +20,41 @@ namespace StS
         static void TestCultist()
         {
             var cis = InitialHand;
-
-            var enemy = new Cultist(hp: 51, hpMax: 51);
+            cis = GetCis("Strike");
+            var enemy = new Cultist(hp: 10, hpMax: 10);
             var player = new Player(hp: 51);
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, depth: 5);
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, depth: 10);
             var node = fs.Sim();
+            var leaves = GetLeaves(node);
+            foreach (var l in leaves)
+            {
+                var fh = l.AALeafHistory();
 
-            node.Display(Helpers.Output);
+                System.IO.File.AppendAllText(Helpers.Output, "==============\n");
+                System.IO.File.AppendAllLines(Helpers.Output, fh);
+            }
+
+            //node.Display(Helpers.Output);
+        }
+
+        public static List<FightNode> GetLeaves(FightNode node)
+        {
+            var res = new List<FightNode>();
+            foreach (var set in new List<List<FightNode>> { node.Choices, node.Randoms })
+            {
+                foreach (var c in set)
+                {
+                    if (c.Fight.Status != FightStatus.Ongoing)
+                    {
+                        res.Add(c);
+                    }
+                    else
+                    {
+                        res.AddRange(GetLeaves(c));
+                    }
+                }
+            }
+            return res;
         }
 
         static void TestAttacker()

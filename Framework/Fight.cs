@@ -173,7 +173,7 @@ namespace StS
                 throw new Exception("Calling EndTurn without firstturn started.");
             }
 
-            history.Add($"Turn: {TurnNumber} ({_Player.Energy})");
+            history.Add($"{TurnNumber} (E{_Player.Energy})");
 
             var endTurnEf = new EffectSet();
 
@@ -208,9 +208,11 @@ namespace StS
             LastAction = new FightAction(FightActionEnum.EndTurn, null, null, null, history);
         }
 
-        public void EndEnemyTurn()
+        /// <summary>
+        /// Enemy statuses actually apply at the start of their turn.
+        /// </summary>
+        private void StartEnemyTurn(List<string> history)
         {
-            var history = new List<string>();
             var endTurnEnemyEf = new EffectSet();
             foreach (var si in ((Entity)_Enemies[0]).StatusInstances)
             {
@@ -442,7 +444,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
-                history.Add($"Attacked {entity} {entity.HP}/{entity.HPMax} {entity.Block}B for {string.Join(',', usingVal)}");
+                history.Add($"for {string.Join(',', usingVal)}");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -480,17 +482,20 @@ namespace StS
 
         public void EnemyMove()
         {
+
             var action = _Enemies[0].GetAction();
             EnemyMove(action);
         }
 
         public void EnemyMove(EnemyAction enemyAction)
         {
+            var history = new List<string>();
+            StartEnemyTurn(history);
             if (enemyAction == null)
             {
                 throw new Exception("No enemy action?");
             }
-            var history = new List<string>();
+
             if (enemyAction.Buffs != null)
             {
                 ApplyStatus(_Enemies[0], enemyAction.Buffs, history);

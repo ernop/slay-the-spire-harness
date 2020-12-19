@@ -121,7 +121,7 @@ namespace StS.Tests
         [Test]
         public static void BasicTests()
         {
-            var statuses = new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 8), new StatusInstance(new Weak(), 8) };
+            var statuses = new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 7), new StatusInstance(new Weak(), 7) };
             RunTest(name: "Shockwave+VulnWeakAttack", en2: 37, pl2: 26, cis: GetCis("Shockwave", "Shockwave+", "Strike+"), enemyFinalStatuses: statuses, amount: 8, count: 4, playerEnergy: 10);
             RunTest(name: "BashIronwave", en2: 32, cis: GetCis("Bash", "IronWave+"), finalPlayerBlock: 7);
             RunTest(name: "BashInflameIronwave", en2: 27, cis: GetCis("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7, playerEnergy: 10);
@@ -589,6 +589,20 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Cultist_Feather()
+        {
+            var player = new Player();
+            var enemy = new Cultist();
+            var initialCis = GetCis("Dazed", "Dazed", "Slimed");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.EndTurn();
+            fight.EnemyMove();
+            //cultist should not gain strength immediately.
+            Assert.IsTrue(CompareStatuses(enemy.StatusInstances, GetStatuses(new Feather(), 3), out var err), err);
+        }
+
+        [Test]
         public static void Test_Dazed()
         {
             var player = new Player();
@@ -901,7 +915,7 @@ namespace StS.Tests
             fight.EndTurn();
             fight.StartTurn();
             fight.EndTurn();
-            fight.EndEnemyTurn();
+            fight.EnemyMove();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>(), out string error2), $"Enemy status not cleared {error2}");
         }
 
@@ -919,7 +933,7 @@ namespace StS.Tests
             fight.EndTurn();
             fight.StartTurn();
             fight.EndTurn();
-            fight.EndEnemyTurn();
+            fight.EnemyMove();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) }, out string error2));
         }
 

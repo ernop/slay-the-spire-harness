@@ -134,9 +134,9 @@ namespace StS
                     child = new FightNode(child, rnd: false);
                     child.Fight.EnemyMove();
                     child.AddHistory();
-                    child = new FightNode(child, rnd: false);
-                    child.Fight.EndEnemyTurn();
-                    child.AddHistory();
+                    //child = new FightNode(child, rnd: false);
+                    //child.Fight.EndEnemyTurn();
+                    //child.AddHistory();
                     if (child.Fight.Status == FightStatus.Ongoing)
                     {
                         child = new FightNode(child, rnd: false);

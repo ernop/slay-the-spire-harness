@@ -174,10 +174,10 @@ namespace StS
                     break;
                 }
             }
-            foreach (var b in bestChildren)
-            {
-                Write(path, b.FightHistory);
-            }
+            //foreach (var b in bestChildren)
+            //{
+            //    Write(path, b.FightHistory);
+            //}
 
             var lastRound = bestChildren[bestChildren.Count - 1];
             if (lastRound.Fight.Status != FightStatus.Ongoing)
@@ -187,34 +187,29 @@ namespace StS
             return lastRound.BestChild();
         }
 
-        private static void Write(string path, FightAction l)
-        {
-            System.IO.File.AppendAllText(path, l.ToString() + "\n");
-        }
-
         internal void StartTurn(List<CardInstance> initialHand)
         {
             Fight.StartTurn(initialHand: initialHand);
         }
 
-        internal void DisplayFullHistory(string path)
-        {
-            var nodes = new List<FightNode>();
-            var node = this;
-            nodes.Add(this);
-            while (node.Parent != null)
-            {
-                node = node.Parent;
-                nodes.Add(node);
-            }
+        //internal void DisplayFullHistory(string path)
+        //{
+        //    var nodes = new List<FightNode>();
+        //    var node = this;
+        //    nodes.Add(this);
+        //    while (node.Parent != null)
+        //    {
+        //        node = node.Parent;
+        //        nodes.Add(node);
+        //    }
 
-            nodes.Reverse();
-            foreach (var hnode in nodes)
-            {
-                hnode.DisplayCurrentAction(path);
-            }
-            System.IO.File.AppendAllText(path, $"==========Done\n");
-        }
+        //    nodes.Reverse();
+        //    foreach (var hnode in nodes)
+        //    {
+        //        hnode.DisplayCurrentAction(path);
+        //    }
+        //    System.IO.File.AppendAllText(path, $"==========Done\n");
+        //}
 
         private void DisplayCurrentAction(string path)
         {
@@ -349,7 +344,21 @@ namespace StS
 
         public override string ToString()
         {
-            return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()} Action:{FightHistory}";
+            var details = false;
+            var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
+            if (detailActionTypes.Contains(Fight.LastAction.FightActionType))
+            {
+                details = true;
+            }
+
+            if (details)
+            {
+                return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()} {FightHistory}";
+            }
+            else
+            {
+                return $"\t\t{GetValue()} {FightHistory}";
+            }
         }
 
         public class TurnSummary

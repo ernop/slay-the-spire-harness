@@ -73,8 +73,8 @@ namespace StS
         public override string ToString()
         {
 
-            var ib = InitialBlock == 0 ? "" : $"B:{InitialBlock}";
-            var id = InitialDamage.Count == 0 ? "" : $"D:{string.Join(',', InitialDamage)}";
+            var ib = InitialBlock == 0 ? "" : $"B{InitialBlock}";
+            var id = InitialDamage.Count == 0 ? "" : $"D{string.Join(',', InitialDamage)}";
             var ba = string.Join(',', BlockAdjustments.Select(el => el.Desc));
             var da = string.Join(',', DamageAdjustments.Select(el => el.Desc));
             var s = string.Join(',', Status.Select(el => el.ToString()));
@@ -82,6 +82,5 @@ namespace StS
 
             return res;
         }
-
     }
 }
