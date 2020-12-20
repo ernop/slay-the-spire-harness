@@ -325,7 +325,7 @@ namespace StS
             var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
             if (FightHistory.FightActionType == FightActionEnum.StartTurn)
             {
-                showTurn = $"T: {Fight.TurnNumber}  {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
+                showTurn = $"T:{Fight.TurnNumber} NV:{GetValue()} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
             }
             if (detailActionTypes.Contains(FightHistory.FightActionType))
             {

@@ -157,7 +157,7 @@ namespace StS
                 _Deck.ForceDrawCards(initialHand, ef);
             }
 
-            history.Add($"Drew:{string.Join(',', _Deck.GetHand)}");
+            history.Add($"Drew:{string.Join(',', _Deck.GetHand.OrderBy(el=>el.ToString()))}");
 
             _Player.Energy = _Player.MaxEnergy();
             _Player.Block = 0;
@@ -224,7 +224,7 @@ namespace StS
 
         public void AssignLastAction(FightAction a)
         {
-            //unless a fight is part of a fightnode, don't assign history.
+            //unless a fight is part of a fightnode, don't assign history.  e.g. tests.
             if (FightNode == null)
             {
                 return;
@@ -428,6 +428,7 @@ namespace StS
                 {
                     if (en.HP <= 0)
                     {
+                        history.Add("Enemy Died");
                         Died(en, history);
                     }
                 }
@@ -436,6 +437,7 @@ namespace StS
             {
                 if (!_Player.Dead)
                 {
+                    history.Add("Player Died");
                     Died(_Player, history);
                 }
             }
@@ -499,7 +501,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
-                history.Add($"for {string.Join(',', usingVal)}");
+                history.Add($"attack for {string.Join(',', usingVal)}");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -604,15 +606,19 @@ namespace StS
             ReceiveDamage(_Enemies[0], ef.EnemyEffect, ef, history, cardInstance);
             ReceiveDamage(_Player, ef.PlayerEffect, ef, history, cardInstance);
 
+            var aaa = _Enemies[0].HP;
+
             ApplyStatus(_Player, ef.PlayerEffect.Status, history);
             ApplyStatus(_Enemies[0], ef.EnemyEffect.Status, history);
 
             if (_Enemies[0].HP <= 0)
             {
+                history.Add("Enemy Died on his turn");
                 Died(_Enemies[0], history);
             }
             if (_Player.HP <= 0)
             {
+                history.Add("Player Died from enemy attack");
                 Died(_Player, history);
             }
         }

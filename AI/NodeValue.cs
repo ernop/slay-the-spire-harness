@@ -48,7 +48,7 @@
 
         public override string ToString()
         {
-            return $"NV {Value,2}";
+            return $"{Value}";
         }
     }
 }

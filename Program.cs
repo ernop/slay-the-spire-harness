@@ -33,9 +33,9 @@ namespace StS
                 ii++;
                 var fh = l.AALeafHistory();
 
-                System.IO.File.AppendAllText(Helpers.Output, $"==============Fight{ii}\n");
+                System.IO.File.AppendAllText(Helpers.Output, $"==============Fight{ii} {l.Fight.Status}\n");
                 System.IO.File.AppendAllLines(Helpers.Output, fh);
-                if (ii > 100) break;
+                if (ii > 1000) break;
             }
 
             //node.Display(Helpers.Output);

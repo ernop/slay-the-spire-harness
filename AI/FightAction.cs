@@ -31,7 +31,7 @@ namespace StS
 
         public override string ToString()
         {
-            string label = "* " + FightActionType.ToString();
+            string label = FightActionType.ToString();
             bool forceIncludeLabel;
             var extra = "";
 
@@ -39,13 +39,13 @@ namespace StS
             switch (FightActionType)
             {
                 case FightActionEnum.PlayCard:
-                    label = $"* {Card}";
+                    label = $"{Card}";
                     break;
                 case FightActionEnum.Potion:
-                    label = "* Potion:" + Potion.ToString();
+                    label = "Potion:" + Potion.ToString();
                     break;
                 case FightActionEnum.EnemyDied:
-                    label = $"* Enemy {Target} died";
+                    label = $"Enemy {Target} died";
                     break;
                 case FightActionEnum.StartTurn:
                     break;
