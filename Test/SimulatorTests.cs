@@ -26,9 +26,6 @@ namespace StS.Tests
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
             var results = fs.Sim();
-
-            var ii = 0;
-
         }
 
         [Test]
@@ -45,7 +42,7 @@ namespace StS.Tests
         {
             var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(10, 1, 8, 8);
+            var enemy = new GenericEnemy(amount: 10, count: 1, hpMax: 8, hp: 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player, doOutput: true);
             var node = fs.Sim();

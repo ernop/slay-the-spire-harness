@@ -557,7 +557,6 @@ namespace StS
             else if (enemyAction.Attack != null)
             {
                 _Attack(enemyAction.Attack.Amount, enemyAction.Attack.Count, history);
-
                 AssignLastAction(new FightAction(FightActionEnum.EnemyAttack, null, null, _Player, history));
             }
             else if (enemyAction.PlayerStatusAttack != null)

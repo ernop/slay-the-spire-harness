@@ -117,7 +117,16 @@ namespace StS
                 {
                     //we don't follow history back through random nodes.
                     //this will make this method useless for non-short fights
-                    break;
+                    if (target.Randoms.Count ==1 && target.Depth!=1) //can't backtrack past first.
+                    {
+                        res.Add(target.ToString());
+                        target = target.Parent;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
                 }
             }
             res.Reverse();
@@ -160,7 +169,7 @@ namespace StS
             return this;
         }
 
-        internal FightNode StartTurn(List<CardInstance> initialHand)
+        internal FightNode StartTurn(List<CardInstance> initialHand = null)
         {
             var child = new FightNode(this, true);
             child.Fight.StartTurn(initialHand: initialHand);

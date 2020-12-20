@@ -331,7 +331,11 @@ namespace StS
                 }
                 res = bc;
             }
-            return res;
+            if (res.Randoms.Count == 0)
+            {
+                return res;
+            }
+            return GetBestLeaf(res);
         }
 
     }

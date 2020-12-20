@@ -87,7 +87,8 @@ namespace StS
             var turns = fn.Fight.TurnNumber;
             if (turns > _Depth)
             {
-                fn.Fight.AssignLastAction(new FightAction(FightActionEnum.TooLong));
+                var tooLong = new FightNode(fn, false);
+                tooLong.Fight.AssignLastAction(new FightAction(FightActionEnum.TooLong));
                 return;
             }
             foreach (var action in actions)
@@ -129,7 +130,8 @@ namespace StS
                     return child3;
                 case FightActionEnum.EnemyMove:
                     var child4 = fn.EnemyMove();
-                    return child4;
+                    var c5 = child4.StartTurn();
+                    return c5;
                 default:
                     throw new Exception("Invalid action");
             }
