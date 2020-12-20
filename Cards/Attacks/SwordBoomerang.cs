@@ -13,11 +13,11 @@ namespace StS
         {
             if (upgradeCount == 0)
             {
-                ef.EnemyEffect.InitialDamage = new List<int>() { 3, 3, 3 };
+                ef.EnemyEffect.SetInitialDamage(3, 3, 3);
             }
             else
             {
-                ef.EnemyEffect.InitialDamage = new List<int>() { 3, 3, 3, 3 };
+                ef.EnemyEffect.SetInitialDamage(3, 3, 3,3);
             }
         }
     }

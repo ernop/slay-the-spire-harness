@@ -23,7 +23,7 @@ namespace StS
             }
 
 
-            ef.EnemyEffect.InitialDamage = new List<int>() { amt };
+            ef.EnemyEffect.SetInitialDamage(amt);
             ef.EnemyEffect.Status.Add(si);
         }
     }

@@ -94,16 +94,16 @@ namespace StS
             var combined = new IndividualEffect();
             combined.InitialBlock = ef1.InitialBlock + ef2.InitialBlock;
             var res = new List<int>();
-            if (ef1.InitialDamage != null || ef2.InitialDamage != null)
+            if (ef1.GetInitialDamage() != null || ef2.GetInitialDamage () != null)
             {
-                foreach (var ls in new List<IEnumerable<int>>() { ef1.InitialDamage, ef2.InitialDamage })
+                foreach (var ls in new List<IEnumerable<int>>() { ef1.GetInitialDamage(), ef2.GetInitialDamage()})
                 {
                     foreach (var el in ls)
                     {
                         res.Add(el);
                     }
                 }
-                combined.InitialDamage = res;
+                combined.SetInitialDamage(res.ToArray());
             }
 
             combined.DamageAdjustments.AddRange(ef1.DamageAdjustments);

@@ -17,7 +17,7 @@ namespace StS
                 d.AddToDrawPile(dazed);
                 return "Reckless charge added dazed to draw";
             });
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

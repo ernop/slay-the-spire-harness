@@ -12,7 +12,7 @@ namespace StS
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
             var dmg = upgradeCount == 0 ? new List<int>() { 2, 2, 2, 2 } : new List<int>() { 2, 2, 2, 2, 2 };
-            ef.EnemyEffect.InitialDamage = dmg;
+            ef.EnemyEffect.SetInitialDamage(dmg.ToArray());
         }
     }
 }

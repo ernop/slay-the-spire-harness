@@ -24,7 +24,7 @@ namespace StS
             {
                 dmg = 12;
             }
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
 
             ef.DeckEffect.Add((Deck deck) =>
             {

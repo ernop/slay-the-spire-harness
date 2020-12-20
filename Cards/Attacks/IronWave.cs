@@ -21,7 +21,7 @@ namespace StS
                 block = 7;
             }
 
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
             ef.PlayerEffect.InitialBlock = block;
         }
     }

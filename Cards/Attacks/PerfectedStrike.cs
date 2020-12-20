@@ -22,7 +22,7 @@ namespace StS
 
             var others = deck.BackupCards.Where(el => RelatedCards.Contains(el.Card.Name)).Count();
             var dmg = 6 + mult * others;
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

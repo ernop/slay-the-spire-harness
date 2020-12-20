@@ -482,16 +482,17 @@ namespace StS
 
         private void ReceiveDamage(IEntity entity, IndividualEffect ie, EffectSet ef, List<string> history, CardInstance ci)
         {
-            if (ie.InitialDamage == null && ie.DamageAdjustments?.Count > 0)
+            if (ie.GetInitialDamage() == null && ie.DamageAdjustments?.Count > 0)
             {
                 throw new Exception("should not happen");
                 //Vuln will only add a progression if initialdamage != null
             }
 
             //We don't actually want to 
-            if (ie.InitialDamage != null)
+            if (ie.GetInitialDamage() != null)
             {
-                var val = ie.InitialDamage.Select(el => (double)el);
+                var val = ie.GetInitialDamage().Select(el => (double)el);
+
                 foreach (var prog in ie.DamageAdjustments.OrderBy(el => el.Order))
                 {
                     val = prog.Fun(val.ToList());

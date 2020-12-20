@@ -12,7 +12,7 @@ namespace StS
         {
             var cardAmt = upgradeCount == 0 ? 1 : 2;
             var dmg = upgradeCount == 0 ? 9 : 10;
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
 
             ef.DeckEffect.Add((Deck d) =>
             {

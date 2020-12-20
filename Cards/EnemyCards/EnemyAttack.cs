@@ -25,7 +25,7 @@ namespace StS
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.PlayerEffect.InitialDamage = Repeat(Amount, Count);
+            ef.PlayerEffect.SetInitialDamage(Repeat(Amount, Count).ToArray());
         }
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 0;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace StS
 {
@@ -18,20 +19,17 @@ namespace StS
             var dmg = upgradeCount == 0 ? 2 : 4;
 
             //in this context (end of player turn), there is no pattern of initialdamage/damage mods.  more like a seq of events.
-            if (ie.InitialDamage == null)
+            if (ie.GetInitialDamage() == null)
             {
-                ie.InitialDamage = new List<int>();
+                ie.SetInitialDamage(dmg);
             }
+            else
+            {
+                var old = ie.GetInitialDamage().ToList();
+                old.Add(dmg);
 
-            ie.InitialDamage.Add(dmg);
-            //ie.DamageAdjustments.Add(new AttackProgression("Burn", (IList<double> dmgs) =>
-            //{
-            //    dmgs.Add(dmg);
-            //    return dmgs;
-            //}));
-
+                ie.SetInitialDamage(old.ToArray());
+            }
         }
-
-
     }
 }

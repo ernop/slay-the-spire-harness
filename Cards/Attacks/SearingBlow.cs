@@ -10,9 +10,16 @@ namespace StS
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            //TODO fix this.
-            var dmg = 12 + 6 * upgradeCount;
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            var amt = 4;
+            var tot = 0;
+            while (upgradeCount > 0)
+            {
+                tot += amt;
+                amt++;
+                upgradeCount--;
+            }
+            var dmg = 12 +tot;
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

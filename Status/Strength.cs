@@ -24,7 +24,7 @@ namespace StS
                     //already calculated.
                     return;
                 }
-                if (targetSet.InitialDamage == null)
+                if (targetSet.GetInitialDamage() == null)
                 {
                     throw new System.Exception("Why am i calculating strength without having a base damage?");
                 }

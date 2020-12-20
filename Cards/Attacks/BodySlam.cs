@@ -11,7 +11,7 @@ namespace StS
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.EnemyEffect.InitialDamage = new List<int>() { player.Block };
+            ef.EnemyEffect.SetInitialDamage(player.Block);
         }
     }
 }

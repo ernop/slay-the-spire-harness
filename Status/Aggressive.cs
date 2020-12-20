@@ -31,7 +31,7 @@
                 if (intensity > 0)
                 {
                     //actually this should be a check of the value.
-                    if (enemySet.InitialDamage != null)
+                    if (enemySet.GetInitialDamage()!= null)
                     {
                         //bit weird to hack intensity this wasy.
                         var negativeAggressiveStatus = new StatusInstance(new Aggressive(), -1 * intensity);

@@ -17,7 +17,7 @@ namespace StS
                 return "Wound added to draw pile";
             });
             var dmg = upgradeCount == 0 ? 12 : 17;
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

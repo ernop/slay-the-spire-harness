@@ -12,7 +12,7 @@ namespace StS
         {
             var vuln = upgradeCount == 0 ? 1 : 2;
             var dmg = upgradeCount == 0 ? 4 : 7;
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
             ef.EnemyEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln));
         }
     }

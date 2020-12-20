@@ -15,7 +15,7 @@ namespace StS
 
         internal override void CardWasPlayed(Card card, IndividualEffect playerSet, IndividualEffect enemySet, int intensity, bool statusIsTargeted, bool playerAction)
         {
-            if (card.CardType == CardType.Attack && !statusIsTargeted && enemySet.InitialDamage != null)
+            if (card.CardType == CardType.Attack && !statusIsTargeted && enemySet.GetInitialDamage() != null)
             {
                 enemySet.DamageAdjustments.Add(new AttackProgression("PenNibDD", (el) =>
                 {

@@ -38,7 +38,8 @@ namespace StS
             //we grab the progression from the damage pattern I'd receive, with default values of zero.
             //and this must be an enemy action.
 
-            ef.EnemyEffect.InitialDamage = Repeat(si.Intensity, ef.PlayerEffect.InitialDamage.Count);
+            var th = Repeat(si.Intensity, ef.PlayerEffect.AttackCount);
+            ef.EnemyEffect.SetInitialDamage(th.ToArray());
         }
     }
 }

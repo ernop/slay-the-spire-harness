@@ -23,7 +23,7 @@ namespace StS
                 dmg = 14;
                 si = new StatusInstance(new Weak(), 3);
             }
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
             ef.EnemyEffect.Status.Add(si);
         }
     }

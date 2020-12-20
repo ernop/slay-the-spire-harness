@@ -9,17 +9,8 @@ namespace StS
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            int amount;
-            if (upgradeCount == 0)
-            {
-                amount = 6;
-            }
-            else
-            {
-                amount = 9;
-            }
-
-            ef.EnemyEffect.InitialDamage = new List<int>() { amount };
+            int dmg = upgradeCount==0?6:9;
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

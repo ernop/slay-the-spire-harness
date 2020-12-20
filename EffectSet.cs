@@ -65,7 +65,21 @@ namespace StS
     public class IndividualEffect
     {
         public double InitialBlock { get; set; }
-        public IList<int> InitialDamage { get; set; }
+        private IList<int> InitialDamage { get; set; }
+        public int AttackCount => InitialDamage?.Count ?? 0; 
+        public IList<int> GetInitialDamage()
+        {
+            return InitialDamage;
+        }
+        public void SetInitialDamage(int dmg)
+        {
+            InitialDamage = new List<int>() { dmg };
+        }
+        
+        public void SetInitialDamage(params int[] dmg)
+        {
+            InitialDamage = new List<int>(dmg);
+        }
         public List<Progression> BlockAdjustments { get; set; } = new List<Progression>();
         public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();
         public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();

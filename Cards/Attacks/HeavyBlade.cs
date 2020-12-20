@@ -21,7 +21,7 @@ namespace StS
                 var mult = upgradeCount == 0 ? 3 : 5;
                 dmg = 14 + mult * str.Intensity;
             }
-            ef.EnemyEffect.InitialDamage = new List<int>() { dmg };
+            ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }
 }

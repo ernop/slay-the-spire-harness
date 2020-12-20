@@ -19,7 +19,7 @@ namespace StS
             }
             if (SkillCt % 3 == 0)
             {
-                ef.EnemyEffect.InitialDamage = new List<int>() { 5 };
+                ef.EnemyEffect.SetInitialDamage(5);
             }
         }
 

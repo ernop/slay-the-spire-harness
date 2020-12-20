@@ -21,7 +21,7 @@ namespace StS
                 weak = 2;
                 vuln = 2;
             }
-            ef.EnemyEffect.InitialDamage = new List<int>() { 13 };
+            ef.EnemyEffect.SetInitialDamage(13);
             ef.EnemyEffect.Status.Add(new StatusInstance(new Vulnerable(), vuln));
             ef.EnemyEffect.Status.Add(new StatusInstance(new Weak(), weak));
         }
