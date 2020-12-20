@@ -7,7 +7,10 @@ namespace StS
         public int Amount { get; set; }
         public int Count { get; set; }
 
-        public GenericEnemy(int amount = 3, int count = 3, int? hpMax = null, int? hp = null, List<StatusInstance> statuses = null) : base(nameof(GenericEnemy), hpMax ?? 50, hp ?? 50)
+        /// <summary>
+        /// Defaults to no attack.
+        /// </summary>
+        public GenericEnemy(int amount = 0, int count = 0, int? hpMax = null, int? hp = null, List<StatusInstance> statuses = null) : base(nameof(GenericEnemy), hpMax ?? 50, hp ?? 50)
         {
             Amount = amount;
             Count = count;

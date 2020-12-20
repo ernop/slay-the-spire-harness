@@ -307,23 +307,6 @@ namespace StS
             return res;
         }
 
-        /// <summary>
-        /// In finding all drawable combos, we generate lists like SSSDD.
-        /// We then need to find the actual objects for those cards in the drawpile.
-        /// Drawpile may have multiple effectively identical cards; we should find unique ones so we don't draw try to draw D_1 twice.
-        /// </summary>
-        public static List<CardInstance> GetDrawableHand(FightNode node, List<CardInstance> target)
-        {
-            var drawPile = node.Fight.GetDrawPile();
-            var res = new List<CardInstance>();
-            foreach (var t in target)
-            {
-                var found = FindIdenticalCardInSource(drawPile, t, res);
-                res.Add(found);
-            }
-            return res;
-        }
-
         public static List<StatusInstance> GetStatuses(Status status, int num)
         {
             return new List<StatusInstance>() { new StatusInstance(status, num) };

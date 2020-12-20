@@ -45,7 +45,6 @@ namespace StS
         /// </summary>
         public FightNode Sim()
         {
-            if (_DoOutput) System.IO.File.WriteAllText(_Output, "");
             var fight = new Fight(_CIs, _Player, _Enemy);
             List<Tuple<List<CardInstance>, int>> handsAndWeights;
             FightNode rootNode;
@@ -62,18 +61,16 @@ namespace StS
                 handsAndWeights = GenHandWeights(startingHands);
             }
 
-            rootNode = new FightNode(parent: null, root: true, rnd: false, fight: fight);
+            rootNode = new FightNode(fight);
             foreach (var item in handsAndWeights)
             {
                 var sh = item.Item1;
                 // TODO: future - weigh by frequency
                 //var count = item.Item2;
 
-                var oneDraw = new FightNode(rootNode, rnd: true);
-                var drawableHand = GetDrawableHand(oneDraw, sh);
-                oneDraw.StartTurn(initialHand: drawableHand);
-                oneDraw.AddHistory();
-                Iter(oneDraw);
+                var oneDraw = new FightNode(rootNode, randomChoice: true);
+                var child = oneDraw.StartFight(initialHand: sh);
+                Iter(child);
 
                 if (_OneStartingHandOnly)
                 {
@@ -90,9 +87,7 @@ namespace StS
             var turns = fn.Fight.TurnNumber;
             if (turns > _Depth)
             {
-                fn.Fight.LastAction = new FightAction(FightActionEnum.TooLong);
-                fn.AddHistory();
-
+                fn.Fight.AssignLastAction(new FightAction(FightActionEnum.TooLong));
                 return;
             }
             foreach (var action in actions)
@@ -115,40 +110,26 @@ namespace StS
             }
         }
 
+        /// <summary>
+        /// actually an application of an action can result in multiple child nodes.
+        /// For example: if you play battle trance, the child nodes are all the possible ways to draw.
+        /// </summary>
         private FightNode ApplyAction(FightNode fn, FightAction action)
         {
-            var child = new FightNode(fn, rnd: false);
-            var fight = child.Fight;
             switch (action.FightActionType)
             {
                 case FightActionEnum.PlayCard:
-                    var copiedCard = FindIdenticalCardInSource(fight.GetHand, action.Card);
-                    fight.PlayCard(copiedCard);
-                    child.AddHistory();
-                    // Note: for randomactions this will go into one of the possibilities.
-                    return child;
-                case FightActionEnum.EndTurn:
-                    fight.EndTurn();
-                    child.AddHistory();
-                    //endturn on copy, then create a node for enemymove
-                    child = new FightNode(child, rnd: false);
-                    child.Fight.EnemyMove();
-                    child.AddHistory();
-                    //child = new FightNode(child, rnd: false);
-                    //child.Fight.EndEnemyTurn();
-                    //child.AddHistory();
-                    if (child.Fight.Status == FightStatus.Ongoing)
-                    {
-                        child = new FightNode(child, rnd: false);
-                        child.Fight.StartTurn();
-                        child.AddHistory();
-                    }
-                    //or just dead
+                    var child = fn.PlayCard(action.Card);
                     return child;
                 case FightActionEnum.Potion:
-                    fight.DrinkPotion(action.Potion, _Enemy);
-                    child.AddHistory();
-                    return child;
+                    var child2 = fn.DrinkPotion(action.Potion, _Enemy);
+                    return child2;
+                case FightActionEnum.EndTurn:
+                    var child3 = fn.EndTurn();
+                    return child3;
+                case FightActionEnum.EnemyMove:
+                    var child4 = fn.EnemyMove();
+                    return child4;
                 default:
                     throw new Exception("Invalid action");
             }

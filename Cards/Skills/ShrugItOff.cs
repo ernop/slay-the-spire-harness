@@ -19,7 +19,7 @@ namespace StS
             ef.DeckEffect.Add((Deck d) =>
             {
                 var drawn = d.DrawToHand(targets, 1, true, ef);
-                return $"Drew: {string.Join(',', drawn)}";
+                return $"ShrugDrew: {string.Join(',', drawn)}";
             });
         }
     }

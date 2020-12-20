@@ -17,7 +17,7 @@ namespace StS
             ef.DeckEffect.Add((Deck d) =>
             {
                 var drawn = d.DrawToHand(targets, cardAmt, true, ef);
-                return $"Drew {string.Join(',', drawn)}";
+                return $"PommelstrikeDrew {string.Join(',', drawn)}";
             });
         }
     }

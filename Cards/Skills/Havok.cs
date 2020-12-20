@@ -22,7 +22,8 @@ namespace StS
                     {
                         return "Havok drew nothing";
                     }
-                    f.PlayCard(theCard, forceExhaust: true, newCard: true);
+
+                    f.PlayCard(theCard, forceExhaust: true, newCard: true, source: new List<CardInstance>() { theCard });
                     return $"Havok drew and played {theCard} which then exhausted";
                 }
             };

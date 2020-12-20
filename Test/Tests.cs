@@ -61,6 +61,8 @@ namespace StS.Tests
                 fight.PlayCard(ci);
             }
 
+            fight.EndTurn();
+
             //For now no targeting for enemy cards.
             if (amount != null) //only if there was an action specified
             {
@@ -318,6 +320,7 @@ namespace StS.Tests
             Assert.AreEqual(enemy.HP, 18);
             Assert.AreEqual(2, fight.GetDrawPile().Count);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(2, fight.GetHand.Count);
             Assert.IsTrue(CompareHands(GetCis("Sentinel+", "Wound"), fight.GetHand, out var err), err);
@@ -445,7 +448,7 @@ namespace StS.Tests
 
             //play havok; fb should be burned.
             fight.PlayCard(initialCis[4]);
-
+            fight.EndTurn();
             fight.EnemyMove(3, 3);
 
             var dp = fight.GetDrawPile();
@@ -481,12 +484,13 @@ namespace StS.Tests
             fight.StartTurn();
             fight.DrinkPotion(potion, enemy);
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 4), out string error), error);
-
+            fight.EndTurn();
             fight.EnemyMove(5, 2);
             //now ensure that headbutt is at the end of the draw pile.
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 2), out string error2), error2);
             Assert.AreEqual(90, player.HP, "Bad hp.");
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(2, player.Block, "Should have gotten 2 essence of steel block.");
         }
@@ -505,21 +509,25 @@ namespace StS.Tests
             fight.DrinkPotion(potion2, enemy);
 
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 8), out string error), error);
-
+            fight.EndTurn();
             //statuses combined correctly; 8 essence - 5 attacks = 3
             fight.EnemyMove(1, 5);
-
+            fight.StartTurn();
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 3), out string error2), error2);
             Assert.AreEqual(95, player.HP, "Bad hp.");
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(3, player.Block, "Should have gotten 2 essence of steel block.");
 
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             //PA:3 HP:95
+            fight.EndTurn();
 
             fight.EnemyMove(1, 7);
+            fight.StartTurn();
             Assert.AreEqual(91, player.HP, "Bad hp.");
             Assert.AreEqual(0, player.Block);
             fight.EndTurn();
@@ -573,6 +581,7 @@ namespace StS.Tests
             }
             fight.PlayCard(card);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
 
             var secondHand = fight.GetHand;
@@ -611,12 +620,14 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 2);
 
             fight.PlayCard(initialCis[2]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
@@ -636,8 +647,10 @@ namespace StS.Tests
 
             fight.PlayCard(initialCis[0]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted");
@@ -656,8 +669,10 @@ namespace StS.Tests
             fight.StartTurn();
 
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 1);
@@ -679,8 +694,10 @@ namespace StS.Tests
 
             fight.PlayCard(initialCis[0]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var hand = fight.GetHand;
             Assert.AreEqual(hand.Count, 0, "Card should have exhausted due to ethereality");
@@ -693,21 +710,21 @@ namespace StS.Tests
         public static void Test_Carnage_Playable_Without_Exhaustion()
         {
             var player = new Player();
-            var enemy = new GenericEnemy();
+            var enemy = new GenericEnemy(hpMax: 100, hp: 100);
             var initialCis = GetCis("Carnage+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
-            //problem: when I initialize the fight I make a copy of the cards.
-
             fight.PlayCard(initialCis[0]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             var hand = fight.GetHand;
-            Assert.AreEqual(hand.Count, 1, "Card should have exhausted due to ethereality");
+            Assert.AreEqual(hand.Count, 1, "Card should not have exhausted since it was played.");
 
             var exhaust = fight.GetExhaustPile;
             Assert.AreEqual(exhaust.Count, 0, "Carnage ethereality failed.");
@@ -890,6 +907,7 @@ namespace StS.Tests
             Assert.AreEqual(2, fight.GetDiscardPile.Count);
             Assert.AreEqual(1, sd.ShuffleCount);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn(); //[] s,ps,d
             Assert.AreEqual(2, sd.ShuffleCount);
 
@@ -913,6 +931,7 @@ namespace StS.Tests
             fight.StartTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.EndTurn();
             fight.EnemyMove();
@@ -931,10 +950,12 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 4) }, out string error), error);
             fight.EndTurn();
+            fight.EnemyMove();
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) }, out string error2), error2);
             fight.StartTurn();
             fight.EndTurn();
             fight.EnemyMove();
-            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 3) }, out string error2));
+            Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2) }, out string error3), error3);
         }
 
         [Test]
@@ -1017,6 +1038,7 @@ namespace StS.Tests
             fight.StartTurn();
             Assert.AreEqual(player.Block, 10);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
         }
@@ -1032,9 +1054,11 @@ namespace StS.Tests
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(player.Block, 14);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
         }
@@ -1116,6 +1140,7 @@ namespace StS.Tests
             var initialCis = GetCis("Inflame", "Intimidate+", "FeelNoPain+", "Pummel");
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
+            fight.EndTurn();
             fight.EnemyMove(new EnemyAction(playerStatusAttack: GetStatuses(new Frail(), 3)));
 
             Assert.AreEqual(0, player.StatusInstances.Count);
@@ -1139,20 +1164,26 @@ namespace StS.Tests
             Assert.AreEqual(6, player.Block);
             fight.PlayCard(initialCis[1]);
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.PlayCard(initialCis[0]); //should be sure that the frailty is applied after the extra defense is added in.
 
             Assert.AreEqual(8, player.Block);
             fight.PlayCard(initialCis[2]); //should be sure that the frailty is applied after the extra defense is added in.
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(10, player.Block);
             Assert.AreEqual(2, player.StatusInstances.Count);
             fight.EndTurn();
             Assert.AreEqual(1, player.StatusInstances.Count);
+            fight.EnemyMove();
             fight.StartTurn();
             Assert.AreEqual(1, player.StatusInstances.Count);
+            fight.EndTurn();
+            fight.EnemyMove();
+            fight.StartTurn();
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(14, player.Block);
         }
@@ -1272,6 +1303,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[3]);
             Assert.AreEqual(1, initialCis[4].EnergyCost());
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             foreach (var ci in fight.GetDiscardPile)
             {
@@ -1314,6 +1346,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[3]);
             Assert.AreEqual(1, initialCis[4].EnergyCost());
             fight.EndTurn();
+            fight.EnemyMove();
             fight.StartTurn();
             foreach (var ci in fight.GetDiscardPile)
             {
@@ -1445,6 +1478,7 @@ namespace StS.Tests
                 {
                     break;
                 }
+                fight.EndTurn();
                 fight.EnemyMove();
                 if (fight.Status != FightStatus.Ongoing)
                 {
@@ -1452,7 +1486,6 @@ namespace StS.Tests
                 }
 
 
-                fight.EndTurn();
                 fight.StartTurn();
             }
         }
@@ -1470,6 +1503,7 @@ namespace StS.Tests
             while (extraTurns > 0)
             {
                 fight.EndTurn();
+                fight.EnemyMove();
                 fight.StartTurn();
                 extraTurns--;
             }

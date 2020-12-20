@@ -108,7 +108,7 @@ namespace StS.Tests
         {
             var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(11, 1, 8, 8);
+            var enemy = new GenericEnemy(amount: 11, count: 1, hpMax: 8, hp: 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
@@ -285,7 +285,7 @@ namespace StS.Tests
         public void Test_ExploringDrawSpace()
         {
             var cis = GetCis("Strike", "Defend");
-            var enemy = new GenericEnemy(0, 1, 1, 1, new List<StatusInstance>() { new StatusInstance(new Feather(), 5) });
+            var enemy = new Cultist(hpMax: 1, hp: 1);
             var player = new Player(hp: 1, maxEnergy: 1, drawAmount: 1);
             var fs = new FightSimulator(cis, enemy, player, false);
             var root = fs.Sim();

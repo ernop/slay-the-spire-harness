@@ -13,7 +13,7 @@ namespace StS
 
         public override bool NegativeStatus => false;
 
-        internal override bool Permanent => false;
+        internal override bool Permanent => true;
 
         internal override bool Scalable => true;
         private Entity Entity { get; set; }

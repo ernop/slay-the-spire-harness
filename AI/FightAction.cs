@@ -32,7 +32,7 @@ namespace StS
         public override string ToString()
         {
             string label = "* " + FightActionType.ToString();
-            var forceIncludeLabel = false;
+            bool forceIncludeLabel;
             var extra = "";
 
             //Certain types are always labelled
@@ -40,19 +40,14 @@ namespace StS
             {
                 case FightActionEnum.PlayCard:
                     label = $"* {Card}";
-                    forceIncludeLabel = true;
                     break;
                 case FightActionEnum.Potion:
                     label = "* Potion:" + Potion.ToString();
-                    forceIncludeLabel = true;
                     break;
                 case FightActionEnum.EnemyDied:
-                    forceIncludeLabel = true;
                     label = $"* Enemy {Target} died";
                     break;
                 case FightActionEnum.StartTurn:
-                    //label = $"Start {Fight}";
-                    forceIncludeLabel = true;
                     break;
                 case FightActionEnum.EndTurn:
                 case FightActionEnum.WonFight:
@@ -61,11 +56,8 @@ namespace StS
                 case FightActionEnum.EnemyAttack:
                 case FightActionEnum.EnemyBuff:
                 case FightActionEnum.EnemyStatusAttack:
-                    forceIncludeLabel = true;
                     break;
                 case FightActionEnum.StartFight:
-                    //extra = "\n";
-                    forceIncludeLabel = true;
                     break;
                 case FightActionEnum.StartFightEffect:
                 case FightActionEnum.EndFightEffect:

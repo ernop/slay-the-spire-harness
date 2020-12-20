@@ -256,11 +256,12 @@ namespace StS
             Hand = initialHand;
             foreach (var ci in initialHand)
             {
-                if (!DrawPile.Contains(ci))
+                var copy = FindIdenticalCardInSource(DrawPile, ci);
+                if (!DrawPile.Contains(copy))
                 {
                     throw new Exception("Trying to draw a card I don't have");
                 }
-                DrawPile.Remove(ci);
+                DrawPile.Remove(copy);
             }
         }
 
