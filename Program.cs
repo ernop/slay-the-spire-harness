@@ -13,6 +13,7 @@ namespace StS
         static void Main(string[] args)
         {
             Helpers.SetRandom(0);
+            System.IO.File.WriteAllText(Helpers.Output, "");
             //TestSimple();
             TestCultist();
         }
@@ -20,18 +21,21 @@ namespace StS
         static void TestCultist()
         {
             var cis = InitialHand;
-            cis = GetCis("Strike");
+            //cis = GetCis("Strike");
             var enemy = new Cultist(hp: 10, hpMax: 10);
-            var player = new Player(hp: 51);
+            var player = new Player(hp: 5);
             var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, depth: 10);
             var node = fs.Sim();
             var leaves = GetLeaves(node);
+            var ii = 0;
             foreach (var l in leaves)
             {
+                ii++;
                 var fh = l.AALeafHistory();
 
-                System.IO.File.AppendAllText(Helpers.Output, "==============\n");
+                System.IO.File.AppendAllText(Helpers.Output, $"==============Fight{ii}\n");
                 System.IO.File.AppendAllLines(Helpers.Output, fh);
+                if (ii > 100) break;
             }
 
             //node.Display(Helpers.Output);

@@ -10,7 +10,7 @@ namespace StS
     /// What is this, really? in no-redraw, no enemy choice world (where all choice is from player),
     /// it should be a single node in a tree such that player can always choose between children.
     /// </summary>
-    public partial class FightNode
+    public class FightNode
     {
         /// <summary>
         /// Root.
@@ -103,15 +103,14 @@ namespace StS
             }
         }
 
-
-
         public IEnumerable<string> AALeafHistory()
         {
             var res = new List<string>();
             var target = this;
             while (target != null)
             {
-                res.Add(target.ToString());
+                var val = target.ToString();
+                res.Add(val);
                 target = target.Parent;
                 if (target.Choices.Count == 0)
                 {
@@ -321,20 +320,25 @@ namespace StS
 
         public override string ToString()
         {
-            var details = false;
+            var newRound = false;
+            var showTurn = "";
             var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
+            if (FightHistory.FightActionType == FightActionEnum.StartTurn)
+            {
+                showTurn = $"T: {Fight.TurnNumber}  {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
+            }
             if (detailActionTypes.Contains(FightHistory.FightActionType))
             {
-                details = true;
+                newRound = true;
             }
 
-            if (details)
+            if (newRound)
             {
-                return $"{GetValue()} D{Depth} {Fight._Player.Details()} - {Fight._Enemies[0].Details()} {FightHistory}";
+                return $"{showTurn}\t\t{FightHistory}";
             }
             else
             {
-                return $"\t\t{GetValue()} {FightHistory}";
+                return $"\t\t{FightHistory}";
             }
         }
     }
