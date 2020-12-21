@@ -126,10 +126,7 @@ namespace StS
         public IEntity CopyEntity(IEntity entity)
         {
             var sis = StatusInstances.Select(el => el.Copy()).ToList();
-            if (sis.Count > 0)
-            {
-                var ae = 4;
-            }
+            
             entity.Name = Name;
             entity.Dead = Dead;
             entity.Block = Block;

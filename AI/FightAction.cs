@@ -30,7 +30,7 @@ namespace StS
         /// * enemy buff (or do nothing)
         /// * enemy playerStatusATtack
         /// </summary>
-        public FightAction(FightActionEnum fightActionType, IList<CardInstance> cardsDrawn = null, Potion potion = null, CardInstance card = null, 
+        public FightAction(FightActionEnum fightActionType, IList<CardInstance> cardsDrawn = null, Potion potion = null, CardInstance card = null,
             IEntity target = null, List<string> desc = null)
         {
             CardsDrawn = cardsDrawn;
@@ -49,8 +49,6 @@ namespace StS
         public override string ToString()
         {
             var label = FightActionType.ToString();
-            bool forceIncludeLabel;
-            var extra = "";
 
             //Certain types are always labelled
             switch (FightActionType)
@@ -86,6 +84,8 @@ namespace StS
                 case FightActionEnum.EndTurnOtherEffect:
                 case FightActionEnum.EndEnemyTurn:
                     break;
+                case FightActionEnum.NotInitialized:
+                    break;
                 default:
                     throw new System.Exception();
             }
@@ -99,7 +99,7 @@ namespace StS
                 descPart = $" {string.Join(" ", Desc)}";
             }
 
-            return $"{extra}{label}{descPart}";
+            return $"{label}{descPart}";
         }
 
         public bool AreEqual(FightAction other)
@@ -112,7 +112,12 @@ namespace StS
                     {
                         if (Target == other.Target)
                         {
-                            return true;
+                            if (CardsDrawn == null && other.CardsDrawn == null)
+                            { return true; }
+                            if (Helpers.CompareHands(CardsDrawn, other.CardsDrawn, out var msg))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }

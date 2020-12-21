@@ -25,8 +25,8 @@
         StartFight = 20,
         WonFight = 21,
         LostFight = 22,
+        
         TooLong = 25,
-
-
+        NotInitialized = 99,
     }
 }

@@ -16,7 +16,7 @@ namespace StS.Tests
             SetRandom(0);
         }
 
-        //[Test]
+        [Test]
         public void Test_Basic()
         {
             //I want to validate that I am properly generating all outcomes.
@@ -66,7 +66,7 @@ namespace StS.Tests
 
             //best line: play e+, bash (8+vuln), hb (21), strike (9) = 38.
             //turn 2: redraw same cards but play differently.  HB (21) S(9) b(12) = 42
-            var fs = new FightSimulator(cis, enemy, player, depth: 3);
+            var fs = new FightSimulator(cis, enemy, player, maxDepth: 3);
             var node = fs.Sim();
 
             Assert.AreEqual(1, node.GetValue().Value);
@@ -251,14 +251,12 @@ namespace StS.Tests
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
-
-
         [Test]
         public void Test_NodeValue()
         {
-            var av = new NodeValue(4, 4);
-            var av2 = new NodeValue(4, 4);
-            var bv = new NodeValue(6, 4);
+            var av = new NodeValue(4, 4, null);
+            var av2 = new NodeValue(4, 4, null);
+            var bv = new NodeValue(6, 4, null);
             Assert.IsTrue(bv > av);
             Assert.IsFalse(bv < av);
             Assert.IsTrue(av == av2);

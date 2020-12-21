@@ -137,7 +137,7 @@ namespace StS
             return true;
         }
 
-        public static CardInstance CopyCI(CardInstance ci)
+        public static CardInstance Copy(CardInstance ci)
         {
             var newCi = new CardInstance(ci.Card, ci.UpgradeCount);
             return newCi;
@@ -178,7 +178,7 @@ namespace StS
             return ci;
         }
 
-        public static List<CardInstance> GetCis(params string[] names)
+        public static IList<CardInstance> GetCis(params string[] names)
         {
             var cis = new List<CardInstance>();
             foreach (var name in names)
@@ -312,43 +312,46 @@ namespace StS
         }
 
         /// <summary>
-        /// What should we actually do if there are multiple randoms?
-        /// </summary>
-        /// <param name="f"></param>
-        /// <returns></returns>
+        ///// What should we actually do if there are multiple randoms?
+        ///// </summary>
+        ///// <param name="f"></param>
+        ///// <returns></returns>
         public static FightNode GetBestLeaf(FightNode f)
         {
-            if (f == null)
-            {
-                var ae = 4;
-            }
-            if (f.Choices.Count == 0)
-            {
-                if (f.Randoms.Count == 1)
-                {
-                    return GetBestLeaf(f.Randoms.First());
-                }
-            }
-            var res = f;
-            while (true)
-            {
-                var bc = res.BestChild();
-                if (bc == null)
-                {
-                    break;
-                }
-                res = bc;
-            }
-            if (res.Randoms.Count == 0)
-            {
-                return res;
-            }
-            if (res.Randoms.Count > 1)
-            {
-                var ae = 4;
-            }
-            return GetBestLeaf(res);
+            return f;
         }
+        //{
+        //    if (f == null)
+        //    {
+        //        throw new ArgumentNullException();
+        //    }
+        //    if (f.Choices.Count == 0)
+        //    {
+        //        if (f.Randoms.Count == 1)
+        //        {
+        //            return GetBestLeaf(f.Randoms.First());
+        //        }
+        //    }
+        //    var res = f;
+        //    while (true)
+        //    {
+        //        var bc = res.BestChild();
+        //        if (bc == null)
+        //        {
+        //            break;
+        //        }
+        //        res = bc;
+        //    }
+        //    if (res.Randoms.Count == 0)
+        //    {
+        //        return res;
+        //    }
+        //    if (res.Randoms.Count > 1)
+        //    {
+        //        return res;
+        //    }
+        //    return GetBestLeaf(res);
+        //}
 
     }
 }

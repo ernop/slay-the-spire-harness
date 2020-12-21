@@ -1,6 +1,6 @@
 ﻿
 using System.Collections.Generic;
-
+using System.Linq;
 using static StS.Helpers;
 
 namespace StS
@@ -8,7 +8,7 @@ namespace StS
     class Program
     {
 
-        static List<CardInstance> InitialHand = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend");
+        static IList<CardInstance> InitialHand = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend");
 
         static void Main(string[] args)
         {
@@ -21,35 +21,48 @@ namespace StS
         static void TestCultistMC()
         {
             var cis = InitialHand;
-            //cis = GetCis("Strike");
-            
-            cis.Add(GetCi("Clumsy"));
-            var enemy = new Cultist(hp: 53);
+            var hand = GetCis("Bash", "Strike", "Strike", "Defend", "Defend");
+            var exhaustPile = GetCis("Clumsy");
+            var drawPile = GetCis("Defend");
+            var discardPile = GetCis("Strike", "Strike", "Strike", "Defend");
+
+            var enemy = new Cultist(hp: 35);
             var player = new Player(hp: 80);
-            var firstHand = GetCis("Clumsy","Strike","Strike","Strike","Defend");
-            var fs = new MonteCarlo(cis, firstHand, enemy, player);
+            var turnNumber = 1;
+
+            //put them back so they'll be drawable.
+            foreach (var h in hand) drawPile.Add(h);
+
+            var deck = new Deck(cis, drawPile, hand, discardPile, exhaustPile);
+            
+            var fs = new MonteCarlo(deck, hand, enemy, player, turnNumber);
             var node = fs.Sim();
-            var bestValue = new NodeValue(0,0);
+            //var bestValue = new NodeValue(0,0);
             for (var ii = 0; ii < 1000; ii++)
             {
                 fs.MC(node);
-                var best = GetBestLeaf(node);
+                //var best = GetBestLeaf(node); //this may not actually be a leaf.
                 //repeatedly print better values.
-                if (best.GetValue() > bestValue)
-                {
-                    bestValue = best.GetValue();
-                    SaveLeaf(best, ii);
-                }
+                //if (best.GetValue() > bestValue)
+                //{
+                //    bestValue = best.GetValue();
+                //    SaveLeaf(best, ii);
+                //}
             }
         }
 
-        static void SaveLeaf(FightNode leaf, int mcCount)
-        {
-            var fh = leaf.AALeafHistory();
+        //static void SaveLeaf(FightNode leaf, int mcCount)
+        //{
+        //    //var fh = leaf.AALeafHistory();
 
-            System.IO.File.AppendAllText(Helpers.Output, $"==============Fight {mcCount} {leaf.Fight.Status}\n");
-            System.IO.File.AppendAllLines(Helpers.Output, fh);
-        }
+        //    System.IO.File.AppendAllText(Helpers.Output, $"==============Fight {mcCount} {leaf.Fight.Status}\n");
+        //    if (leaf.Randoms.Any())
+        //    {
+        //        var children = string.Join(',', leaf.Randoms);
+        //        System.IO.File.AppendAllText(Helpers.Output, $"==============Leaf with children: {children}\n");
+        //    }
+        //    System.IO.File.AppendAllLines(Helpers.Output, fh);
+        //}
 
         static void TestCultist()
         {
@@ -57,7 +70,7 @@ namespace StS
             //cis = GetCis("Strike");
             var enemy = new Cultist(hp: 10, hpMax: 10);
             var player = new Player(hp: 5);
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, depth: 10);
+            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, maxDepth: 10);
             var node = fs.Sim();
             var leaves = GetLeaves(node);
             var ii = 0;
@@ -106,7 +119,7 @@ namespace StS
             foreach (var draw in node.Randoms)
             {
                 System.IO.File.AppendAllText(Output, "==One draw.");
-                draw.Display(Output);
+                //draw.Display(Output);
             }
 
             fs.SaveResults(Output, node);

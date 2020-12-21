@@ -21,6 +21,7 @@ namespace StS
             return newFight;
         }
 
+        public FightAction FightAction { get; set; }
         public FightNode FightNode { get; set; }
         public List<IEnemy> _Enemies { get; set; }
         public Player _Player { get; set; }
@@ -70,6 +71,11 @@ namespace StS
             Init(d, player, new List<IEnemy>() { enemy });
         }
 
+        public Fight(Deck deck, Player player, IEnemy enemy, bool preserveOrder = true)
+        {
+            Init(deck, player, new List<IEnemy>() { enemy });
+        }
+
         /// <summary>
         /// for testing
         /// </summary>
@@ -91,20 +97,20 @@ namespace StS
                 if (EnemyDone)
                 {
                     var cards = _Deck.WouldDraw(_Player.GetDrawAmount());
-                    return new List<FightAction>() { new FightAction(FightActionEnum.StartTurn) };
+                    return new List<FightAction>() { new FightAction(FightActionEnum.StartTurn, cardsDrawn:cards) };
                 }
                 else
                 {
                     return new List<FightAction>() { _Enemies[0].GetAction(TurnNumber) };
                 }
             }
-            return GetTurnStartedActions();
+            return GetNormalActions();
         }
 
         /// <summary>
         /// All playable cards, potions, or endturn.
         /// </summary>
-        internal IList<FightAction> GetTurnStartedActions() { 
+        internal IList<FightAction> GetNormalActions() { 
 
             var res = new List<FightAction>();
             var hand = _Deck.GetHand;
@@ -151,7 +157,7 @@ namespace StS
             ApplyEffectSet(startEf, _Player, _Enemies[0], history);
         }
 
-        public void StartTurn(IList<CardInstance> initialHand = null)
+        public bool StartTurn(IList<CardInstance> initialHand = null)
         {
             if (PlayerTurn)
             {
@@ -180,7 +186,7 @@ namespace StS
             }
             else
             {
-                _Deck.ForceDrawCards(initialHand, ef);
+                _Deck.ForceDrawCards(initialHand, ef, history);
             }
 
             history.Add($"Drew:{string.Join(',', _Deck.GetHand.OrderBy(el=>el.ToString()))}");
@@ -200,7 +206,8 @@ namespace StS
 
             ApplyEffectSet(ef, _Player, _Enemies[0], history);
 
-            AssignLastAction(new FightAction(FightActionEnum.StartTurn, desc: history));
+            AssignLastAction(new FightAction(FightActionEnum.StartTurn, cardsDrawn: initialHand, desc: history));
+            return true;
         }
 
         public void EndTurn()
@@ -255,15 +262,11 @@ namespace StS
         public void AssignLastAction(FightAction a)
         {
             //unless a fight is part of a fightnode, don't assign history.  e.g. tests.
-            if (FightNode == null)
-            {
-                return;
-            }
-            if (FightNode.FightAction != null)
+            if (FightAction != null)
             {
                 throw new Exception("protection");
             }
-            FightNode.FightAction = a;
+            FightAction = a;
         }
 
         /// <summary>
@@ -320,7 +323,7 @@ namespace StS
         /// 
         /// TODO: why not send a cardDescriptor, and have this method just find a matching card? would make external combinatorics easier.
         /// </summary>
-        public void PlayCard(CardInstance cardInstance, List<CardInstance> cardTargets = null, 
+        public bool PlayCard(CardInstance cardInstance, List<CardInstance> cardTargets = null, 
             bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
         {
             if (!PlayerTurn) throw new Exception("Not your turn");
@@ -398,8 +401,13 @@ namespace StS
 
             AssignLastAction(new FightAction(FightActionEnum.PlayCard, card: cardInstance, desc: history));
             _Deck.CardPlayCleanup();
+            return false;
         }
-        public void DrinkPotion(Potion p, Enemy e)
+
+        /// <summary>
+        /// Returns whether there was randomness involved in drinking the potion. 
+        /// </summary>
+        public bool DrinkPotion(Potion p, Enemy e)
         {
             if (!PlayerTurn) throw new Exception("Not your turn");
             var fakePotion = _Player.Potions.First(el => el.ToString() == p.ToString());
@@ -420,6 +428,7 @@ namespace StS
             ApplyEffectSet(ef, _Player, e, history);
 
             AssignLastAction(new FightAction(FightActionEnum.Potion, potion: p, target: target, desc: history));
+            return false;
         }
 
         private void ApplyEffectSet(EffectSet ef, Player player, IEnemy enemy, List<string> history, Potion potion = null, CardInstance ci = null, bool subEffectSet = false)

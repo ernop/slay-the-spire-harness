@@ -22,10 +22,22 @@ namespace StS
         /// 
         /// Should I add player to this?  So that the deck will know where to send exhaust events?
         /// </summary>
+
+        public Deck(IList<CardInstance> cis, IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
+        {
+            _PreserveOrder = false;
+            BackupCards = cis?.Select(el => el.Copy()).ToList();
+            DrawPile = drawPile;
+            Hand = hand;
+            DiscardPile = discardPile;
+            ExhaustPile = exhaustPile;
+
+        }
+
         public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
         {
             _PreserveOrder = preserveOrder;
-            BackupCards = cis?.Select(el => CopyCI(el)).ToList();
+            BackupCards = cis?.Select(el => el.Copy()).ToList();
             var newList = new List<CardInstance>();
 
             //we want the original external cis list to still work, but we also want to use the original external cards in here.
@@ -63,7 +75,7 @@ namespace StS
             return res;
         }
 
-        public List<CardInstance> BackupCards { get; private set; }
+        public IList<CardInstance> BackupCards { get; private set; }
 
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
@@ -177,10 +189,10 @@ namespace StS
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
-        private List<CardInstance> DrawPile { get; set; }
+        private IList<CardInstance> DrawPile { get; set; }
         private IList<CardInstance> Hand { get; set; } = new List<CardInstance>();
-        private List<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
-        private List<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
+        private IList<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
+        private IList<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
 
         /// <summary>
         /// should these all just return by value?  or do I need to modify them in tests?
@@ -257,18 +269,42 @@ namespace StS
             Exhaust(ci, ef);
         }
 
-        internal void ForceDrawCards(IList<CardInstance> initialHand, EffectSet ef)
+        /// <summary>
+        /// for the cards we know we will draw, draw them from drawpile.
+        /// If drawpile runs out, reshuffle and do it again.
+        /// </summary>
+        internal void ForceDrawCards(IList<CardInstance> initialHand, EffectSet ef, List<string> history)
         {
-            Hand = initialHand;
-            foreach (var ci in initialHand)
+            var res = new List<CardInstance>();
+            var found = new List<CardInstance>();
+            var initialCopy = initialHand.Select(el => el.Copy()).ToList();
+            foreach (var ci in initialCopy)
             {
-                var copy = FindIdenticalCardInSource(DrawPile, ci);
-                if (!DrawPile.Contains(copy))
+                var copy = FindIdenticalCardInSource(DrawPile, ci, failureOkay: true);
+
+                if (copy != null)
                 {
-                    throw new Exception("Trying to draw a card I don't have");
+                    DrawPile.Remove(copy);
+                    res.Add(copy);
+                    found.Add(ci);
                 }
-                DrawPile.Remove(copy);
             }
+            foreach (var f in found)
+            {
+                initialCopy.Remove(f);
+            }
+
+            if (initialCopy.Any())
+            {
+                Reshuffle(ef, history);
+                foreach (var ci in initialCopy)
+                {
+                    var copy = FindIdenticalCardInSource(DrawPile, ci, failureOkay: false);
+                    DrawPile.Remove(copy);
+                    res.Add(copy);
+                }
+            }
+            Hand = res;
         }
 
         /// <summary>
@@ -278,7 +314,7 @@ namespace StS
         {
             if (_PreserveOrder)
             {
-                
+
                 var forceRes = DrawPile.Skip(DrawPile.Count() - drawCount).Take(drawCount).ToList();
                 if (forceRes.Count < drawCount)
                 {
@@ -308,18 +344,17 @@ namespace StS
                     if (discardCopy.Count == 0)
                     {
                         //can't do a full draw.
-                        
+
                         break;
                     }
                     var ii = Rnd.Next(discardCopy.Count);
                     var el = discardCopy[ii];
                     discardCopy.Remove(el);
                     res.Add(el);
-                    continue;
                 }
                 toDraw--;
             }
-            
+
             return res;
         }
 
@@ -330,7 +365,7 @@ namespace StS
             var which = WouldDraw(drawCount);
 
             var gap = drawCount - which.Count;
-            
+
             if (gap > 0)
             {
                 history.Add($"No cards left to draw {gap} more");
@@ -339,10 +374,10 @@ namespace StS
             foreach (var copy in which)
             {
                 var orig = FindIdenticalCardInSource(DrawPile, copy, failureOkay: true);
-                if (orig!=null && DrawPile.Contains(orig))
+                if (orig != null && DrawPile.Contains(orig))
                 {
                     DrawPile.Remove(orig);
-                    Hand.Add(orig);
+                    TryAddToHand(orig, ef);
                 }
                 else
                 {
@@ -351,7 +386,7 @@ namespace StS
                     if (DrawPile.Contains(orig))
                     {
                         DrawPile.Remove(orig);
-                        Hand.Add(orig);
+                        TryAddToHand(orig, ef);
                     }
                     else
                     {
@@ -407,7 +442,11 @@ namespace StS
         public void Reshuffle(EffectSet ef, List<string> history)
         {
             DeckShuffle?.Invoke(ef, history);
-            DrawPile.AddRange(DiscardPile);
+            foreach (var d in DiscardPile)
+            {
+                DrawPile.Add(d);
+            }
+
             DiscardPile = new List<CardInstance>();
             ShuffleDrawPile();
         }

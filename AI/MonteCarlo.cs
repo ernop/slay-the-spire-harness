@@ -20,6 +20,12 @@ namespace StS
         private Enemy _Enemy { get; set; }
         private IList<CardInstance> _CIs { get; set; }
         private IList<CardInstance> _FirstHand { get; set; }
+        private Deck _Deck {get;set;}
+        
+        /// <summary>
+        /// for overriding
+        /// </summary>
+        private int _TurnNumber { get; set; }
 
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
@@ -32,6 +38,15 @@ namespace StS
             _Player = player ?? throw new ArgumentNullException();
         }
 
+        public MonteCarlo(Deck deck, IList<CardInstance> firstHand, Enemy enemy, Player player, int turnNumber)
+        {
+            _Deck = deck ?? throw new ArgumentNullException(nameof(deck));
+            _FirstHand = firstHand ?? throw new ArgumentNullException(nameof(firstHand)); //no need to
+            _Enemy = enemy ?? throw new ArgumentNullException();
+            _Player = player ?? throw new ArgumentNullException();
+            _TurnNumber = turnNumber;
+        }
+
         /// <summary>
         /// Returns a list of fightnode roots based on initial draws.
         /// TODO add "randomchoices" and create a test for pommel strike.
@@ -39,7 +54,16 @@ namespace StS
         /// </summary>
         public FightNode Sim()
         {
-            var fight = new Fight(_CIs, _Player, _Enemy);
+            Fight fight;
+            if (_Deck == null) //magic override
+            {
+                fight = new Fight(_CIs, _Player, _Enemy);
+            }
+            else
+            {
+                fight = new Fight(_Deck, _Player, _Enemy);
+            }
+            fight.TurnNumber = _TurnNumber;
 
             // TODO: future - weigh by frequency
             //var count = item.Item2;
@@ -61,10 +85,7 @@ namespace StS
                 MCCount++;
             }
             var actions = fn.Fight.GetAllActions();
-            if (actions.Count == 1)
-            {
-                var ae = 4;
-            }
+          
             var ii = Rnd.Next(actions.Count());
             var action = actions[ii];
 
@@ -109,7 +130,6 @@ namespace StS
                 }
                 else
                 {
-                    //TODO: this should not happen til we have more random actions/random draws.
                     var ae = 4;
                     //return fn;
                 }
@@ -130,7 +150,7 @@ namespace StS
                     var child4 = fn.EnemyMove(action); //rnd
                     return child4;
                 case FightActionEnum.StartTurn:
-                    var child5 = fn.StartTurn();
+                    var child5 = fn.StartTurn(action.CardsDrawn);
                     return child5;
                 default:
                     throw new Exception("Invalid action");

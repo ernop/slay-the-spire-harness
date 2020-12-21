@@ -13,49 +13,134 @@ namespace StS
     public class FightNode
     {
         /// <summary>
-        /// Root.
+        /// How many times it's been encountered. When calculating value, weight this.
         /// </summary>
-        /// <param name="f"></param>
-        public FightNode(Fight f)
+        public int Weight { get; set; } = 1;
+        public NodeValue Value { get; set; }
+        public FightNode(Fight f, int depth = 1)
         {
-            Fight = f ?? throw new ArgumentNullException(nameof(f));
+            Fight = f;
+            Depth = depth;
         }
 
-        /// <summary>
-        /// Create a child node.
-        /// RND determines if this is a "choice" path or a "random" path.
-        /// </summary>
-        public FightNode(FightNode parent, bool randomChoice)
+        public FightNode AddChild(FightNode n, bool r)
         {
-            Parent = parent;
-
-            Fight = parent.Fight.Copy();
-
-            if (randomChoice)
+            n.Parent = this;
+            this.FightAction = n.Fight.FightAction;
+            if (r)
             {
-                if (parent.Randoms.Count > 0)
-                {
-                    var ae = 4;
-                }
-                Parent.Randoms.Add(this);
+                Randoms.Add(n);
             }
             else
             {
-                Parent.Choices.Add(this);
+                Choices.Add(n);
             }
 
-            Parent.ClearValue();
+            //Fight is over. Calc values.
+            if (n.Fight.Status != FightStatus.Ongoing)
+            {
+                n.CalcValue();
+            }
 
-            Fight.FightNode = this;
+            return n;
+        }
+
+        private void CalcValue(bool force = false)
+        {
+            if (!force && !object.ReferenceEquals(Value,null))
+            {
+                return;
+            }
+            switch (GetChoiceType())
+            {
+                case NodeType.Leaf:
+                    var val = 0;
+                    switch (Fight.Status)
+                    {
+                        case FightStatus.Ongoing:
+                            throw new Exception("Leaves can't have ongoing fights.");
+                            //TODO this is obviously wrong.
+                            //no point in calculating them as we go.
+                            //val = Fight._Player.HP - Fight._Enemies[0].HP;
+                            return;
+                        case FightStatus.Won:
+                            val = Fight._Player.HP;
+                            break;
+                        case FightStatus.Lost:
+                            val = -1 * Fight._Enemies[0].HP;
+                            break;
+                    }
+                    var cards = 0;
+                    if (Fight.FightAction.FightActionType == FightActionEnum.PlayCard)
+                    {
+                        cards++;
+                    }
+                    SetValue(new NodeValue(val, cards, null));
+                    break;
+                case NodeType.Choice:
+                    if (FightAction == null)
+                    {
+                        throw new Exception("This should not happen");
+                    }
+                    NodeValue value = null;
+                    FightNode bc = null;
+                    foreach (var c in Choices)
+                    {
+                        var cval = c.GetValue();
+                        if (value == null || cval > value)
+                        {
+                            value = cval;
+                            bc = c;
+                        }
+                    }
+                    int cards2 = 0;
+                    //Todo prefer playing cards to playing potions!
+                    if (FightAction.FightActionType == FightActionEnum.PlayCard || FightAction.FightActionType == FightActionEnum.Potion)
+                    {
+                        cards2++;
+                    }
+                    var myVal = new NodeValue(value.Value, value.Cards+cards2, bc);
+                    SetValue(myVal);
+                    break;
+                case NodeType.Random:
+                    var rsum = 0.0d;
+                    var rc = 0;
+                    foreach (var r in Randoms)
+                    {
+                        rsum += r.GetValue().Value * r.Weight;
+                        rc += r.Weight;
+                    }
+                    SetValue(new NodeValue(rsum * 1.0 / rc, 0, null));
+                    //TODO okay to not assign bestchild? it doesn't make sense over random.
+                    break;
+            }
         }
 
         /// <summary>
-        /// When a new random or choice node is added, clear the value of a node.
+        /// We fill in values bottom down.  So sometimes when you set a new value you should check parents too.
+        /// Also if we are a choice and just added a worse value, don't recalculate parent.
         /// </summary>
-        private void ClearValue()
+        private void SetValue(NodeValue v)
         {
-            _Calculated = false;
-            Parent?.ClearValue();
+            var oldValue = Value;
+            Value = v;
+            switch (GetChoiceType())
+            {
+                case NodeType.Choice:
+                    if (v > oldValue)
+                    {
+                        Parent.CalcValue(true);
+                    }
+                    break;
+                case NodeType.Random:
+                    //TODO this is optimizable.
+                    Parent.CalcValue(true);
+                    break;
+                case NodeType.Leaf:
+                    Parent.CalcValue(true);
+                    break;
+            }
+            
         }
 
         public List<FightNode> Choices { get; set; } = new List<FightNode>();
@@ -63,115 +148,114 @@ namespace StS
         public List<FightNode> Randoms { get; set; } = new List<FightNode>();
         public Fight Fight { get; set; }
         public FightNode Parent { get; set; }
-        private bool _Calculated { get; set; } = false;
-        private NodeValue _Value { get; set; }
-        private int _Depth { get; set; } = int.MinValue;
-        private FightNode _BestChild { get; set; }
-
+        public int Depth { get; private set; } = int.MinValue;
         /// <summary>
         /// The history of the single action here - including both player actions, draws, monster actions.
         /// </summary>
-        public FightAction FightAction { get; internal set; }
+        public FightAction FightAction { get; internal set; } = new FightAction(FightActionEnum.NotInitialized);
 
-        public int Depth
-        {
-            get
-            {
-                if (_Depth == int.MinValue)
-                {
-                    var res = 1;
-                    var target = this;
-                    while (target.Parent != null)
-                    {
-                        res++;
-                        target = target.Parent;
-                    }
-                    _Depth = res;
-                }
-                return _Depth;
-            }
-        }
+        //internal void Display(string path, bool leaf = false)
+        //{
+        //    if (leaf)
+        //    {
+        //        //find parent.
+        //        var target = this;
+        //        while (target.Parent.Choices.Count != 0)
+        //        {
+        //            target = target.Parent;
+        //        }
 
-        internal void Display(string path, bool leaf = false)
-        {
-            if (leaf)
-            {
-                //find parent.
-                var target = this;
-                while (target.Parent.Choices.Count != 0)
-                {
-                    target = target.Parent;
-                }
-
-                target.Display(path);
-            }
-            else
-            {
-                foreach (var r in Randoms)
-                {
-                    var lastRound = DisplayRound(r, path);
-                    while (lastRound != null)
-                    {
-                        lastRound = DisplayRound(lastRound, path);
-                    }
-                }
-            }
-        }
+        //        target.Display(path);
+        //    }
+        //    else
+        //    {
+        //        foreach (var r in Randoms)
+        //        {
+        //            var lastRound = DisplayRound(r, path);
+        //            while (lastRound != null)
+        //            {
+        //                lastRound = DisplayRound(lastRound, path);
+        //            }
+        //        }
+        //    }
+        //}
 
         public IEnumerable<string> AALeafHistory()
         {
             var res = new List<string>();
-            var target = this;
-            while (target != null)
-            {
-                var val = target.ToString();
-                res.Add(val);
-                target = target.Parent;
-                if (target?.Choices.Count == 0)
-                {
-                    //we don't follow history back through random nodes.
-                    //this will make this method useless for non-short fights
-                    if (target.Randoms.Count ==1 && target.Depth!=1) //can't backtrack past first.
-                    {
-                        res.Add(target.ToString());
-                        target = target.Parent;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                }
-            }
-            res.Reverse();
             return res;
         }
 
-        private FightNode DisplayRound(FightNode node, string path)
+        internal void SetAction(FightAction fightAction)
         {
-            var bestChildren = new List<FightNode>();
-            var target = node;
-            while (true)
+            if (FightAction != null)
             {
-                bestChildren.Add(target);
-
-                if (Helpers.RoundEndConditions.Contains(target.FightAction.FightActionType))
+                if (FightAction.FightActionType != FightActionEnum.NotInitialized)
                 {
-                    break;
-                }
-                target = target._BestChild;
-
-                if (target == null)
-                {
-                    break;
+                    throw new Exception("protection");
                 }
             }
-            var lastRound = bestChildren[bestChildren.Count - 1];
-            if (lastRound.Fight.Status != FightStatus.Ongoing)
-            {
-                return null;
-            }
-            return lastRound.BestChild();
+
+            FightAction = fightAction;
+        }
+
+        //    var target = this;
+        //    while (target != null)
+        //    {
+        //        var val = target.ToString();
+        //        res.Add(val);
+        //        target = target.Parent;
+        //        if (target?.Choices.Count == 0)
+        //        {
+        //            //we don't follow history back through random nodes.
+        //            //this will make this method useless for non-short fights
+        //            if (target.Randoms.Count == 1 && target.Depth != 1) //can't backtrack past first.
+        //            {
+        //                res.Add(target.ToString());
+        //                target = target.Parent;
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
+
+        //        }
+        //    }
+        //    res.Reverse();
+        //    return res;
+        //}
+
+        //private FightNode DisplayRound(FightNode node, string path)
+        //{
+        //    var bestChildren = new List<FightNode>();
+        //    var target = node;
+        //    while (true)
+        //    {
+        //        bestChildren.Add(target);
+
+        //        if (Helpers.RoundEndConditions.Contains(target.FightAction.FightActionType))
+        //        {
+        //            break;
+        //        }
+        //        target = target._BestChild;
+
+        //        if (target == null)
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    var lastRound = bestChildren[bestChildren.Count - 1];
+        //    if (lastRound.Fight.Status != FightStatus.Ongoing)
+        //    {
+        //        return null;
+        //    }
+        //    return lastRound.BestChild();
+        //}
+
+        public FightNode GetNode()
+        {
+            var child = new FightNode(Fight.Copy(), Depth + 1);
+            return child;
         }
 
         /// <summary>
@@ -180,44 +264,53 @@ namespace StS
         internal FightNode StartFight(IList<CardInstance> initialHand)
         {
             Fight.StartTurn(initialHand: initialHand);
+            FightAction = Fight.FightAction;
             return this;
         }
 
         internal FightNode StartTurn(IList<CardInstance> initialHand = null)
         {
-            var child = new FightNode(this, true);
-            child.Fight.StartTurn(initialHand: initialHand);
-            return child;
+            var c = GetNode();
+            var rnd = c.Fight.StartTurn(initialHand: initialHand);
+            AddChild(c, rnd);
+            return c;
         }
+
         /// <summary>
         /// Call various high level actions on nodes and they'll eventually return ienumerable<FightNode>
         /// </summary>
         internal FightNode PlayCard(CardInstance card)
         {
-            var child = new FightNode(this, false);
-            child.Fight.PlayCard(card);
-            return child;
+            var c = GetNode();
+            var rnd = c.Fight.PlayCard(card);
+            AddChild(c, rnd);
+            return c;
         }
 
         internal FightNode DrinkPotion(Potion potion, Enemy enemy)
         {
-            var child = new FightNode(this, false);
-            child.Fight.DrinkPotion(potion, enemy);
-            return child;
+            var c = GetNode();
+            var rnd = c.Fight.DrinkPotion(potion, enemy);
+            AddChild(c, rnd);
+            return c;
         }
+
+
 
         internal FightNode EndTurn()
         {
-            var child = new FightNode(this, false);
-            child.Fight.EndTurn();
-            return child;
+            var c = GetNode();
+            c.Fight.EndTurn();
+            AddChild(c, false);
+            return c;
         }
 
         internal FightNode EnemyMove(FightAction action)
         {
-            var child = new FightNode(this, true);
-            child.Fight.EnemyMove(action);
-            return child;
+            var c = GetNode();
+            c.Fight.EnemyMove(action);
+            AddChild(c, true);
+            return c;
         }
 
         /// <summary>
@@ -225,22 +318,12 @@ namespace StS
         /// </summary>
         public NodeValue GetValue(bool force = false)
         {
-            if (!_Calculated || force)
+            if (Value == null || force)
             {
-                _CalcValue();
+                CalcValue(force);
             }
 
-            return _Value;
-        }
-
-        public FightNode BestChild()
-        {
-            if (!_Calculated)
-            {
-                _CalcValue();
-            }
-
-            return _BestChild;
+            return Value;
         }
 
         private NodeType GetChoiceType()
@@ -262,98 +345,36 @@ namespace StS
             return NodeType.Leaf;
         }
 
-        private void _CalcValue()
-        {
-            switch (GetChoiceType())
-            {
-                case NodeType.Choice:
-                    if (FightAction == null)
-                    {
-                        throw new Exception("This should not happen");
-                    }
-                    FightNode bestChild = null;
-                    var bestVal = new NodeValue(int.MinValue, int.MaxValue);
-                    foreach (var c in Choices)
-                    {
-                        var cval = c.GetValue();
-                        if (cval > bestVal)
-                        {
-                            bestVal = cval;
-                            bestChild = c;
-                        }
-                    }
-
-                    _BestChild = bestChild;
-                    int cards;
-
-                    if (FightAction.FightActionType == FightActionEnum.PlayCard)
-                    {
-                        cards = _BestChild.GetValue().Cards + 1;
-                    }
-                    else if (FightAction.FightActionType == FightActionEnum.Potion)
-                    {
-                        cards = _BestChild.GetValue().Cards;
-                    }
-                    else
-                    {
-                        cards = 0;
-                    }
-
-                    _Value = new NodeValue(bestVal.Value, cards);
-                    break;
-                case NodeType.Random:
-                    var rsum = 0.0d;
-                    var rc = 0;
-                    foreach (var c in Randoms)
-                    {
-                        rsum += c.GetValue().Value;
-                        rc++;
-                    }
-                    _Value = new NodeValue(rsum * 1.0 / rc, 0);
-                    //TODO okay to not assign bestchild? it doesn't make sense over random.
-                    break;
-                case NodeType.Leaf:
-                    var val = 0;
-                    switch (Fight.Status)
-                    {
-                        case FightStatus.Ongoing:
-                            //TODO this is obviously wrong.
-                            val = Fight._Player.HP - Fight._Enemies[0].HP;
-                            break;
-                        case FightStatus.Won:
-                            val = Fight._Player.HP;
-                            break;
-                        case FightStatus.Lost:
-                            val = -1 * Fight._Enemies[0].HP;
-                            break;
-                    }
-                    _Value = new NodeValue(val, 0);
-                    _BestChild = null;
-                    break;
-            }
-        }
 
         public override string ToString()
         {
-            var newRound = false;
-            var showTurn = "";
-            var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
-            if (FightAction.FightActionType == FightActionEnum.StartTurn)
+            try
             {
-                showTurn = $"T:{Fight.TurnNumber} NV:{GetValue()} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
-            }
-            if (detailActionTypes.Contains(FightAction.FightActionType))
-            {
-                newRound = true;
-            }
+                var newRound = false;
+                var showTurn = "";
+                var status = Fight.Status;
+                var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
+                if (FightAction.FightActionType == FightActionEnum.StartTurn)
+                {
+                    showTurn = $"T:{Fight.TurnNumber} NV:{GetValue(),-1} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
+                }
+                if (detailActionTypes.Contains(FightAction.FightActionType))
+                {
+                    newRound = true;
+                }
 
-            if (newRound)
-            {
-                return $"{showTurn}\t\t{FightAction}";
+                if (newRound)
+                {
+                    return $"{showTurn}\t\t{FightAction} {status}";
+                }
+                else
+                {
+                    return $"\t\t{FightAction} {status}";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return $"\t\t{FightAction}";
+                return ex.ToString();
             }
         }
     }

@@ -18,7 +18,7 @@ namespace StS.Tests
 
         public static void RunTest(string name, int pl = 50, int pl2 = 50, int en = 50, int en2 = 50,
            int plbl = 0, int enbl = 0, int finalPlayerBlock = 0, int finalEnemyBlock = 0,
-           List<Relic> relics = null, List<CardInstance> cis = null, int? amount = null, int? count = 0,
+           List<Relic> relics = null, IList<CardInstance> cis = null, int? amount = null, int? count = 0,
            List<StatusInstance> playerStatuses = null, List<StatusInstance> enemyStatuses = null,
            List<StatusInstance> playerFinalStatuses = null,
            List<StatusInstance> enemyFinalStatuses = null,
@@ -1491,7 +1491,7 @@ namespace StS.Tests
             }
         }
 
-        public static void TestDrawOnly(string testName, List<CardInstance> initialCis, List<CardInstance> expectedCis,
+        public static void TestDrawOnly(string testName, IList<CardInstance> initialCis, IList<CardInstance> expectedCis,
             int drawCount = 5, int extraTurns = 0, int? energyAfter = null, CardDomain? characterType = CardDomain.IronClad)
         {
             var player = new Player(characterType.Value, drawAmount: drawCount);

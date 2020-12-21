@@ -22,19 +22,19 @@ namespace StS
         private bool _DoOutput { get; set; }
         private bool _OneStartingHandOnly { get; set; }
 
-        private int _Depth { get; set; }
+        private int _MaxDepth { get; set; }
 
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
         /// </summary>
-        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false, int depth = 3)
+        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false, int maxDepth = 3)
         {
             _CIs = cis;
             _Enemy = enemy;
             _Player = player;
             _DoOutput = doOutput;
             _OneStartingHandOnly = oneStartingHandOnly;
-            _Depth = depth;
+            _MaxDepth = maxDepth;
         }
 
         /// <summary>
@@ -61,15 +61,14 @@ namespace StS
             }
 
             rootNode = new FightNode(fight);
+            var ss = rootNode.ToString();
             foreach (var item in handsAndWeights)
             {
                 var sh = item.Item1;
-                // TODO: future - weigh by frequency
-                //var count = item.Item2;
-
-                var oneDraw = new FightNode(rootNode, randomChoice: true);
-                var child = oneDraw.StartFight(initialHand: sh);
-                Iter(child);
+                
+                rootNode.StartFight(initialHand: sh); //this modifies it in place.
+                
+                Iter(rootNode);
 
                 if (_OneStartingHandOnly)
                 {
@@ -84,10 +83,10 @@ namespace StS
         {
             var actions = fn.Fight.GetAllActions();
             var turns = fn.Fight.TurnNumber;
-            if (turns > _Depth)
+            if (turns > _MaxDepth)
             {
-                var tooLong = new FightNode(fn, false);
-                tooLong.Fight.AssignLastAction(new FightAction(FightActionEnum.TooLong));
+                var c = fn.GetNode();
+                c.SetAction(new FightAction(FightActionEnum.TooLong));
                 return;
             }
             foreach (var action in actions)
