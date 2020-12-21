@@ -80,8 +80,4 @@ namespace StS
     {
         public override CardType CardType => CardType.Status;
     }
-    public abstract class EnemyCard : Card
-    {
-        public override CardDomain CardDomain => CardDomain.Enemy;
-    }
 }

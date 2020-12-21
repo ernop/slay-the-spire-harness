@@ -15,9 +15,9 @@ namespace StS
         {
             var x = new OneEffect
             {
-                Action = (Fight f, Deck d) =>
+                Action = (Fight f, Deck d, List<string> history) =>
                 {
-                    var theCard = d.Draw(targetCards: null, count: 1, reshuffle: true, ef: ef).SingleOrDefault();
+                    var theCard = d.Draw(targetCards: null, count: 1, reshuffle: true, ef: ef, history: history).SingleOrDefault();
                     if (theCard == null)
                     {
                         return "Havok drew nothing";

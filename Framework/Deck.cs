@@ -24,6 +24,7 @@ namespace StS
         /// </summary>
         public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
         {
+            _PreserveOrder = preserveOrder;
             BackupCards = cis?.Select(el => CopyCI(el)).ToList();
             var newList = new List<CardInstance>();
 
@@ -31,11 +32,15 @@ namespace StS
             newList.AddRange(cis);
 
             DrawPile = newList;
-            if (!preserveOrder)
-            {
-                ShuffleDrawPile();
-            }
+
+            //WouldDraw randomizes draw now.
+            //if (!preserveOrder)
+            //{
+            //    ShuffleDrawPile();
+            //}
         }
+
+        private bool _PreserveOrder { get; set; }
 
         internal bool DiscardPileContains(CardInstance headbuttTarget)
         {
@@ -63,7 +68,7 @@ namespace StS
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal List<CardInstance> DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
+        internal List<CardInstance> DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -74,7 +79,7 @@ namespace StS
                     {
                         if (reshuffle)
                         {
-                            Reshuffle(ef);
+                            Reshuffle(ef, history);
                             if (DrawPile.Count == 0)
                             {
                                 break;
@@ -105,7 +110,7 @@ namespace StS
             return res;
         }
 
-        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef)
+        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -116,7 +121,7 @@ namespace StS
                     {
                         if (reshuffle)
                         {
-                            Reshuffle(ef);
+                            Reshuffle(ef, history);
                             if (DrawPile.Count == 0)
                             {
                                 break;
@@ -173,7 +178,7 @@ namespace StS
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
         private List<CardInstance> DrawPile { get; set; }
-        private List<CardInstance> Hand { get; set; } = new List<CardInstance>();
+        private IList<CardInstance> Hand { get; set; } = new List<CardInstance>();
         private List<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
         private List<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
 
@@ -190,7 +195,7 @@ namespace StS
         public delegate void NotifyOfExhaustion(EffectSet ef);
 
         public event NotifyDeckShuffle DeckShuffle;
-        public delegate void NotifyDeckShuffle(EffectSet ef);
+        public delegate void NotifyDeckShuffle(EffectSet ef, List<string> history);
 
         public event NotifyDrawCard DrawCard;
         public delegate void NotifyDrawCard(CardInstance ci, EffectSet ef);
@@ -211,7 +216,7 @@ namespace StS
         //when you start a fight, copy cards into drawpile + hand;
         //some fight-actions can modify cards (receiving curse) but generally at the end of a fight you just destroy the copied cardinstances.
 
-        public void TurnEnds(EffectSet ef)
+        public void TurnEnds(EffectSet ef, List<string> history)
         {
             //clear 
             //shuffle discard back into draw.
@@ -224,6 +229,7 @@ namespace StS
                 if (ci.Ethereal())
                 {
                     Exhaust(ci, ef);
+                    history.Add($"Etheral {ci} exhausted");
                 }
                 else
                 {
@@ -251,7 +257,7 @@ namespace StS
             Exhaust(ci, ef);
         }
 
-        internal void ForceDrawCards(List<CardInstance> initialHand, EffectSet ef)
+        internal void ForceDrawCards(IList<CardInstance> initialHand, EffectSet ef)
         {
             Hand = initialHand;
             foreach (var ci in initialHand)
@@ -265,30 +271,93 @@ namespace StS
             }
         }
 
-        public void DrawCards(int drawCount, EffectSet ef)
+        /// <summary>
+        /// Figure out what we would draw if we really did.  Ahd it'd be better to really find them.
+        /// </summary>
+        public IList<CardInstance> WouldDraw(int drawCount)
         {
-            Hand = new List<CardInstance>();
+            if (_PreserveOrder)
+            {
+                
+                var forceRes = DrawPile.Skip(DrawPile.Count() - drawCount).Take(drawCount).ToList();
+                if (forceRes.Count < drawCount)
+                {
+                    _PreserveOrder = false;
+                    //just nuke the state and do a normal draw.  You'll get the initial cards left in draw plus random ones from the discard pile.
+                    return WouldDraw(drawCount);
+                }
+                return forceRes;
+            }
+
+            var res = new List<CardInstance>();
+            var drawCopy = DrawPile.Select(el => el.Copy()).ToList();
+            var discardCopy = DiscardPile.Select(el => el.Copy()).ToList();
 
             int toDraw = drawCount;
             while (toDraw > 0)
             {
-                if (DrawPile.Count > 0)
+                if (drawCopy.Count > 0)
                 {
-                    var el = DrawPile.Last();
-                    DrawPile.Remove(el);
-                    TryAddToHand(el, ef);
+                    var ii = Rnd.Next(drawCopy.Count);
+                    var el = drawCopy[ii];
+                    drawCopy.Remove(el);
+                    res.Add(el);
                 }
                 else
                 {
-                    if (DiscardPile.Count == 0)
+                    if (discardCopy.Count == 0)
                     {
                         //can't do a full draw.
+                        
                         break;
                     }
-                    Reshuffle(ef);
+                    var ii = Rnd.Next(discardCopy.Count);
+                    var el = discardCopy[ii];
+                    discardCopy.Remove(el);
+                    res.Add(el);
                     continue;
                 }
                 toDraw--;
+            }
+            
+            return res;
+        }
+
+        public void DrawCards(int drawCount, EffectSet ef, List<string> history)
+        {
+            Hand = new List<CardInstance>();
+
+            var which = WouldDraw(drawCount);
+
+            var gap = drawCount - which.Count;
+            
+            if (gap > 0)
+            {
+                history.Add($"No cards left to draw {gap} more");
+            }
+
+            foreach (var copy in which)
+            {
+                var orig = FindIdenticalCardInSource(DrawPile, copy, failureOkay: true);
+                if (orig!=null && DrawPile.Contains(orig))
+                {
+                    DrawPile.Remove(orig);
+                    Hand.Add(orig);
+                }
+                else
+                {
+                    Reshuffle(ef, history); //this should only happen 0-1 times
+                    orig = FindIdenticalCardInSource(DrawPile, copy, failureOkay: false);
+                    if (DrawPile.Contains(orig))
+                    {
+                        DrawPile.Remove(orig);
+                        Hand.Add(orig);
+                    }
+                    else
+                    {
+                        throw new Exception("Card missing after reshuffle");
+                    }
+                }
             }
         }
 
@@ -303,7 +372,7 @@ namespace StS
 
         }
 
-        internal void AfterPlayingCard(CardInstance ci, EffectSet ef)
+        internal void AfterPlayingCard(CardInstance ci, EffectSet ef, List<string> history)
         {
             if (ci.Card.CardType == CardType.Power)
             {
@@ -315,6 +384,7 @@ namespace StS
                 if (ci.Exhausts())
                 {
                     Exhaust(ci, ef);
+                    history.Add($"Exhausted {ci}");
                 }
                 else
                 {
@@ -334,9 +404,9 @@ namespace StS
 
         private CardInstance PutIntoDiscardAfterApplyingEffectSet { get; set; }
 
-        public void Reshuffle(EffectSet ef)
+        public void Reshuffle(EffectSet ef, List<string> history)
         {
-            DeckShuffle?.Invoke(ef);
+            DeckShuffle?.Invoke(ef, history);
             DrawPile.AddRange(DiscardPile);
             DiscardPile = new List<CardInstance>();
             ShuffleDrawPile();

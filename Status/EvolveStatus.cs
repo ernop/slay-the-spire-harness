@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace StS
 {
@@ -37,9 +38,9 @@ namespace StS
             if (ci.Card.CardType == CardType.Curse || ci.Card.CardType == CardType.Status)
             {
                 var newEf = new EffectSet();
-                newEf.DeckEffect.Add((Deck d) =>
+                newEf.DeckEffect.Add((Deck d, List<string> h) =>
                 {
-                    var drawn = d.DrawToHand(null, si.Intensity, true, newEf);
+                    var drawn = d.DrawToHand(null, si.Intensity, true, newEf, h);
                     return $"{ci} Caused card draw: {string.Join(',', drawn)}";
                 });
                 ef.AddNextEf(newEf);

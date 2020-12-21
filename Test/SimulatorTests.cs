@@ -42,7 +42,7 @@ namespace StS.Tests
         {
             var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(amount: 10, count: 1, hpMax: 8, hp: 8);
+            var enemy = new GenericEnemy(amount: 10, count: 1, hp: 8, hpMax: 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player, doOutput: true);
             var node = fs.Sim();
@@ -105,7 +105,7 @@ namespace StS.Tests
         {
             var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(amount: 11, count: 1, hpMax: 8, hp: 8);
+            var enemy = new GenericEnemy(amount: 11, count: 1,  hp: 8, hpMax: 8);
             var player = new Player();
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
@@ -171,6 +171,8 @@ namespace StS.Tests
             Assert.AreEqual(1, node.Randoms.Count);
             //also assert there is only one good path.
             var best = node.Randoms.Max(el => el.GetValue());
+            //var bb = GetBestLeaf(node.Randoms);
+            //var hh = bb.AALeafHistory();
             Assert.AreEqual(-1, best.Value);
             Assert.AreEqual(-1, node.GetValue().Value);
         }
@@ -183,7 +185,7 @@ namespace StS.Tests
 
             var enemyStatuses = GetStatuses(new Feather(), 10);
             enemyStatuses.AddRange(GetStatuses(new Strength(), -10));
-            var enemy = new GenericEnemy(amount: 1, count: 5, hpMax: 14, hp: 14, statuses: enemyStatuses);
+            var enemy = new GenericEnemy(amount: 1, count: 5,  hp: 14, hpMax: 14, statuses: enemyStatuses);
             var player = new Player(drawAmount: 4, hp: 10);
             var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true);
             var node = fs.Sim();
@@ -207,7 +209,7 @@ namespace StS.Tests
             Assert.AreEqual(9, hh.Count()); //draw i i i endturn monsterend start i s + outers
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
-            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
+            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightAction.FightActionType);
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
@@ -245,7 +247,7 @@ namespace StS.Tests
             Assert.AreEqual(10, h.Count()); //draw d endturn monsterend start i p
 
             Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
-            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightHistory.FightActionType);
+            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightAction.FightActionType);
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
@@ -282,7 +284,7 @@ namespace StS.Tests
         public void Test_ExploringDrawSpace()
         {
             var cis = GetCis("Strike", "Defend");
-            var enemy = new Cultist(hpMax: 1, hp: 1);
+            var enemy = new Cultist(hp: 1, hpMax: 1);
             var player = new Player(hp: 1, maxEnergy: 1, drawAmount: 1);
             var fs = new FightSimulator(cis, enemy, player, false);
             var root = fs.Sim();

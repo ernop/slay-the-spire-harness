@@ -22,7 +22,7 @@ namespace StS
         /// <summary>
         /// After playing the card, call these on the hand (temporarily); things like monkey paw.
         /// </summary>
-        public List<Func<Deck, string>> DeckEffect { get; set; } = new List<Func<Deck, string>>();
+        public List<Func<Deck, List<string>, string>> DeckEffect { get; set; } = new List<Func<Deck, List<string>, string>>();
 
         /// <summary>
         /// The ultimate power; can see everything.
@@ -58,7 +58,7 @@ namespace StS
 
     public class OneEffect
     {
-        public Func<Fight, Deck, string> Action { get; set; }
+        public Func<Fight, Deck, List<string>, string> Action { get; set; }
     }
 
 

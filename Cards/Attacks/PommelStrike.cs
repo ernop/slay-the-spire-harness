@@ -14,9 +14,9 @@ namespace StS
             var dmg = upgradeCount == 0 ? 9 : 10;
             ef.EnemyEffect.SetInitialDamage(dmg);
 
-            ef.DeckEffect.Add((Deck d) =>
+            ef.DeckEffect.Add((Deck d, List<string> history) =>
             {
-                var drawn = d.DrawToHand(targets, cardAmt, true, ef);
+                var drawn = d.DrawToHand(targets, cardAmt, true, ef, history);
                 return $"PommelstrikeDrew {string.Join(',', drawn)}";
             });
         }

@@ -2,7 +2,7 @@
 {
     public interface IEnemy : IEntity
     {
-        public abstract EnemyAction GetAction();
+        public abstract FightAction GetAction(int turn);
         public abstract IEnemy Copy();
     }
 }

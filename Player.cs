@@ -6,10 +6,10 @@ namespace StS
 {
     public class Player : Entity, IEntity
     {
-        public Player(CardDomain type = CardDomain.IronClad, int? hpMax = null, int? hp = null,
+        public Player(CardDomain type = CardDomain.IronClad, int? hp = null, int? hpMax = null,
             IEnumerable<Relic> relics = null, IEnumerable<Potion> potions = null,
             int? maxEnergy = null, int? drawAmount = null)
-            : base("Wilson", EntityType.Player, hpMax ?? 100, hp ?? 100)
+            : base("Wilson", EntityType.Player, hp ?? 100, hpMax ?? 100)
         {
             CharacterType = type;
             if (relics != null)
@@ -88,7 +88,7 @@ namespace StS
         internal void HealFor(int amount, out string healRes)
         {
             var before = HP;
-            HP = Math.Min(HPMax, HP + amount);
+            HP = Math.Min(HP + amount, HPMax);
             var healAmt = HP - before;
             healRes = $"Healed for {healAmt}";
         }

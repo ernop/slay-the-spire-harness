@@ -10,7 +10,7 @@ namespace StS
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
         {
-            ef.DeckEffect.Add((Deck d) =>
+            ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
                 var newCi = new CardInstance(new Wound(), 0);
                 d.AddToDrawPile(newCi);

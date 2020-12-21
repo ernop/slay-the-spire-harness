@@ -16,7 +16,7 @@ namespace StS
         {
             if (upgradeCount == 0)
             {
-                ef.DeckEffect.Add((Deck d) =>
+                ef.DeckEffect.Add((Deck d, List<string> h) =>
                 {
                     var count = 0;
                     foreach (var ci in d.GetHand)
@@ -32,7 +32,7 @@ namespace StS
             }
             else
             {
-                ef.DeckEffect.Add((Deck d) =>
+                ef.DeckEffect.Add((Deck d, List<string> h) =>
                 {
                     var count = 0;
                     foreach (var ci in d.GetHand)

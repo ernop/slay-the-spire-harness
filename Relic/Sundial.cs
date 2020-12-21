@@ -1,4 +1,6 @@
-﻿namespace StS
+﻿using System.Collections.Generic;
+
+namespace StS
 {
     public class Sundial : Relic
     {
@@ -23,11 +25,12 @@
             deck.DeckShuffle -= DeckShuffle;
         }
 
-        private void DeckShuffle(EffectSet ef)
+        private void DeckShuffle(EffectSet ef, List<string> history)
         {
             ShuffleCount += 1;
             if (ShuffleCount % 3 == 0)
             {
+                history.Add("Gained 2 energy from Sundial shuffle");
                 ef.PlayerEnergy = 2;
             }
         }

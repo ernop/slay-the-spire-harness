@@ -1,4 +1,6 @@
-﻿namespace StS
+﻿using System.Collections.Generic;
+
+namespace StS
 {
     public class NeowsLament : Relic
     {
@@ -12,7 +14,7 @@
                 Charges--;
                 ef.FightEffect.Add(new OneEffect()
                 {
-                    Action = (Fight f, Deck d) =>
+                    Action = (Fight f, Deck d, List<string> history) =>
                     {
                         f.SetEnemyHp(1);
                         return "Set enemy HP to 1";

@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using static StS.Helpers;
 
 namespace StS
@@ -12,20 +12,19 @@ namespace StS
         {
             if (card.CardType == CardType.Power)
             {
-                Func<Deck, string> makeOneCostZero = (Deck) =>
-                 {
-                     var ci = SelectNonZeroCostCard(Deck.GetHand);
-                     if (ci != null)
-                     {
-                         ci.PerTurnOverrideEnergyCost = 0;
-                         return $"monkey paw set {ci} to cost zero.";
-                     }
-                     else
-                     {
-                         return $"monkey paw had no card to reduce in value..";
-                     }
-                 };
-                ef.DeckEffect.Add(makeOneCostZero);
+                ef.DeckEffect.Add((Deck d, List<string> h) =>
+                {
+                    var ci = SelectNonZeroCostCard(d.GetHand);
+                    if (ci != null)
+                    {
+                        ci.PerTurnOverrideEnergyCost = 0;
+                        return $"monkey paw set {ci} to cost zero.";
+                    }
+                    else
+                    {
+                        return $"monkey paw had no card to reduce in value..";
+                    }
+                });
             }
         }
 

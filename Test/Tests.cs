@@ -31,7 +31,7 @@ namespace StS.Tests
                 cis = new List<CardInstance>();
             }
 
-            var player = new Player(hpMax: pl, hp: pl);
+            var player = new Player(hp: pl, hpMax: pl);
             if (playerStatuses != null)
             {
                 player.StatusInstances = playerStatuses;
@@ -239,9 +239,9 @@ namespace StS.Tests
         [Test]
         public static void Test_BurningBlood1()
         {
-            var player = new Player(hpMax: 100, hp: 50, relics: GetRelics("BurningBlood"), drawAmount: 2);
+            var player = new Player(hp: 50, hpMax: 100, relics: GetRelics("BurningBlood"), drawAmount: 2);
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Strike+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -253,9 +253,9 @@ namespace StS.Tests
         [Test]
         public static void Test_BurningBlood_Overheal()
         {
-            var player = new Player(hpMax: 100, hp: 99, relics: GetRelics("BurningBlood"), drawAmount: 2);
+            var player = new Player(hp: 99, hpMax: 100, relics: GetRelics("BurningBlood"), drawAmount: 2);
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Strike+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -269,7 +269,7 @@ namespace StS.Tests
         {
             var player = new Player(hpMax: 100, hp: 99, relics: GetRelics("BurningBlood"), maxEnergy: 1, drawAmount: 2);
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Strike+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -284,7 +284,7 @@ namespace StS.Tests
         {
             var player = new Player(relics: GetRelics("BurningBlood"), maxEnergy: 1, drawAmount: 1);
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Strike+", "Inflame+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -298,7 +298,7 @@ namespace StS.Tests
         public static void Test_Sentinel()
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Sentinel+", "TrueGrit");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -312,7 +312,7 @@ namespace StS.Tests
         public static void Test_WildStrike()
         {
             var player = new Player(relics: GetRelics("BurningBlood"), drawAmount: 2);
-            var enemy = new GenericEnemy(hpMax: 30, hp: 30);
+            var enemy = new GenericEnemy(hp: 30, hpMax: 30);
             var initialCis = GetCis("Sentinel+", "TrueGrit", "WildStrike");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -330,7 +330,7 @@ namespace StS.Tests
         public static void Test_TrueGrit()
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Sentinel+", "TrueGrit");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -345,7 +345,7 @@ namespace StS.Tests
         public static void Test_TrueGritPlus()
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Sentinel+", "Inflame", "TrueGrit+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -361,7 +361,7 @@ namespace StS.Tests
         public static void Test_FeelNoPain()
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("FeelNoPain", "Strike", "TrueGrit+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -380,7 +380,7 @@ namespace StS.Tests
         {
             var player = new Player(relics: GetRelics("BurningBlood"), drawAmount: 6);
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("FeelNoPain", "FeelNoPain+", "Strike+", "Strike", "TrueGrit+", "TrueGrit+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
 
@@ -404,7 +404,7 @@ namespace StS.Tests
         {
             var player = new Player(hpMax: 100, hp: 100, relics: GetRelics("BurningBlood"));
 
-            var enemy = new GenericEnemy(hpMax: 3, hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Strike+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -486,6 +486,7 @@ namespace StS.Tests
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 4), out string error), error);
             fight.EndTurn();
             fight.EnemyMove(5, 2);
+            fight.StartTurn();
             //now ensure that headbutt is at the end of the draw pile.
             Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 2), out string error2), error2);
             Assert.AreEqual(90, player.HP, "Bad hp.");
@@ -617,7 +618,7 @@ namespace StS.Tests
             var player = new Player();
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Dazed", "Dazed", "Slimed");
-            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
             fight.EndTurn();
             fight.EnemyMove();
@@ -710,7 +711,7 @@ namespace StS.Tests
         public static void Test_Carnage_Playable_Without_Exhaustion()
         {
             var player = new Player();
-            var enemy = new GenericEnemy(hpMax: 100, hp: 100);
+            var enemy = new GenericEnemy(hp: 100, hpMax: 100);
             var initialCis = GetCis("Carnage+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
@@ -966,12 +967,12 @@ namespace StS.Tests
             var initialCis = GetCis(
                 "Strike", "Strike", "Strike", "Strike", "Wound",
                 "Wound", "Strike", "Inflame", "Defend", "Strike",
-                "Wound", "Evolve", "Evolve+", "PommelStrike", "PommelStrike");
-            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
-            fight.StartTurn(); //E E+ PS PS
+                "Wound", "Evolve", "Evolve+", "PommelStrike", "Disarm");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartTurn(); //E E+ PS Dis
             fight.PlayCard(initialCis[12]); //evolve+
-            fight.PlayCard(initialCis[13]);
-            Assert.IsTrue(CompareHands(GetCis("Evolve", "PommelStrike", "Wound", "Strike", "Defend"), fight.GetHand, out var m), m);
+            fight.PlayCard(initialCis[13]); //PommelStrike => draw wound => draw strike+defend
+            Assert.IsTrue(CompareHands(GetCis("Evolve", "Disarm", "Wound", "Strike", "Defend"), fight.GetHand, out var m), m);
         }
 
         [Test]
@@ -1141,7 +1142,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
             fight.EndTurn();
-            fight.EnemyMove(new EnemyAction(playerStatusAttack: GetStatuses(new Frail(), 3)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack:GetStatuses(new Frail(), 3)),0)));
 
             Assert.AreEqual(0, player.StatusInstances.Count);
         }
@@ -1157,7 +1158,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(8, player.Block);
             fight.EndTurn();
-            fight.EnemyMove(new EnemyAction(playerStatusAttack: GetStatuses(new Frail(), 3)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GetStatuses(new Frail(), 3)),0)));
             Assert.AreEqual(1, player.StatusInstances.Count);
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
@@ -1515,17 +1516,6 @@ namespace StS.Tests
             {
                 Assert.AreEqual(player.Energy, energyAfter, $"Expected energy={energyAfter.Value} actual={player.Energy}");
             }
-        }
-
-
-        public static EnemyAction Attack(int amount, int count)
-        {
-            return new EnemyAction(null, new EnemyAttack(amount, count), null);
-        }
-
-        public static EnemyAction GetEnemyAction(EnemyAttack card)
-        {
-            return new EnemyAction(null, card, null);
         }
 
         public static List<IEnemy> SetupEnemies(string en, int ehp, int enbl, List<StatusInstance> enemyStatuses)

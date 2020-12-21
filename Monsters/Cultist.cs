@@ -4,34 +4,28 @@ namespace StS
 {
     public class Cultist : Enemy, IEnemy
     {
-        public bool FirstRound { get; set; } = true;
-        public Cultist(int? hpMax = null, int? hp = null) : base(nameof(Cultist), hpMax, hp) { }
+        public Cultist(int? hp = null, int ? hpMax = null) : base(nameof(Cultist), hp, hpMax) { }
 
-        public override EnemyAction GetAction()
+        public override FightAction GetAction(int turn)
         {
-            if (FirstRound)
+            if (turn == 1)
             {
-                FirstRound = false;
-                var res = new EnemyAction(new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }, null, null);
+                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(buffs: new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }),0));
                 return res;
             }
             else
             {
-                var res = new EnemyAction(null, new EnemyAttack(3, 1), null);
+                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(3, 1),0));
                 return res;
             }
         }
-
 
         /// <summary>
         /// Only need to copy the specific fields.
         /// </summary>
         public override IEnemy Copy()
         {
-            var res = new Cultist()
-            {
-                FirstRound = FirstRound,
-            };
+            var res = new Cultist();
             CopyEntity(res);
             return res;
         }

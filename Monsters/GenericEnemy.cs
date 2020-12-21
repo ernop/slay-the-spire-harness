@@ -10,7 +10,7 @@ namespace StS
         /// <summary>
         /// Defaults to no attack.
         /// </summary>
-        public GenericEnemy(int amount = 0, int count = 0, int? hpMax = null, int? hp = null, List<StatusInstance> statuses = null) : base(nameof(GenericEnemy), hpMax ?? 50, hp ?? 50)
+        public GenericEnemy(int amount = 0, int count = 0, int? hp = null, int? hpMax = null, List<StatusInstance> statuses = null) : base(nameof(GenericEnemy), hp, hpMax)
         {
             Amount = amount;
             Count = count;
@@ -20,9 +20,9 @@ namespace StS
             }
         }
 
-        public override EnemyAction GetAction()
+        public override FightAction GetAction(int turnNumber)
         {
-            return new EnemyAction(null, new EnemyAttack(Amount, Count), null);
+            return new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(Amount, Count),0));
         }
 
         public override IEnemy Copy()

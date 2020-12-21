@@ -206,11 +206,6 @@ namespace StS
             return res;
         }
 
-        public static EnemyAttack GetAttack(int amount, int count)
-        {
-            return new EnemyAttack(amount, count);
-        }
-
         /// <summary>
         /// Generate all sets of startinghands from a list of cis.
         /// 
@@ -285,7 +280,7 @@ namespace StS
 
         }
 
-        public static CardInstance FindIdenticalCardInSource(IList<CardInstance> source, CardInstance card, IList<CardInstance> exclusions = null)
+        public static CardInstance FindIdenticalCardInSource(IList<CardInstance> source, CardInstance card, IList<CardInstance> exclusions = null, bool failureOkay = false)
         {
             if (exclusions == null)
             {
@@ -302,6 +297,10 @@ namespace StS
             }
             if (res == null)
             {
+                if (failureOkay)
+                {
+                    return null;
+                }
                 throw new Exception("No card.");
             }
             return res;
@@ -312,8 +311,17 @@ namespace StS
             return new List<StatusInstance>() { new StatusInstance(status, num) };
         }
 
+        /// <summary>
+        /// What should we actually do if there are multiple randoms?
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
         public static FightNode GetBestLeaf(FightNode f)
         {
+            if (f == null)
+            {
+                var ae = 4;
+            }
             if (f.Choices.Count == 0)
             {
                 if (f.Randoms.Count == 1)
@@ -334,6 +342,10 @@ namespace StS
             if (res.Randoms.Count == 0)
             {
                 return res;
+            }
+            if (res.Randoms.Count > 1)
+            {
+                var ae = 4;
             }
             return GetBestLeaf(res);
         }

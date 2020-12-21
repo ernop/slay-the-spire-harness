@@ -33,6 +33,10 @@ namespace StS
 
             if (randomChoice)
             {
+                if (parent.Randoms.Count > 0)
+                {
+                    var ae = 4;
+                }
                 Parent.Randoms.Add(this);
             }
             else
@@ -40,7 +44,18 @@ namespace StS
                 Parent.Choices.Add(this);
             }
 
+            Parent.ClearValue();
+
             Fight.FightNode = this;
+        }
+
+        /// <summary>
+        /// When a new random or choice node is added, clear the value of a node.
+        /// </summary>
+        private void ClearValue()
+        {
+            _Calculated = false;
+            Parent?.ClearValue();
         }
 
         public List<FightNode> Choices { get; set; } = new List<FightNode>();
@@ -56,7 +71,7 @@ namespace StS
         /// <summary>
         /// The history of the single action here - including both player actions, draws, monster actions.
         /// </summary>
-        public FightAction FightHistory { get; internal set; }
+        public FightAction FightAction { get; internal set; }
 
         public int Depth
         {
@@ -112,7 +127,7 @@ namespace StS
                 var val = target.ToString();
                 res.Add(val);
                 target = target.Parent;
-                if (target.Choices.Count == 0)
+                if (target?.Choices.Count == 0)
                 {
                     //we don't follow history back through random nodes.
                     //this will make this method useless for non-short fights
@@ -140,7 +155,7 @@ namespace StS
             {
                 bestChildren.Add(target);
 
-                if (Helpers.RoundEndConditions.Contains(target.FightHistory.FightActionType))
+                if (Helpers.RoundEndConditions.Contains(target.FightAction.FightActionType))
                 {
                     break;
                 }
@@ -162,13 +177,13 @@ namespace StS
         /// <summary>
         /// modify the current fight, don't create child.
         /// </summary>
-        internal FightNode StartFight(List<CardInstance> initialHand)
+        internal FightNode StartFight(IList<CardInstance> initialHand)
         {
             Fight.StartTurn(initialHand: initialHand);
             return this;
         }
 
-        internal FightNode StartTurn(List<CardInstance> initialHand = null)
+        internal FightNode StartTurn(IList<CardInstance> initialHand = null)
         {
             var child = new FightNode(this, true);
             child.Fight.StartTurn(initialHand: initialHand);
@@ -198,10 +213,10 @@ namespace StS
             return child;
         }
 
-        internal FightNode EnemyMove()
+        internal FightNode EnemyMove(FightAction action)
         {
             var child = new FightNode(this, true);
-            child.Fight.EnemyMove();
+            child.Fight.EnemyMove(action);
             return child;
         }
 
@@ -252,7 +267,7 @@ namespace StS
             switch (GetChoiceType())
             {
                 case NodeType.Choice:
-                    if (FightHistory == null)
+                    if (FightAction == null)
                     {
                         throw new Exception("This should not happen");
                     }
@@ -271,11 +286,11 @@ namespace StS
                     _BestChild = bestChild;
                     int cards;
 
-                    if (FightHistory.FightActionType == FightActionEnum.PlayCard)
+                    if (FightAction.FightActionType == FightActionEnum.PlayCard)
                     {
                         cards = _BestChild.GetValue().Cards + 1;
                     }
-                    else if (FightHistory.FightActionType == FightActionEnum.Potion)
+                    else if (FightAction.FightActionType == FightActionEnum.Potion)
                     {
                         cards = _BestChild.GetValue().Cards;
                     }
@@ -323,22 +338,22 @@ namespace StS
             var newRound = false;
             var showTurn = "";
             var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
-            if (FightHistory.FightActionType == FightActionEnum.StartTurn)
+            if (FightAction.FightActionType == FightActionEnum.StartTurn)
             {
                 showTurn = $"T:{Fight.TurnNumber} NV:{GetValue()} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
             }
-            if (detailActionTypes.Contains(FightHistory.FightActionType))
+            if (detailActionTypes.Contains(FightAction.FightActionType))
             {
                 newRound = true;
             }
 
             if (newRound)
             {
-                return $"{showTurn}\t\t{FightHistory}";
+                return $"{showTurn}\t\t{FightAction}";
             }
             else
             {
-                return $"\t\t{FightHistory}";
+                return $"\t\t{FightAction}";
             }
         }
     }

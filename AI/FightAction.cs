@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace StS
 {
@@ -7,16 +11,29 @@ namespace StS
     /// <summary>
     /// Player did something; then the list of accumulated actions.
     /// </summary>
-    public class FightAction
+    public class FightAction// : IEqualityComparer<FightAction>
     {
         public FightActionEnum FightActionType { get; private set; }
         public Potion Potion { get; private set; }
         public CardInstance Card { get; private set; }
         public List<string> Desc { get; private set; }
         public IEntity Target { get; private set; }
+        public IList<CardInstance> CardsDrawn { get; set; }
 
-        public FightAction(FightActionEnum fightActionType, Potion potion = null, CardInstance card = null, IEntity target = null, List<string> desc = null)
+        /// <summary>
+        /// an action in a fight is one of:
+        /// * player play card
+        /// * player drink pot
+        /// * player end turn
+        /// 
+        /// * enemy play card (enemyAttack)
+        /// * enemy buff (or do nothing)
+        /// * enemy playerStatusATtack
+        /// </summary>
+        public FightAction(FightActionEnum fightActionType, IList<CardInstance> cardsDrawn = null, Potion potion = null, CardInstance card = null, 
+            IEntity target = null, List<string> desc = null)
         {
+            CardsDrawn = cardsDrawn;
             FightActionType = fightActionType;
             Potion = potion?.Copy();
             Card = card?.Copy();
@@ -31,7 +48,7 @@ namespace StS
 
         public override string ToString()
         {
-            string label = FightActionType.ToString();
+            var label = FightActionType.ToString();
             bool forceIncludeLabel;
             var extra = "";
 
@@ -53,9 +70,9 @@ namespace StS
                 case FightActionEnum.WonFight:
                 case FightActionEnum.LostFight:
                 case FightActionEnum.TooLong:
-                case FightActionEnum.EnemyAttack:
-                case FightActionEnum.EnemyBuff:
-                case FightActionEnum.EnemyStatusAttack:
+                    break;
+                case FightActionEnum.EnemyMove:
+                    label = $"EnemyAction {Card}";
                     break;
                 case FightActionEnum.StartFight:
                     break;
@@ -84,5 +101,33 @@ namespace StS
 
             return $"{extra}{label}{descPart}";
         }
+
+        public bool AreEqual(FightAction other)
+        {
+            if (FightActionType == other.FightActionType)
+            {
+                if (Card?.ToString() == other.Card?.ToString()) //we compare cards including enemy attacks by ToString
+                {
+                    if (Potion == other.Potion)
+                    {
+                        if (Target == other.Target)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        //public int GetHashCode([DisallowNull] FightAction obj)
+        //{
+
+        //    var hashed = hasher.ComputeHash(Encoding.UTF8.GetBytes(obj.ToString()));
+        //    var ivalue = BitConverter.ToInt32(hashed, 0);
+        //    return ivalue;
+        //}
+
+        //public static MD5 hasher = MD5.Create();
     }
 }

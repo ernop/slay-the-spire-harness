@@ -16,7 +16,6 @@ namespace StS
     /// </summary>
     public class FightSimulator
     {
-        private string _Output = "C:/dl/output.txt";
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
         private IList<CardInstance> _CIs { get; set; }
@@ -129,9 +128,11 @@ namespace StS
                     var child3 = fn.EndTurn();
                     return child3;
                 case FightActionEnum.EnemyMove:
-                    var child4 = fn.EnemyMove();
-                    var c5 = child4.StartTurn();
-                    return c5;
+                    var child4 = fn.EnemyMove(action);
+                    return child4;
+                case FightActionEnum.StartTurn:
+                    var child5 = fn.StartTurn();
+                    return child5;
                 default:
                     throw new Exception("Invalid action");
             }
@@ -147,7 +148,7 @@ namespace StS
             if (!_DoOutput) return;
             var res = new List<string>();
 
-            var fnodeactions = string.Join(',', rootNode.FightHistory);
+            var fnodeactions = string.Join(',', rootNode.FightAction);
             var fdesc = $"===Fight Situation: {rootNode} {rootNode.GetValue()} {fnodeactions}";
             res.Add(fdesc);
 
@@ -172,12 +173,12 @@ namespace StS
                         extra = "    ";
                     }
                     actionCount++;
-                    var nodeactions = string.Join(',', oneDrawNode.FightHistory);
+                    var nodeactions = string.Join(',', oneDrawNode.FightAction);
                     var desc = $"{extra}{oneDrawNode} {nodeactions}";
                     res.Add(desc);
 
 
-                    if (RoundEndConditions.Contains(oneDrawNode.FightHistory.FightActionType))
+                    if (RoundEndConditions.Contains(oneDrawNode.FightAction.FightActionType))
                     {
                         break;
                     }
@@ -195,8 +196,6 @@ namespace StS
             System.IO.File.AppendAllText(path, "First Action summaries\n");
             System.IO.File.AppendAllLines(path, res);
         }
-
-
         public IEnumerable<string> Summarize(List<Fight> fights)
         {
             var counts = new Dictionary<Tuple<FightStatus, int, int>, int>();

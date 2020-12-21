@@ -5,16 +5,22 @@ namespace StS
 {
     public abstract class Entity : IEntity
     {
-        public Entity(string name, EntityType entityType, int hpMax, int hp)
+        public Entity(string name, EntityType entityType, int? hp=null, int? hpMax = null)
         {
             Name = name;
             EntityType = entityType;
+            
+            if (hp != null && hpMax==null)
+            {
+                hpMax = hp;
+            }
+
+            HPMax = hpMax ?? 50;
+            HP = hp ?? 50;
             if (HP > HPMax)
             {
                 throw new System.Exception("Invalid HP>HPMax");
             }
-            HPMax = hpMax;
-            HP = hp;
         }
 
         public event NotifyBeAttacked BeAttacked;

@@ -26,7 +26,7 @@ namespace StS
             }
             ef.EnemyEffect.SetInitialDamage(dmg);
 
-            ef.DeckEffect.Add((Deck deck) =>
+            ef.DeckEffect.Add((Deck deck, List<string> h) =>
             {
                 var headbuttTarget = targets.First();
                 if (!deck.DiscardPileContains(headbuttTarget))

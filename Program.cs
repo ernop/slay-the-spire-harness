@@ -15,7 +15,40 @@ namespace StS
             Helpers.SetRandom(0);
             System.IO.File.WriteAllText(Helpers.Output, "");
             //TestSimple();
-            TestCultist();
+            TestCultistMC();
+        }
+
+        static void TestCultistMC()
+        {
+            var cis = InitialHand;
+            //cis = GetCis("Strike");
+            
+            cis.Add(GetCi("Clumsy"));
+            var enemy = new Cultist(hp: 53);
+            var player = new Player(hp: 80);
+            var firstHand = GetCis("Clumsy","Strike","Strike","Strike","Defend");
+            var fs = new MonteCarlo(cis, firstHand, enemy, player);
+            var node = fs.Sim();
+            var bestValue = new NodeValue(0,0);
+            for (var ii = 0; ii < 1000; ii++)
+            {
+                fs.MC(node);
+                var best = GetBestLeaf(node);
+                //repeatedly print better values.
+                if (best.GetValue() > bestValue)
+                {
+                    bestValue = best.GetValue();
+                    SaveLeaf(best, ii);
+                }
+            }
+        }
+
+        static void SaveLeaf(FightNode leaf, int mcCount)
+        {
+            var fh = leaf.AALeafHistory();
+
+            System.IO.File.AppendAllText(Helpers.Output, $"==============Fight {mcCount} {leaf.Fight.Status}\n");
+            System.IO.File.AppendAllLines(Helpers.Output, fh);
         }
 
         static void TestCultist()

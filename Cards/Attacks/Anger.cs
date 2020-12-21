@@ -12,7 +12,7 @@ namespace StS
         {
             var dmg = upgradeCount == 0 ? 6 : 8;
             ef.EnemyEffect.SetInitialDamage(dmg);
-            ef.DeckEffect.Add((Deck d) =>
+            ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
                 var copy = new CardInstance(this, upgradeCount);
                 d.AddToDiscardPile(copy);

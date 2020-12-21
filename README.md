@@ -21,7 +21,10 @@ Stages
 
 Todos
 ==
- - visualization improvements
+ - mc mode with focusing
+ - don't repeatedly choose the same exact action.
+ - later - identical full fight state evaluation
+ - compare MC results to repeatedly playing the real fight to get the same result distributions - the only way to really validate.
  - console mode so you can "play" from cmdline. This is necessary to find bugs and generate more tests.
  - if you have A with children B and C and are calculating values, if B_v < A_v (by direct HP analysis) there is no reason to completely calculate its value; just return A as bestchild.
  - evolve needs structure adjustments.  ef can modify itself with more work.
@@ -48,6 +51,7 @@ Todos
 
 Todos Done
 ==
+ - visualization improvements
  - fixup sense for statuses
  - unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
  - There is no reason for this to have two parameters; one which gets mapped is enough.

@@ -6,10 +6,8 @@ namespace StS
     public class Dazed : StatusCard
     {
         public override string Name => nameof(Dazed);
-
         public override CardType CardType => CardType.Status;
         public override CardDomain CardDomain => CardDomain.Status;
-
         public override TargetType TargetType => TargetType.Player;
         internal override bool Ethereal(int upgradeCount) => true;
         public override int CiCanCallEnergyCost(int upgradeCount) => int.MaxValue;

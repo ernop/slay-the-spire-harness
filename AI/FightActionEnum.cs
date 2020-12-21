@@ -16,13 +16,11 @@
         StartFightEffect = 9,
         EndFightEffect = 10,
 
-        EnemyAttack = 12,
-        EnemyBuff = 13,
-        EnemyStatusAttack = 14,
+        EnemyMove = 12,
+        
         EnemyDied = 15,
-        StartEnemyTurn = 16,
+        
         EndEnemyTurn = 17,
-        EnemyMove = 18,
 
         StartFight = 20,
         WonFight = 21,

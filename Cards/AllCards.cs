@@ -55,6 +55,7 @@ namespace StS
             cards["Enlightenment"] = new Enlightenment();
             cards["Immolate"] = new Immolate();
             cards["Burn"] = new Burn();
+            cards["Clumsy"] = new Clumsy();
 
             return cards;
         }
