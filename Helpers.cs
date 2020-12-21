@@ -94,9 +94,9 @@ namespace StS
             var combined = new IndividualEffect();
             combined.InitialBlock = ef1.InitialBlock + ef2.InitialBlock;
             var res = new List<int>();
-            if (ef1.GetInitialDamage() != null || ef2.GetInitialDamage () != null)
+            if (ef1.GetInitialDamage() != null || ef2.GetInitialDamage() != null)
             {
-                foreach (var ls in new List<IEnumerable<int>>() { ef1.GetInitialDamage(), ef2.GetInitialDamage()})
+                foreach (var ls in new List<IEnumerable<int>>() { ef1.GetInitialDamage(), ef2.GetInitialDamage() })
                 {
                     foreach (var el in ls)
                     {
@@ -316,42 +316,14 @@ namespace StS
         ///// </summary>
         ///// <param name="f"></param>
         ///// <returns></returns>
-        public static FightNode GetBestLeaf(FightNode f)
+        public static FightNode GetBestLeaf(FightNode root)
         {
-            return f;
+            return root.Randoms.OrderBy(el => el.GetValue().Value).First();
         }
-        //{
-        //    if (f == null)
-        //    {
-        //        throw new ArgumentNullException();
-        //    }
-        //    if (f.Choices.Count == 0)
-        //    {
-        //        if (f.Randoms.Count == 1)
-        //        {
-        //            return GetBestLeaf(f.Randoms.First());
-        //        }
-        //    }
-        //    var res = f;
-        //    while (true)
-        //    {
-        //        var bc = res.BestChild();
-        //        if (bc == null)
-        //        {
-        //            break;
-        //        }
-        //        res = bc;
-        //    }
-        //    if (res.Randoms.Count == 0)
-        //    {
-        //        return res;
-        //    }
-        //    if (res.Randoms.Count > 1)
-        //    {
-        //        return res;
-        //    }
-        //    return GetBestLeaf(res);
-        //}
 
+        public static string SJ<T>(IEnumerable<T> input)
+        {
+            return string.Join(',', input.Select(el => el.ToString()));
+        }
     }
 }

@@ -17,6 +17,7 @@ namespace StS
             newFight.TurnNumber = TurnNumber;
             newFight.Status = Status;
             newFight.PlayerTurn = PlayerTurn;
+            newFight.EnemyDone = EnemyDone;
 
             return newFight;
         }
@@ -144,8 +145,9 @@ namespace StS
             return res;
         }
 
-        private void StartFight(List<string> history)
+        public void StartFight(List<string> history = null)
         {
+            if (history == null) { history = new List<string>(); }
             var startEf = new EffectSet();
             foreach (var relic in _Player.Relics)
             {
@@ -168,13 +170,8 @@ namespace StS
                 throw new Exception("Enemy not done");
             }
             PlayerTurn = true;
-
+            EnemyDone = false;
             var history = new List<string>();
-
-            if (TurnNumber == 0)
-            {
-                StartFight(history);
-            }
 
             TurnNumber++;
             var ef = new EffectSet();
@@ -262,7 +259,7 @@ namespace StS
         public void AssignLastAction(FightAction a)
         {
             //unless a fight is part of a fightnode, don't assign history.  e.g. tests.
-            if (FightAction != null)
+            if (FightAction != null && FightNode != null)
             {
                 throw new Exception("protection");
             }

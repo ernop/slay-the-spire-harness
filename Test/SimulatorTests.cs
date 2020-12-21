@@ -20,12 +20,13 @@ namespace StS.Tests
         public void Test_Basic()
         {
             //I want to validate that I am properly generating all outcomes.
-            var cis = GetCis("Strike", "Defend");
+            var cis = GetCis("Strike");
 
-            var enemy = new Cultist(5, 5);
-            var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player);
+            var enemy = new Cultist(1);
+            var player = new Player(hp: 1);
+            var fs = new FightSimulator(cis, enemy, player, maxTurns:4);
             var results = fs.Sim();
+            Assert.AreEqual(1, results.Value.Value);
         }
 
         [Test]
@@ -40,20 +41,16 @@ namespace StS.Tests
         [Test]
         public void Test_Defending()
         {
-            var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
+            //It is now a requirement that all fights end before maxTurns
+            //since we can't calculate value for incomplete fights.
+            var cis = GetCis("Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(amount: 10, count: 1, hp: 8, hpMax: 8);
-            var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true);
+            var enemy = new GenericEnemy(amount: 5, count: 1, hp: 8, statuses:GetStatuses(new Feather(),5));
+            var player = new Player(hp: 5); //fullblock first turn. 2nd turn take 5
+            var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
-
-            Assert.AreEqual(100, node.GetValue().Value);
-
-            //set up fight where you have DDDDS, SSDDD and draw last 5 first
-            //enemy has 18hp
-            //enemy does mega damage after 2rd round
-            //first round you should full attack and take the damage
-            //because you always kill 2nd round
+            var best = GetBestLeaf(node);
+            Assert.AreEqual(5, node.GetValue().Value);
         }
 
         [Test]
@@ -66,23 +63,23 @@ namespace StS.Tests
 
             //best line: play e+, bash (8+vuln), hb (21), strike (9) = 38.
             //turn 2: redraw same cards but play differently.  HB (21) S(9) b(12) = 42
-            var fs = new FightSimulator(cis, enemy, player, maxDepth: 3);
+            var fs = new FightSimulator(cis, enemy, player, maxTurns: 3);
             var node = fs.Sim();
 
             Assert.AreEqual(1, node.GetValue().Value);
             //assert the right cards were played.
-            var bestLeaf = GetBestLeaf(node);
-            var h = bestLeaf.AALeafHistory();
+            //var bestLeaf = GetBestLeaf(node);
+            //var h = bestLeaf.AALeafHistory();
 
-            Assert.AreEqual(11, h.Count());
-            Assert.AreEqual(0, bestLeaf.Fight.GetEnemyHP());
-            //assert there is only one path.
-            var firstReal = node.Randoms.First();
-            var valids = firstReal.Choices.Where(el => el.GetValue().Value > 0);
-            Assert.AreEqual(1, valids.Count());
-            var path = valids.First();
-            var v = path.GetValue();
-            Assert.AreEqual(1, path.GetValue().Value);
+            //Assert.AreEqual(11, h.Count());
+            //Assert.AreEqual(0, bestLeaf.Fight.GetEnemyHP());
+            ////assert there is only one path.
+            //var firstReal = node.Randoms.First();
+            //var valids = firstReal.Choices.Where(el => el.GetValue().Value > 0);
+            //Assert.AreEqual(1, valids.Count());
+            //var path = valids.First();
+            //var v = path.GetValue();
+            //Assert.AreEqual(1, path.GetValue().Value);
             //Assert.AreEqual(1, path.GetValue().Cards);
         }
 
@@ -92,25 +89,27 @@ namespace StS.Tests
             var cis = GetCis("Defend", "Defend", "Inflame", "Defend", "Strike");
 
             var enemy = new GenericEnemy(15, 3, 10, 10);
-            var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
+            var player = new Player(hp:1, potions: new List<Potion>() { new StrengthPotion() });
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
+            //var hh = node.GetTurnHistory();
 
-            Assert.AreEqual(100, node.GetValue().Value);
+            //Assert.AreEqual(100, node.GetValue().Value);
+            //kill this.
         }
 
 
         [Test]
         public void Test_PartialDefending()
         {
-            var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
+            //var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Strike");
 
-            var enemy = new GenericEnemy(amount: 11, count: 1,  hp: 8, hpMax: 8);
-            var player = new Player();
-            var fs = new FightSimulator(cis, enemy, player);
-            var node = fs.Sim();
+            //var enemy = new GenericEnemy(amount: 11, count: 1,  hp: 8, hpMax: 8);
+            //var player = new Player();
+            //var fs = new FightSimulator(cis, enemy, player);
+            //var node = fs.Sim();
 
-            Assert.AreEqual(99, node.GetValue().Value);
+            //Assert.AreEqual(99, node.GetValue().Value);
 
             //set up fight where you have DDDDS, SSDDD and draw last 5 first
             //enemy has 18hp
@@ -138,11 +137,11 @@ namespace StS.Tests
             var cis = GetCis("Strike", "Defend", "Inflame", "Defend", "Defend");
 
             var enemy = new GenericEnemy(4, 4, 8, 8);
-            var player = new Player();
+            var player = new Player(hp: 1);
             var fs = new FightSimulator(cis, enemy, player);
             var node = fs.Sim();
 
-            Assert.AreEqual(100, node.GetValue().Value);
+            Assert.AreEqual(1, node.GetValue().Value);
         }
 
         [Test]
@@ -201,15 +200,16 @@ namespace StS.Tests
 
             //Assert.IsFalse(true);
 
-            var winNode = GetBestLeaf(node.Randoms.First());
+            var winNode = GetBestLeaf(node);
 
             var hh = winNode.AALeafHistory();
 
-            var d = winNode.Depth;
-            Assert.AreEqual(9, hh.Count()); //draw i i i endturn monsterend start i s + outers
+            //these tests don't really make sense since there are intervening randoms.
+            //var d = winNode.Depth;
+            //Assert.AreEqual(9, hh.Count()); //draw i i i endturn monsterend start i s + outers
 
-            Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
-            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightAction.FightActionType);
+            //Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
+            //Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightAction.FightActionType);
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
@@ -241,13 +241,11 @@ namespace StS.Tests
             //node.Display(Output, true);
             //Assert.IsFalse(true);
 
-            var winNode = GetBestLeaf(node.Randoms.First());
+            var winNode = GetBestLeaf(node);
             var d = winNode.Depth;
-            var h = winNode.AALeafHistory();
-            Assert.AreEqual(10, h.Count()); //draw d endturn monsterend start i p
+            var h = winNode.GetTurnHistory();
+            Assert.AreEqual(5, h.Count()); //draw d endturn monsterend start i p
 
-            Assert.AreEqual(FightStatus.Won, winNode.Fight.Status);
-            Assert.AreEqual(FightActionEnum.PlayCard, winNode.FightAction.FightActionType);
             //this makes sure it doesn't spuriously play a defend first in the last turn.
         }
 
@@ -292,7 +290,7 @@ namespace StS.Tests
 
             foreach (var r in root.Randoms)
             {
-                var v = r.GetValue(true);
+                //var v = r.GetValue();
                 //endturn and play your single card.
                 Assert.AreEqual(2, r.Choices.Count);
                 Assert.AreEqual(0, r.Randoms.Count);

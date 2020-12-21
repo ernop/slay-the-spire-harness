@@ -63,7 +63,7 @@
 
         public override string ToString()
         {
-            return $"{Value}";
+            return $"NV{Value} C{Cards}";
         }
     }
 }

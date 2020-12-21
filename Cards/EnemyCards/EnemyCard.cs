@@ -48,9 +48,10 @@ namespace StS
         
         public override string ToString()
         {
-            var p = PlayerStatusAttack == null ? "" :  string.Join(',', PlayerStatusAttack);
-            var b = Buffs == null ? "" : string.Join(',', Buffs);
-            return $"{nameof(EnemyCard)} amt:{Amount},count:{Count} B:{b} P:{p}";
+            var p = PlayerStatusAttack == null ? "" :  " P:"+string.Join(',', PlayerStatusAttack);
+            var b = Buffs == null ? "" : " B:"+string.Join(',', Buffs);
+            var a = Amount == null ? "" : $" amt:{Amount}x{Count}";
+            return $"{nameof(EnemyCard)}{a}{b}{p}";
         }
     }
 }

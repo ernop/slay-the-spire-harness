@@ -19,22 +19,20 @@ namespace StS
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
         private IList<CardInstance> _CIs { get; set; }
-        private bool _DoOutput { get; set; }
         private bool _OneStartingHandOnly { get; set; }
 
-        private int _MaxDepth { get; set; }
+        private int _MaxTurns { get; set; }
 
         /// <summary>
         /// Records the actual state of the fight and runs sims to make a good decision.
         /// </summary>
-        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool doOutput = false, bool oneStartingHandOnly = false, int maxDepth = 3)
+        public FightSimulator(IList<CardInstance> cis, Enemy enemy, Player player, bool oneStartingHandOnly = false, int maxTurns = 3)
         {
             _CIs = cis;
             _Enemy = enemy;
             _Player = player;
-            _DoOutput = doOutput;
             _OneStartingHandOnly = oneStartingHandOnly;
-            _MaxDepth = maxDepth;
+            _MaxTurns = maxTurns;
         }
 
         /// <summary>
@@ -66,9 +64,9 @@ namespace StS
             {
                 var sh = item.Item1;
                 
-                rootNode.StartFight(initialHand: sh); //this modifies it in place.
+                var c = rootNode.StartFight(initialHand: sh);
                 
-                Iter(rootNode);
+                Iter(c);
 
                 if (_OneStartingHandOnly)
                 {
@@ -83,7 +81,7 @@ namespace StS
         {
             var actions = fn.Fight.GetAllActions();
             var turns = fn.Fight.TurnNumber;
-            if (turns > _MaxDepth)
+            if (turns > _MaxTurns)
             {
                 var c = fn.GetNode();
                 c.SetAction(new FightAction(FightActionEnum.TooLong));
@@ -144,7 +142,6 @@ namespace StS
         /// </summary>
         public void SaveResults(string path, FightNode rootNode)
         {
-            if (!_DoOutput) return;
             var res = new List<string>();
 
             var fnodeactions = string.Join(',', rootNode.FightAction);

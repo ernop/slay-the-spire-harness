@@ -52,6 +52,7 @@ namespace StS.Tests
             var fight = new Fight(cis, player, enemy);
 
             //todo player.GetDrawAmount()
+            fight.StartFight();
             fight.StartTurn();
             player.Block = plbl;
             player.Energy = playerEnergy ?? player.Energy;
@@ -893,6 +894,7 @@ namespace StS.Tests
             var s = GetCi("Strike");
             var d = GetCi("Defend");
             var fight = new Fight(new List<CardInstance>() { ps, s, d }, player: player, enemy: enemy, true);
+            fight.StartFight();
             fight.StartTurn();
             Assert.AreEqual(0, sd.ShuffleCount);
             fight.PlayCard(s); //[] ps,s,d [] => [] ps,d s
@@ -929,6 +931,7 @@ namespace StS.Tests
             var enemy = new GenericEnemy();
             var initialCis = GetCis();
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartFight();
             fight.StartTurn();
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 1) }, out string error), error);
             fight.EndTurn();
@@ -947,6 +950,7 @@ namespace StS.Tests
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Bash+");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartFight();
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
             Assert.True(CompareStatuses(enemy.StatusInstances, new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 4) }, out string error), error);
@@ -1198,6 +1202,7 @@ namespace StS.Tests
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame", "Intimidate+", "FeelNoPain+", "Pummel");
             var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartFight();
             fight.StartTurn();
             fight.PlayCard(initialCis[2]);
             fight.PlayCard(initialCis[1]);
@@ -1252,6 +1257,7 @@ namespace StS.Tests
             var enemy = new GenericEnemy();
             var initialCis = GetCis("Inflame", "FeelNoPain+", "Pummel");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartFight();
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
             fight.PlayCard(initialCis[2]);
@@ -1259,18 +1265,21 @@ namespace StS.Tests
 
             var enemy2 = new GenericEnemy();
             var fight2 = new Fight(initialCis, player: player, enemy: enemy2, true);
+            fight2.StartFight();
             fight2.StartTurn();
             fight2.PlayCard(initialCis[2]);
             Assert.AreEqual(FightStatus.Won, fight2.Status);
 
             var enemy3 = new GenericEnemy();
             var fight3 = new Fight(initialCis, player: player, enemy: enemy3, true);
+            fight3.StartFight();
             fight3.StartTurn();
             fight3.PlayCard(initialCis[2]);
             Assert.AreEqual(FightStatus.Won, fight3.Status);
 
             var enemy4 = new GenericEnemy();
             var fight4 = new Fight(initialCis, player: player, enemy: enemy4, true);
+            fight4.StartFight();
             fight4.StartTurn();
             fight4.PlayCard(initialCis[2]);
             Assert.AreEqual(FightStatus.Ongoing, fight4.Status);

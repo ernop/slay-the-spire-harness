@@ -26,7 +26,7 @@ namespace StS
         public FightNode AddChild(FightNode n, bool r)
         {
             n.Parent = this;
-            this.FightAction = n.Fight.FightAction;
+            n.FightAction = n.Fight.FightAction;
             if (r)
             {
                 Randoms.Add(n);
@@ -39,26 +39,34 @@ namespace StS
             //Fight is over. Calc values.
             if (n.Fight.Status != FightStatus.Ongoing)
             {
+                var hh = n.AALeafHistory();
                 n.CalcValue();
             }
 
             return n;
         }
 
-        private void CalcValue(bool force = false)
+        private void CalcValue()
         {
-            if (!force && !object.ReferenceEquals(Value,null))
-            {
-                return;
-            }
             switch (GetChoiceType())
             {
+                case NodeType.TooLong:
+                    var tooLongVal = Fight._Player.HP - Fight._Enemies[0].HP;
+                    SetValue(new NodeValue(tooLongVal, 0, null));
+                    break;
                 case NodeType.Leaf:
                     var val = 0;
+                    var tt = this;
                     switch (Fight.Status)
                     {
                         case FightStatus.Ongoing:
+                            var hh = AALeafHistory();
                             throw new Exception("Leaves can't have ongoing fights.");
+                            //this happens when we get toolong
+                            //A
+                            //BC
+                            // B is toolong, C ended.
+                            // we backgrack to A but can't calc b.  B is a leaf.
                             //TODO this is obviously wrong.
                             //no point in calculating them as we go.
                             //val = Fight._Player.HP - Fight._Enemies[0].HP;
@@ -127,17 +135,17 @@ namespace StS
             switch (GetChoiceType())
             {
                 case NodeType.Choice:
-                    if (v > oldValue)
+                    if (v > oldValue || object.ReferenceEquals(oldValue,null))
                     {
-                        Parent.CalcValue(true);
+                        Parent?.CalcValue();
                     }
                     break;
                 case NodeType.Random:
                     //TODO this is optimizable.
-                    Parent.CalcValue(true);
+                    Parent?.CalcValue();
                     break;
                 case NodeType.Leaf:
-                    Parent.CalcValue(true);
+                    Parent.CalcValue();
                     break;
             }
             
@@ -182,7 +190,29 @@ namespace StS
 
         public IEnumerable<string> AALeafHistory()
         {
+            
+            var target = this;
             var res = new List<string>();
+
+            while (!object.ReferenceEquals(target, null))
+            {
+                res.Add(target.ToString());
+                target = target.Parent;
+            }
+            res.Reverse();
+            return res;
+        }
+
+        public IEnumerable<string> GetTurnHistory()
+        {
+            var target = this;
+            var res = new List<string>();
+
+            while (!object.ReferenceEquals(target, null))
+            {
+                res.Add(target.ToString());
+                target = target.Value?.BestChoice;
+            }
             return res;
         }
 
@@ -259,13 +289,15 @@ namespace StS
         }
 
         /// <summary>
-        /// modify the current fight, don't create child.
+        /// Also start the first turn.
         /// </summary>
         internal FightNode StartFight(IList<CardInstance> initialHand)
         {
-            Fight.StartTurn(initialHand: initialHand);
-            FightAction = Fight.FightAction;
-            return this;
+            var c = GetNode();
+            c.Fight.StartTurn(initialHand: initialHand);
+            FightAction = new FightAction(FightActionEnum.StartFight);
+            AddChild(c, true);
+            return c;
         }
 
         internal FightNode StartTurn(IList<CardInstance> initialHand = null)
@@ -282,6 +314,7 @@ namespace StS
         internal FightNode PlayCard(CardInstance card)
         {
             var c = GetNode();
+
             var rnd = c.Fight.PlayCard(card);
             AddChild(c, rnd);
             return c;
@@ -316,13 +349,12 @@ namespace StS
         /// <summary>
         /// If lastRound is Defend+Strike, how about just Strike as the besT?
         /// </summary>
-        public NodeValue GetValue(bool force = false)
+        public NodeValue GetValue()
         {
-            if (Value == null || force)
+            if (Value == null)
             {
-                CalcValue(force);
+                CalcValue();
             }
-
             return Value;
         }
 
@@ -350,13 +382,15 @@ namespace StS
         {
             try
             {
+                var val = Value == null ? "" : Value.ToString();
+                
                 var newRound = false;
                 var showTurn = "";
                 var status = Fight.Status;
                 var detailActionTypes = new List<FightActionEnum>() { FightActionEnum.EndTurn, FightActionEnum.EndTurn, FightActionEnum.StartFight, FightActionEnum.StartTurn };
                 if (FightAction.FightActionType == FightActionEnum.StartTurn)
                 {
-                    showTurn = $"T:{Fight.TurnNumber} NV:{GetValue(),-1} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
+                    showTurn = $"T:{Fight.TurnNumber} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
                 }
                 if (detailActionTypes.Contains(FightAction.FightActionType))
                 {
@@ -365,11 +399,11 @@ namespace StS
 
                 if (newRound)
                 {
-                    return $"{showTurn}\t\t{FightAction} {status}";
+                    return $"{showTurn}    {FightAction} {status}";
                 }
                 else
                 {
-                    return $"\t\t{FightAction} {status}";
+                    return $"{FightAction} {status}";
                 }
             }
             catch (Exception ex)

@@ -70,7 +70,7 @@ namespace StS
             //cis = GetCis("Strike");
             var enemy = new Cultist(hp: 10, hpMax: 10);
             var player = new Player(hp: 5);
-            var fs = new FightSimulator(cis, enemy, player, doOutput: true, oneStartingHandOnly: true, maxDepth: 10);
+            var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true, maxTurns: 10);
             var node = fs.Sim();
             var leaves = GetLeaves(node);
             var ii = 0;
