@@ -18,67 +18,71 @@ namespace StS
     {
         private Player _Player { get; set; }
         private Enemy _Enemy { get; set; }
-        private IList<CardInstance> _CIs { get; set; }
-        private IList<CardInstance> _FirstHand { get; set; }
         private Deck _Deck {get;set;}
         
         /// <summary>
         /// for overriding
         /// </summary>
         private int _TurnNumber { get; set; }
+        public static int MCCount { get; set; } = 0;
+        public FightNode Root { get; set; }
+        private FightAction _FirstAction { get; set; }
 
         /// <summary>
-        /// Records the actual state of the fight and runs sims to make a good decision.
+        /// previously this exhaustively simulated the entire fight til turnnumber.
+        /// But now it will just do a bunch of MCs.
+        /// Hopefully this will be enough to find the right solution.
         /// </summary>
-        public MonteCarlo(IList<CardInstance> cis, IList<CardInstance> firstHand, Enemy enemy, Player player)
+        public FightNode SimAfterFirstDraw()
         {
-            _CIs = cis ?? throw new ArgumentNullException(nameof(cis));
-            _FirstHand = firstHand ?? throw new ArgumentNullException(nameof(firstHand));
-            _Enemy = enemy ?? throw new ArgumentNullException();
-            _Player = player ?? throw new ArgumentNullException();
+            for (var ii = 0; ii < 10000; ii++)
+            {
+                MC(Root.Randoms.First());
+            }
+            return Root;
         }
 
-        public MonteCarlo(Deck deck, IList<CardInstance> firstHand, Enemy enemy, Player player, int turnNumber)
+        public FightNode SimIncludingDraw()
+        {
+            for (var ii = 0; ii < 10000; ii++)
+            {
+                MC(Root);
+            }
+            return Root;
+        }
+
+        public MonteCarlo(Deck deck, Enemy enemy, Player player, int turnNumber = 0, List<string> firstHand = null)
         {
             _Deck = deck ?? throw new ArgumentNullException(nameof(deck));
-            _FirstHand = firstHand ?? throw new ArgumentNullException(nameof(firstHand)); //no need to
             _Enemy = enemy ?? throw new ArgumentNullException();
             _Player = player ?? throw new ArgumentNullException();
             _TurnNumber = turnNumber;
-        }
 
-        /// <summary>
-        /// Returns a list of fightnode roots based on initial draws.
-        /// TODO add "randomchoices" and create a test for pommel strike.
-        /// SS PS DD is your draw
-        /// </summary>
-        public FightNode Sim()
-        {
-            Fight fight;
-            if (_Deck == null) //magic override
+            if (firstHand != null)
             {
-                fight = new Fight(_CIs, _Player, _Enemy);
-            }
-            else
-            {
-                fight = new Fight(_Deck, _Player, _Enemy);
-            }
+                var cards = _Deck.FindSetOfCards(_Deck.GetDrawPile, firstHand);
+                var firstAction = new FightAction(FightActionEnum.StartTurn, cards);
+                _FirstAction = firstAction;
+            }            
+
+            var fight = new Fight(_Deck, _Player, _Enemy);
+            
             fight.TurnNumber = _TurnNumber;
-
-            // TODO: future - weigh by frequency
-            //var count = item.Item2;
 
             var root = new FightNode(fight);
             fight.FightNode = root;
-            root.StartFight(_FirstHand);
-
-            MC(root);
-            return root;
+            root.StartFight();
+            Root = root;
+            if (_FirstAction != null)
+            {
+                ApplyAction(root, _FirstAction);
+            }
         }
 
-        public static int MCCount { get; set; } = 0;
-
-        public void MC(FightNode fn)
+        /// <summary>
+        /// Returns the leaf node of a single mc run.
+        /// </summary>
+        public FightNode MC(FightNode fn)
         {
             if (fn.Depth == 1)
             {
@@ -94,15 +98,39 @@ namespace StS
             switch (childNode.Fight.Status)
             {
                 case FightStatus.Ongoing:
-                    MC(childNode);
-                    break;
+                    return MC(childNode);
                 case FightStatus.Won:
-                    break;
+                    return childNode;
                 case FightStatus.Lost:
-                    break;
+                    return childNode;
                 default:
                     throw new Exception("Other status");
             }
+        }
+
+        /// <summary>
+        /// if from node n you choose an action which is already in choices,
+        /// or do a draw which is already in randoms,
+        /// just return that child, rather than actually applying action on our current copy again.
+        /// </summary>
+        private FightNode FindDuplicate(FightNode fn, FightAction action)
+        {
+            foreach (var c in fn.Choices)
+            {
+                if (c.FightAction.IsEqual(action))
+                {
+                    return c;
+                }
+            }
+            foreach (var r in fn.Randoms)
+            {
+                var f = r.FightAction.Card?.ToString();
+                if (r.FightAction.IsEqual(action))
+                {
+                    return r;
+                }
+            }
+            return null;
         }
 
         /// <summary>
@@ -114,34 +142,20 @@ namespace StS
             //check if a child already has this action; if so just return that one.
             //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
 
-            foreach (var c in fn.Choices)
+            var dup = FindDuplicate(fn, action);
+            if (dup != null)
             {
-                if (c.FightAction.AreEqual(action))
-                {
-                    return c;
-                }
-            }
-            foreach (var r in fn.Randoms)
-            {
-                var f = r.FightAction.Card?.ToString();
-                if (r.FightAction.AreEqual(action))
-                {
-                    return r;
-                }
-                else
-                {
-                    var ae = 4;
-                    //return fn;
-                }
+                dup.Weight++;
+                return dup;
             }
 
             switch (action.FightActionType)
             {
                 case FightActionEnum.PlayCard:
-                    var child = fn.PlayCard(action.Card); //non-rnd
+                    var child = fn.PlayCard(action); //non-rnd
                     return child;
                 case FightActionEnum.Potion:
-                    var child2 = fn.DrinkPotion(action.Potion, _Enemy); //non-rnd
+                    var child2 = fn.DrinkPotion(action); //non-rnd
                     return child2;
                 case FightActionEnum.EndTurn:
                     var child3 = fn.EndTurn(); //non-rnd
@@ -150,7 +164,7 @@ namespace StS
                     var child4 = fn.EnemyMove(action); //rnd
                     return child4;
                 case FightActionEnum.StartTurn:
-                    var child5 = fn.StartTurn(action.CardsDrawn);
+                    var child5 = fn.StartTurn(action);
                     return child5;
                 default:
                     throw new Exception("Invalid action");

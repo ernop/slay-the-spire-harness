@@ -13,7 +13,7 @@ namespace StS
         public override int CiCanCallEnergyCost(int upgradeCount) => int.MaxValue;
         public override bool Playable(IList<CardInstance> hand) => false;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
             throw new System.NotImplementedException();
         }

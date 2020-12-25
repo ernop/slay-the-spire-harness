@@ -10,7 +10,7 @@
             ef.PlayerEffect.Status.Add(si);
         }
 
-        public override bool SelfTarget() => true;
+        public override bool SelfTarget => true;
 
         internal override Potion Copy() => new StrengthPotion();
     }

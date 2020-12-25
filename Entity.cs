@@ -99,11 +99,12 @@ namespace StS
         /// bool represents if they are still alive.
         /// For use by essence of steel status too.
         /// </summary>
-        public bool ApplyDamage(int amount, EffectSet ef, CardInstance ci)
+        public bool ApplyDamage(int amount, EffectSet ef, CardInstance ci, List<string> history)
         {
             HP -= amount;
             //this is for any damage type.
             TakeDamage?.Invoke(ef, amount, ci);
+            history.Add($"{Name} took {amount} dmg");
 
             return true;
         }

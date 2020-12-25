@@ -11,27 +11,34 @@ namespace StS
 
     public class Deck
     {
-
         /// <summary>
-        /// initial deck state: all cards in "DrawPile"
-        /// Note that we put them in order based on order submitted - no randomization.
-        /// This will allow for much easier tests, but means I have to remember to randomize them when doing real fights.
-        /// 
-        /// Note that per-hand cards are the same as per-fight; but at the end of the fight we should restore the backup cards or something?
-        /// makes sense to store the deck as the canonical list.
-        /// 
-        /// Should I add player to this?  So that the deck will know where to send exhaust events?
+        /// if you want a certain hand to be drawn, create the deck with those cards in the drawpile, and set this.
         /// </summary>
+        private bool _PreserveOrder { get; set; }
+        public Deck(IList<string> drawPile, IList<string> hand, IList<string> discardPile, IList<string> exhaustPile)
+        {
+            Init(GetCis(drawPile.ToArray()), GetCis(hand.ToArray()), GetCis(discardPile.ToArray()), GetCis(exhaustPile.ToArray()));
+        }
 
-        public Deck(IList<CardInstance> cis, IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
+        public Deck(IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
+        {
+            Init(drawPile, hand, discardPile, exhaustPile);
+        }
+
+        private void Init(IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
         {
             _PreserveOrder = false;
+            var cis = new List<CardInstance>();
+            cis.AddRange(drawPile);
+            cis.AddRange(hand);
+            cis.AddRange(discardPile);
+            cis.AddRange(exhaustPile);
+
             BackupCards = cis?.Select(el => el.Copy()).ToList();
             DrawPile = drawPile;
             Hand = hand;
             DiscardPile = discardPile;
             ExhaustPile = exhaustPile;
-
         }
 
         public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
@@ -42,17 +49,19 @@ namespace StS
 
             //we want the original external cis list to still work, but we also want to use the original external cards in here.
             newList.AddRange(cis);
-
             DrawPile = newList;
-
-            //WouldDraw randomizes draw now.
-            //if (!preserveOrder)
-            //{
-            //    ShuffleDrawPile();
-            //}
         }
 
-        private bool _PreserveOrder { get; set; }
+        public List<CardInstance> FindSetOfCards(IList<CardInstance> source, List<string> target)
+        {
+            var res = new List<CardInstance>();
+            foreach (var s in target)
+            {
+                var exi = FindIdenticalCardInSource(source, GetCi(s), res);
+                res.Add(exi);
+            }
+            return res;
+        }
 
         internal bool DiscardPileContains(CardInstance headbuttTarget)
         {
@@ -80,7 +89,7 @@ namespace StS
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
         /// </summary>
-        internal List<CardInstance> DrawToHand(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
+        internal List<CardInstance> DrawToHand(IList<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
             if (targetCards == null)
@@ -111,7 +120,7 @@ namespace StS
             }
             else
             {
-                res = targetCards;
+                res = targetCards.ToList();
             }
 
             foreach (var effectedCard in res)
@@ -172,7 +181,7 @@ namespace StS
         /// <summary>
         /// add to hand if hand isn't too bigyet.
         /// </summary>
-        private void TryAddToHand(CardInstance ci, EffectSet ef)
+        private void  TryAddToHand(CardInstance ci, EffectSet ef)
         {
 
             if (Hand.Count < 10)
@@ -358,11 +367,13 @@ namespace StS
             return res;
         }
 
-        public void DrawCards(int drawCount, EffectSet ef, List<string> history)
+        public List<CardInstance> DrawCards(int drawCount, EffectSet ef, List<string> history)
         {
+            var actuallyDrawn = new List<CardInstance>();
             Hand = new List<CardInstance>();
 
-            var which = WouldDraw(drawCount);
+            IList<CardInstance> which;
+            which = WouldDraw(drawCount);
 
             var gap = drawCount - which.Count;
 
@@ -378,6 +389,7 @@ namespace StS
                 {
                     DrawPile.Remove(orig);
                     TryAddToHand(orig, ef);
+                    actuallyDrawn.Add(orig);
                 }
                 else
                 {
@@ -387,6 +399,7 @@ namespace StS
                     {
                         DrawPile.Remove(orig);
                         TryAddToHand(orig, ef);
+                        actuallyDrawn.Add(orig);
                     }
                     else
                     {
@@ -394,6 +407,7 @@ namespace StS
                     }
                 }
             }
+            return actuallyDrawn;
         }
 
         internal void BeforePlayingCard(CardInstance ci)
@@ -463,6 +477,8 @@ namespace StS
             var dis = DiscardPile.Select(el => el.Copy()).ToList();
             var ex = ExhaustPile.Select(el => el.Copy()).ToList();
             var d = new Deck(h, dr, dis, ex);
+            d._PreserveOrder = _PreserveOrder;
+            
             return d;
         }
 

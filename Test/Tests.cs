@@ -181,13 +181,13 @@ namespace StS.Tests
 
             RunTest(name: "Torii Strong Enemy", pl2: 14,
                 relics: new List<Relic>() { torii },
-                enemyStatuses: GetStatuses(new Strength(), 4),
+                enemyStatuses: GSS(new Strength(), 4),
                 amount: 5,
                 count: 4);
 
             RunTest(name: "Torii Strong Enemy Weakest attakc", pl2: 46,
                 relics: new List<Relic>() { torii },
-                enemyStatuses: GetStatuses(new Strength(), 4),
+                enemyStatuses: GSS(new Strength(), 4),
                 amount: 1,
                 count: 4);
         }
@@ -216,7 +216,7 @@ namespace StS.Tests
         public static void Test_Bash()
         {
             RunTest(name: "Enemy-attacks-bash", pl2: 20, en2: 41, cis: GetCis("Strike+"), amount: 10, count: 2,
-                    playerStatuses: GetStatuses(new Vulnerable(), 3));
+                    playerStatuses: GSS(new Vulnerable(), 3));
         }
 
         [Test]
@@ -231,7 +231,7 @@ namespace StS.Tests
             var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
             RunTest(name: "Louse-Aggressive", en2: 41, cis: GetCis("Strike+"), enemyStatuses: si, finalEnemyBlock: 4);
 
-            var si2 = GetStatuses(new Aggressive(), 4);
+            var si2 = GSS(new Aggressive(), 4);
             RunTest(name: "Louse-Aggressive-triggered-cleared", en2: 33, cis: GetCis("Strike+", "Inflame+", "LimitBreak", "Strike"), enemyStatuses: si2, finalEnemyBlock: 0, playerEnergy: 10);
 
             RunTest(name: "Enemy-attacks", pl2: 40, en2: 41, cis: GetCis("Strike+"), amount: 10, count: 1);
@@ -372,7 +372,7 @@ namespace StS.Tests
             Assert.AreEqual(hand.Count, 0);
             Assert.IsTrue(CompareHands(fight.GetExhaustPile, GetCis("Strike"), out string message2), message2);
             Assert.AreEqual(1, player.Energy);
-            Assert.IsTrue(CompareStatuses(GetStatuses(new FeelNoPainStatus(), 3), player.StatusInstances, out string se), se);
+            Assert.IsTrue(CompareStatuses(GSS(new FeelNoPainStatus(), 3), player.StatusInstances, out string se), se);
             Assert.AreEqual(13, player.Block); //TG=10 + 3 for exhaustion
         }
 
@@ -396,7 +396,7 @@ namespace StS.Tests
             var hand = fight.GetHand;
             Assert.AreEqual(0, hand.Count);
             Assert.AreEqual(2, fight.GetExhaustPile.Count);
-            Assert.IsTrue(CompareStatuses(GetStatuses(new FeelNoPainStatus(), 7), player.StatusInstances, out string se), se);
+            Assert.IsTrue(CompareStatuses(GSS(new FeelNoPainStatus(), 7), player.StatusInstances, out string se), se);
             Assert.AreEqual(30, player.Block); //TG=10 + 3 for exhaustion}
         }
 
@@ -459,7 +459,7 @@ namespace StS.Tests
             var ex = fight.GetExhaustPile;
             Assert.AreEqual(1, ex.Count);
             Assert.IsTrue(CompareHands(GetCis("FlameBarrier+"), ex, out string message), message);
-            Assert.IsTrue(CompareStatuses(GetStatuses(new FlameBarrierStatus(), 6), player.StatusInstances, out string error), error);
+            Assert.IsTrue(CompareStatuses(GSS(new FlameBarrierStatus(), 6), player.StatusInstances, out string error), error);
         }
 
         [Test]
@@ -484,12 +484,12 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             fight.DrinkPotion(potion, enemy);
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 4), out string error), error);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GSS(new PlatedArmor(), 4), out string error), error);
             fight.EndTurn();
             fight.EnemyMove(5, 2);
             fight.StartTurn();
             //now ensure that headbutt is at the end of the draw pile.
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 2), out string error2), error2);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GSS(new PlatedArmor(), 2), out string error2), error2);
             Assert.AreEqual(90, player.HP, "Bad hp.");
             fight.EndTurn();
             fight.EnemyMove();
@@ -510,12 +510,12 @@ namespace StS.Tests
             fight.DrinkPotion(potion, enemy);
             fight.DrinkPotion(potion2, enemy);
 
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 8), out string error), error);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GSS(new PlatedArmor(), 8), out string error), error);
             fight.EndTurn();
             //statuses combined correctly; 8 essence - 5 attacks = 3
             fight.EnemyMove(1, 5);
             fight.StartTurn();
-            Assert.IsTrue(CompareStatuses(player.StatusInstances, GetStatuses(new PlatedArmor(), 3), out string error2), error2);
+            Assert.IsTrue(CompareStatuses(player.StatusInstances, GSS(new PlatedArmor(), 3), out string error2), error2);
             Assert.AreEqual(95, player.HP, "Bad hp.");
             fight.EndTurn();
             fight.EnemyMove();
@@ -610,7 +610,7 @@ namespace StS.Tests
             fight.EndTurn();
             fight.EnemyMove();
             //cultist should not gain strength immediately.
-            Assert.IsTrue(CompareStatuses(enemy.StatusInstances, GetStatuses(new Feather(), 3), out var err), err);
+            Assert.IsTrue(CompareStatuses(enemy.StatusInstances, GSS(new Feather(), 3), out var err), err);
         }
 
         [Test]
@@ -1146,7 +1146,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack:GetStatuses(new Frail(), 3)),0)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack:GSS(new Frail(), 3)),0)));
 
             Assert.AreEqual(0, player.StatusInstances.Count);
         }
@@ -1162,7 +1162,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(8, player.Block);
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GetStatuses(new Frail(), 3)),0)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)),0)));
             Assert.AreEqual(1, player.StatusInstances.Count);
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);
@@ -1208,8 +1208,8 @@ namespace StS.Tests
             fight.PlayCard(initialCis[1]);
             Assert.AreEqual(4, player.Block);
             var statuses = new List<StatusInstance>();
-            statuses.AddRange(GetStatuses(new Weak(), 2));
-            statuses.AddRange(GetStatuses(new Vulnerable(), 1));
+            statuses.AddRange(GSS(new Weak(), 2));
+            statuses.AddRange(GSS(new Vulnerable(), 1));
             Assert.IsTrue(CompareStatuses(statuses, enemy.StatusInstances, out var msg), msg);
         }
 
@@ -1405,7 +1405,7 @@ namespace StS.Tests
         public static void DamageBlockTests()
         {
             //TODO this needs fixing.  When the player is weak and target is vuln, do we math.floor both times? or just once at the end.
-            RunTest(name: "Weak-Inflame-BodySlam-Vulned", en2: 30, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerStatuses: GetStatuses(new Weak(), 2), playerEnergy: 10);
+            RunTest(name: "Weak-Inflame-BodySlam-Vulned", en2: 30, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "Inflame+", "BodySlam+"), playerStatuses: GSS(new Weak(), 2), playerEnergy: 10);
 
             RunTest(name: "BodySlam", en2: 40, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "BodySlam+"));
             RunTest(name: "BodySlam-Vulned", en2: 27, finalPlayerBlock: 10, cis: GetCis("Footwork", "Defend+", "Bash", "BodySlam+"), playerEnergy: 10);

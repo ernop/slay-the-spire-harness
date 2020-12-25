@@ -1,10 +1,13 @@
-﻿namespace StS
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
+namespace StS
 {
     /// <summary>
     /// Node value is HP, or at least how much damage you did,
     /// *then* minimum number of cards played.
     /// </summary>
-    public class NodeValue
+    public class NodeValue : IComparable<NodeValue>
     {
         public NodeValue(double value, int cards, FightNode bestChoice)
         {
@@ -63,7 +66,14 @@
 
         public override string ToString()
         {
-            return $"NV{Value} C{Cards}";
+            return $"NV{Value,-1} C{Cards}";
+        }
+
+        public int CompareTo([AllowNull] NodeValue other)
+        {
+            if (this > other) return 1;
+            if (this == other) return 0;
+            return -1;
         }
     }
 }

@@ -14,9 +14,9 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 0;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
-            ef.EnemyEffect.Status.AddRange(GetStatuses(new Vulnerable(), 2));
+            ef.EnemyEffect.Status.AddRange(GSS(new Vulnerable(), 2));
         }
     }
 }

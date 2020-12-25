@@ -16,9 +16,14 @@ namespace StS
         public FightActionEnum FightActionType { get; private set; }
         public Potion Potion { get; private set; }
         public CardInstance Card { get; private set; }
-        public List<string> Desc { get; private set; }
+        public List<string> History { get; private set; }
         public IEntity Target { get; private set; }
-        public IList<CardInstance> CardsDrawn { get; set; }
+
+        /// <summary>
+        /// either StartTurn in which case they represent cards drawn
+        /// or "true grit" + some target to designate which is exhausted
+        /// </summary>
+        public IList<CardInstance> CardTargets { get; set; }
 
         /// <summary>
         /// an action in a fight is one of:
@@ -31,20 +36,70 @@ namespace StS
         /// * enemy playerStatusATtack
         /// </summary>
         public FightAction(FightActionEnum fightActionType, IList<CardInstance> cardsDrawn = null, Potion potion = null, CardInstance card = null,
-            IEntity target = null, List<string> desc = null)
+            IEntity target = null, List<string> history = null)
         {
-            CardsDrawn = cardsDrawn;
+            CardTargets = cardsDrawn;
             FightActionType = fightActionType;
             Potion = potion?.Copy();
             Card = card?.Copy();
             Target = target;
-            Desc = desc;
+            History = history;
+            Validate();
+        }
+
+        private void Validate()
+        {
+            switch (FightActionType)
+            {
+                case FightActionEnum.PlayCard:
+                    if (Card == null) throw new InvalidOperationException();
+                    if (Target != null) throw new InvalidOperationException();
+                    break;
+                case FightActionEnum.Potion:
+                    if (Potion == null) throw new InvalidOperationException();
+                    if (Target == null) throw new InvalidOperationException();
+                    break;
+                case FightActionEnum.EndTurn:
+                    break;
+                case FightActionEnum.StartTurn:
+                    if (CardTargets == null) throw new InvalidOperationException();
+                    break;
+                case FightActionEnum.StartTurnEffect:
+                    break;
+                case FightActionEnum.EndTurnEffect:
+                    break;
+                case FightActionEnum.EndTurnDeckEffect:
+                    break;
+                case FightActionEnum.EndTurnOtherEffect:
+                    break;
+                case FightActionEnum.StartFightEffect:
+                    break;
+                case FightActionEnum.EndFightEffect:
+                    break;
+                case FightActionEnum.EnemyMove:
+                    break;
+                case FightActionEnum.EnemyDied:
+                    break;
+                case FightActionEnum.EndEnemyTurn:
+                    break;
+                case FightActionEnum.StartFight:
+                    break;
+                case FightActionEnum.WonFight:
+                    break;
+                case FightActionEnum.LostFight:
+                    break;
+                case FightActionEnum.TooLong:
+                    break;
+                case FightActionEnum.NotInitialized:
+                    break;
+            }
         }
 
         internal FightAction Copy()
         {
             throw new System.Exception("Don't copy this");
         }
+
 
         public override string ToString()
         {
@@ -70,7 +125,6 @@ namespace StS
                 case FightActionEnum.TooLong:
                     break;
                 case FightActionEnum.EnemyMove:
-                    label = $"EnemyAction {Card}";
                     break;
                 case FightActionEnum.StartFight:
                     break;
@@ -94,27 +148,27 @@ namespace StS
             //we always return a fighthistory.
 
             var descPart = "";
-            if (Desc?.Count > 0)
+            if (History?.Count > 0)
             {
-                descPart = $" {string.Join(" ", Desc)}";
+                descPart = $" {string.Join(" ", History)}";
             }
 
-            return $"{label}{descPart}";
+            return $"{label,-15}{descPart}";
         }
 
-        public bool AreEqual(FightAction other)
+        public bool IsEqual(FightAction other)
         {
             if (FightActionType == other.FightActionType)
             {
                 if (Card?.ToString() == other.Card?.ToString()) //we compare cards including enemy attacks by ToString
                 {
-                    if (Potion == other.Potion)
+                    if (Potion?.Name == other.Potion?.Name)
                     {
-                        if (Target == other.Target)
+                        if (Target?.Name == other.Target?.Name)
                         {
-                            if (CardsDrawn == null && other.CardsDrawn == null)
+                            if (CardTargets == null && other.CardTargets == null)
                             { return true; }
-                            if (Helpers.CompareHands(CardsDrawn, other.CardsDrawn, out var msg))
+                            if (Helpers.CompareHands(CardTargets, other.CardTargets, out var msg))
                             {
                                 return true;
                             }
@@ -123,6 +177,12 @@ namespace StS
                 }
             }
             return false;
+        }
+
+        internal void AddHistory(List<string> history)
+        {
+            if (History == null) History = new List<string>();
+            History.AddRange(history);
         }
 
         //public int GetHashCode([DisallowNull] FightAction obj)

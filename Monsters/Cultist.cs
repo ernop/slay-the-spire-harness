@@ -15,7 +15,7 @@ namespace StS
             }
             else
             {
-                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(3, 1),0));
+                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(6, 1),0));
                 return res;
             }
         }

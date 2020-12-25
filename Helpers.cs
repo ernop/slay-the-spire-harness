@@ -305,8 +305,13 @@ namespace StS
             }
             return res;
         }
-
-        public static List<StatusInstance> GetStatuses(Status status, int num)
+         
+        public static StatusInstance GS(Status status, int num)
+        {
+            return new StatusInstance(status, num);
+        }
+        
+        public static List<StatusInstance> GSS(Status status, int num)
         {
             return new List<StatusInstance>() { new StatusInstance(status, num) };
         }
@@ -314,16 +319,19 @@ namespace StS
         /// <summary>
         ///// What should we actually do if there are multiple randoms?
         ///// </summary>
-        ///// <param name="f"></param>
-        ///// <returns></returns>
         public static FightNode GetBestLeaf(FightNode root)
         {
             return root.Randoms.OrderBy(el => el.GetValue().Value).First();
         }
 
-        public static string SJ<T>(IEnumerable<T> input)
+        public static string SJ<T>(IEnumerable<T> input, char separator = ',')
         {
-            return string.Join(',', input.Select(el => el.ToString()));
+            return string.Join(separator, input.Select(el => el.ToString()));
+        }
+
+        public static List<string> Gsl(params string[] input)
+        {
+            return new List<string>(input);
         }
     }
 }

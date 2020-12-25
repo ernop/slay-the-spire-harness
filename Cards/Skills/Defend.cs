@@ -2,6 +2,7 @@
 
 namespace StS
 {
+
     public class Defend : IroncladSkillCard
     {
         public override string Name => nameof(Defend);
@@ -10,7 +11,7 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, List<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
             int amount;
             if (upgradeCount == 0)

@@ -8,83 +8,136 @@ namespace StS
     class Program
     {
 
-        static IList<CardInstance> InitialHand = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend");
+        static List<CardInstance> InitialDeck = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend").ToList();
 
         static void Main(string[] args)
         {
-            Helpers.SetRandom(0);
+            SetRandom(0);
             System.IO.File.WriteAllText(Helpers.Output, "");
-            //TestSimple();
             TestCultistMC();
         }
 
         static void TestCultistMC()
         {
-            var cis = InitialHand;
-            var hand = GetCis("Bash", "Strike", "Strike", "Defend", "Defend");
-            var exhaustPile = GetCis("Clumsy");
-            var drawPile = GetCis("Defend");
-            var discardPile = GetCis("Strike", "Strike", "Strike", "Defend");
-
-            var enemy = new Cultist(hp: 35);
-            var player = new Player(hp: 80);
-            var turnNumber = 1;
-
-            //put them back so they'll be drawable.
-            foreach (var h in hand) drawPile.Add(h);
-
-            var deck = new Deck(cis, drawPile, hand, discardPile, exhaustPile);
+            var turnNumber = 0;
             
-            var fs = new MonteCarlo(deck, hand, enemy, player, turnNumber);
-            var node = fs.Sim();
-            //var bestValue = new NodeValue(0,0);
-            for (var ii = 0; ii < 1000; ii++)
+            var initialDeck = new List<string>() { "Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash" };
+            //initialHand.AddRange(new List<string>() {"Pummel", "Exhume"});
+
+            var hand = Gsl();
+            var drawPile = initialDeck;
+            var exhaustPile = Gsl();
+            var discardPile = Gsl();
+            var enemyHp = 51;
+            var playerHp = 1;
+            var firstDraw = new List<string>() { "Strike", "Strike", "Defend", "Defend", "Bash" };
+            var statuses = new List<StatusInstance>() {  };
+
+            if (false)
             {
-                fs.MC(node);
-                //var best = GetBestLeaf(node); //this may not actually be a leaf.
-                //repeatedly print better values.
-                //if (best.GetValue() > bestValue)
-                //{
-                //    bestValue = best.GetValue();
-                //    SaveLeaf(best, ii);
-                //}
+                turnNumber = 1;
+                discardPile = firstDraw;
+                drawPile = Gsl("Strike", "Strike", "Defend", "Defend", "Strike");
+                firstDraw = Gsl("Strike", "Strike", "Defend", "Defend", "Strike");
+                statuses = new List<StatusInstance>() { GS(new Feather(), 3), GS(new Vulnerable(), 1) };
             }
+
+            var enemy = new Cultist(hp: enemyHp);
+            enemy.StatusInstances = statuses;
+            var player = new Player(hp: playerHp);
+
+            var deck = new Deck(drawPile, hand, discardPile, exhaustPile);
+            
+            var mc = new MonteCarlo(deck, enemy, player, turnNumber, firstDraw);
+            var bestValue = new NodeValue(-100,0, null);
+
+            for (var ii = 0; ii < 100000; ii++)
+            {
+                var leaf = mc.MC(mc.Root.Randoms.First());
+                var value = leaf.GetValue();
+                if (value > bestValue)
+                {
+                    bestValue = value;
+                    SaveLeaf(leaf, ii);
+                    ShowInitialValues(mc.Root.Randoms.First());
+                }
+            }
+
+            System.IO.File.AppendAllText(Output, $"==========Final First move best lines");
+            ShowInitialValues(mc.Root.Randoms.First());
+            SaveAllLeaves(mc.Root);
         }
 
-        //static void SaveLeaf(FightNode leaf, int mcCount)
-        //{
-        //    //var fh = leaf.AALeafHistory();
-
-        //    System.IO.File.AppendAllText(Helpers.Output, $"==============Fight {mcCount} {leaf.Fight.Status}\n");
-        //    if (leaf.Randoms.Any())
-        //    {
-        //        var children = string.Join(',', leaf.Randoms);
-        //        System.IO.File.AppendAllText(Helpers.Output, $"==============Leaf with children: {children}\n");
-        //    }
-        //    System.IO.File.AppendAllLines(Helpers.Output, fh);
-        //}
-
-        static void TestCultist()
+        public static void SaveAllLeaves(FightNode root)
         {
-            var cis = InitialHand;
-            //cis = GetCis("Strike");
-            var enemy = new Cultist(hp: 10, hpMax: 10);
-            var player = new Player(hp: 5);
-            var fs = new FightSimulator(cis, enemy, player, oneStartingHandOnly: true, maxTurns: 10);
-            var node = fs.Sim();
-            var leaves = GetLeaves(node);
+            var leaves = GetAllLeaves(root);
             var ii = 0;
             foreach (var l in leaves)
             {
                 ii++;
-                var fh = l.AALeafHistory();
+                SaveLeaf(l, ii);
+                if (ii > 10000)
+                {
+                    break;
+                }
+            }
+        }
 
-                System.IO.File.AppendAllText(Helpers.Output, $"==============Fight{ii} {l.Fight.Status}\n");
-                System.IO.File.AppendAllLines(Helpers.Output, fh);
-                if (ii > 1000) break;
+        public static List<FightNode> GetAllLeaves(FightNode root)
+        {
+            var res = new List<FightNode>();
+            var leaf = true;
+            foreach (var c in root.Choices)
+            {
+                res.AddRange(GetAllLeaves(c));
+                leaf = false;
+            }
+            foreach (var r in root.Randoms)
+            {
+                res.AddRange(GetAllLeaves(r));
+                leaf = false;
+            }
+            if (leaf)
+            {
+                res.Add(root);
             }
 
-            //node.Display(Helpers.Output);
+            return res;
+        }
+
+        public static void ShowInitialValues(FightNode drawNode)
+        {
+            System.IO.File.AppendAllText(Output, $"\n---------Best FirstRound Choices: {drawNode.Choices.Count}");
+            foreach (var c in drawNode.Choices.OrderByDescending(el=>el.Value))
+            {
+                ShowRound(c);
+            }
+        }
+
+        public static void ShowRound(FightNode c)
+        {
+            var target = c;
+            var res = new List<string>();
+            res.Add($"{c.Value.ToString()} W:{c.Weight}");
+            while (true)
+            {
+                res.Add(target.ToString());
+                if (target.Value.BestChoice == null)
+                {
+                    break;
+                }
+                target = target.Value.BestChoice;
+            }
+
+            System.IO.File.AppendAllText(Output, "\n");
+            System.IO.File.AppendAllLines(Output, res);
+        }
+
+        static void SaveLeaf(FightNode leaf, int mcCount)
+        {
+            System.IO.File.AppendAllText(Output, $"\n==============Fight {mcCount} {leaf.Fight.Status} {leaf.Value}\n");
+            var hh = leaf.AALeafHistory();
+            System.IO.File.AppendAllText(Output, SJ(hh, '\n'));
         }
 
         public static List<FightNode> GetLeaves(FightNode node)
@@ -105,24 +158,6 @@ namespace StS
                 }
             }
             return res;
-        }
-
-        static void TestAttacker()
-        {
-            var cis = GetCis("Defend", "Defend", "Defend", "Defend", "Defend", "Strike", "Strike", "Strike", "Strike", "Strike");
-
-            var enemy = new GenericEnemy(20, 1, 50, 50);
-            var player = new Player(potions: new List<Potion>() { new StrengthPotion() });
-            var fs = new FightSimulator(cis, enemy, player, true);
-            var node = fs.Sim();
-
-            foreach (var draw in node.Randoms)
-            {
-                System.IO.File.AppendAllText(Output, "==One draw.");
-                //draw.Display(Output);
-            }
-
-            fs.SaveResults(Output, node);
         }
     }
 }

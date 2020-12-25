@@ -21,6 +21,7 @@ Stages
 
 Todos
 ==
+ - interactive mode with cmdline options.  normal cards - play card, potion, etc. and special mode addcard etc.
  - mc mode with focusing
  - don't repeatedly choose the same exact action.
  - later - identical full fight state evaluation
