@@ -14,7 +14,8 @@ namespace StS
         {
             SetRandom(0);
             System.IO.File.WriteAllText(Helpers.Output, "");
-            TestCultistMC();
+            var c = new StsConsole();
+            //TestCultistMC();
         }
 
         static void TestCultistMC()

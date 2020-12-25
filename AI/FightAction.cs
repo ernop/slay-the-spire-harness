@@ -62,7 +62,7 @@ namespace StS
                 case FightActionEnum.EndTurn:
                     break;
                 case FightActionEnum.StartTurn:
-                    if (CardTargets == null) throw new InvalidOperationException();
+                    //if (CardTargets == null) throw new InvalidOperationException();
                     break;
                 case FightActionEnum.StartTurnEffect:
                     break;
@@ -99,7 +99,6 @@ namespace StS
         {
             throw new System.Exception("Don't copy this");
         }
-
 
         public override string ToString()
         {
@@ -184,15 +183,5 @@ namespace StS
             if (History == null) History = new List<string>();
             History.AddRange(history);
         }
-
-        //public int GetHashCode([DisallowNull] FightAction obj)
-        //{
-
-        //    var hashed = hasher.ComputeHash(Encoding.UTF8.GetBytes(obj.ToString()));
-        //    var ivalue = BitConverter.ToInt32(hashed, 0);
-        //    return ivalue;
-        //}
-
-        //public static MD5 hasher = MD5.Create();
     }
 }

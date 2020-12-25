@@ -197,6 +197,60 @@ namespace StS
             return child;
         }
 
+        private FightNode FindDuplicate(FightAction action)
+        {
+            foreach (var c in Choices)
+            {
+                if (c.FightAction.IsEqual(action))
+                {
+                    return c;
+                }
+            }
+            foreach (var r in Randoms)
+            {
+                var f = r.FightAction.Card?.ToString();
+                if (r.FightAction.IsEqual(action))
+                {
+                    return r;
+                }
+            }
+            return null;
+        }
+
+        public FightNode ApplyAction(FightAction action)
+        {
+            //check if a child already has this action; if so just return that one.
+            //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
+
+            var dup = FindDuplicate(action);
+            if (dup != null)
+            {
+                dup.Weight++;
+                return dup;
+            }
+
+            switch (action.FightActionType)
+            {
+                case FightActionEnum.PlayCard:
+                    var child = PlayCard(action); //non-rnd
+                    return child;
+                case FightActionEnum.Potion:
+                    var child2 = DrinkPotion(action); //non-rnd
+                    return child2;
+                case FightActionEnum.EndTurn:
+                    var child3 = EndTurn(); //non-rnd
+                    return child3;
+                case FightActionEnum.EnemyMove:
+                    var child4 = EnemyMove(action); //rnd
+                    return child4;
+                case FightActionEnum.StartTurn:
+                    var child5 = StartTurn(action);
+                    return child5;
+                default:
+                    throw new Exception("Invalid action");
+            }
+        }
+
         /// <summary>
         /// Also start the first turn.
         /// </summary>

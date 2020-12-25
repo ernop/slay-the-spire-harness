@@ -181,7 +181,7 @@ namespace StS
         /// <summary>
         /// add to hand if hand isn't too bigyet.
         /// </summary>
-        private void  TryAddToHand(CardInstance ci, EffectSet ef)
+        private void TryAddToHand(CardInstance ci, EffectSet ef)
         {
 
             if (Hand.Count < 10)

@@ -91,7 +91,7 @@ namespace StS
         /// * NormalActions
         /// * EnemyMove
         /// </summary>
-        internal IList<FightAction> GetAllActions()
+        public IList<FightAction> GetAllActions()
         {
             if (!PlayerTurn)
             {
