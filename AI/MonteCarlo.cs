@@ -75,7 +75,7 @@ namespace StS
             Root = root;
             if (_FirstAction != null)
             {
-                ApplyAction(root, _FirstAction);
+                root.ApplyAction(_FirstAction);
             }
         }
 
@@ -93,7 +93,7 @@ namespace StS
             var ii = Rnd.Next(actions.Count());
             var action = actions[ii];
 
-            var childNode = ApplyAction(fn, action);
+            var childNode = fn.ApplyAction(action);
 
             switch (childNode.Fight.Status)
             {
@@ -105,69 +105,6 @@ namespace StS
                     return childNode;
                 default:
                     throw new Exception("Other status");
-            }
-        }
-
-        /// <summary>
-        /// if from node n you choose an action which is already in choices,
-        /// or do a draw which is already in randoms,
-        /// just return that child, rather than actually applying action on our current copy again.
-        /// </summary>
-        private FightNode FindDuplicate(FightNode fn, FightAction action)
-        {
-            foreach (var c in fn.Choices)
-            {
-                if (c.FightAction.IsEqual(action))
-                {
-                    return c;
-                }
-            }
-            foreach (var r in fn.Randoms)
-            {
-                var f = r.FightAction.Card?.ToString();
-                if (r.FightAction.IsEqual(action))
-                {
-                    return r;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// actually an application of an action can result in multiple child nodes.
-        /// For example: if you play battle trance, the child nodes are all the possible ways to draw.
-        /// </summary>
-        private FightNode ApplyAction(FightNode fn, FightAction action)
-        {
-            //check if a child already has this action; if so just return that one.
-            //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
-
-            var dup = FindDuplicate(fn, action);
-            if (dup != null)
-            {
-                dup.Weight++;
-                return dup;
-            }
-
-            switch (action.FightActionType)
-            {
-                case FightActionEnum.PlayCard:
-                    var child = fn.PlayCard(action); //non-rnd
-                    return child;
-                case FightActionEnum.Potion:
-                    var child2 = fn.DrinkPotion(action); //non-rnd
-                    return child2;
-                case FightActionEnum.EndTurn:
-                    var child3 = fn.EndTurn(); //non-rnd
-                    return child3;
-                case FightActionEnum.EnemyMove:
-                    var child4 = fn.EnemyMove(action); //rnd
-                    return child4;
-                case FightActionEnum.StartTurn:
-                    var child5 = fn.StartTurn(action);
-                    return child5;
-                default:
-                    throw new Exception("Invalid action");
             }
         }
     }

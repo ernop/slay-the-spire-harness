@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using NUnit.Framework;
 
 using static StS.AllRelics;
@@ -226,6 +226,24 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_WildStrike_Randomization()
+        {
+            var player = new Player(drawAmount:2);
+            var cis = Gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend","WildStrike");
+            var deck = new Deck(cis, Gsl(), Gsl(), Gsl());
+            var enemy = new GenericEnemy();
+
+
+            var mc = new MonteCarlo(deck, enemy, player, firstHand: Gsl("WildStrike", "Defend"));
+            var actions = mc.Root.Fight.GetAllActions();
+            Assert.AreEqual(1, actions.Count);
+            mc.Root.StartFight();
+            mc.Root.StartTurn();
+            var actions2 = mc.Root.Randoms.First().Fight.GetAllActions();
+            var ae = 3;
+        }
+        
+        [Test]
         public static void Test_Aggressive()
         {
             var si = new List<StatusInstance>() { new StatusInstance(new Aggressive(), 4) };
@@ -319,7 +337,7 @@ namespace StS.Tests
             fight.StartTurn();
             fight.PlayCard(initialCis[2]);
             Assert.AreEqual(enemy.HP, 18);
-            Assert.AreEqual(2, fight.GetDrawPile().Count);
+            Assert.AreEqual(2, fight.GetDrawPile.Count);
             fight.EndTurn();
             fight.EnemyMove();
             fight.StartTurn();
@@ -426,7 +444,7 @@ namespace StS.Tests
             //play havok; strike should be burned.
             fight.PlayCard(initialCis[2]);
 
-            var dp = fight.GetDrawPile();
+            var dp = fight.GetDrawPile;
             Assert.AreEqual(0, dp.Count);
             Assert.AreEqual(41, enemy.HP);
             var ex = fight.GetExhaustPile;
@@ -452,7 +470,7 @@ namespace StS.Tests
             fight.EndTurn();
             fight.EnemyMove(3, 3);
 
-            var dp = fight.GetDrawPile();
+            var dp = fight.GetDrawPile;
             Assert.AreEqual(2, dp.Count);
             Assert.AreEqual(32, enemy.HP);
             Assert.AreEqual(100, player.HP);
@@ -551,7 +569,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[2], new List<CardInstance>() { initialCis[1] });
             //now ensure that headbutt is at the end of the draw pile.
 
-            var dp = fight.GetDrawPile();
+            var dp = fight.GetDrawPile;
             if (dp.Count != 2)
             {
                 throw new Exception($"{nameof(TestHeadbutt)}: bad draw pile");
@@ -1030,6 +1048,50 @@ namespace StS.Tests
             //Strike bumped to discard
             Assert.AreEqual(2, fight.GetDiscardPile.Count);
             Assert.IsTrue(CompareHands(GetCis("PommelStrike", "Strike"), fight.GetDiscardPile, out var err), err);
+        }
+
+        [Test]
+        public static void Test_Warcry()
+        {
+            var player = new Player(drawAmount:2);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame","TwinStrike","Defend","Strike","Warcry");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            Assert.AreEqual(player.Block, 0);
+            var targets = new List<CardInstance>() { initialCis[2] };
+            fight.PlayCard(initialCis[4], targets); //play warcry.  draw defend and put back strike
+            Assert.AreEqual(1, fight.GetHand.Count);
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Strike"), out var msg, ordered: true), msg);
+            Assert.AreEqual(3, fight.GetDrawPile.Count);
+            Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis("Inflame", "TwinStrike", "Defend"), out var msg2, ordered: true), msg2);
+            
+            Assert.AreEqual(1, fight.GetDiscardPile.Count); //warcry and defend
+            Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry"), out var msg3, ordered: true), msg3);
+        }
+
+        [Test]
+        public static void Test_Warcry_PommelStrike()
+        {
+            ///draw two, put one back, then verify that the card we put on top is actually there.
+            var player = new Player(drawAmount: 3);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Inflame", "TwinStrike", "Defend", "PommelStrike", "Warcry+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartTurn(); //draw d, ps, w+
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Warcry+","PommelStrike","Defend"), out var msg1, ordered: false), msg1);
+            
+            var targets = new List<CardInstance>() { initialCis[1] }; //going to put back ts and keep inflame
+            fight.PlayCard(initialCis[4], targets); //play warcry.  draw ts & inflame
+            
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Defend","PommelStrike","Inflame"), out var msg2, ordered: false), msg2);
+            Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis("TwinStrike"), out var msg3, ordered: true), msg3);
+            Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry+"), out var msg4, ordered: true), msg4);
+
+            fight.PlayCard(initialCis[3]);
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Defend", "TwinStrike", "Inflame"), out var msg5, ordered: false), msg5);
+            Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis(), out var msg6, ordered: true), msg6);
+            Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry+","PommelStrike"), out var msg7, ordered: true), msg7);
         }
 
         [Test]

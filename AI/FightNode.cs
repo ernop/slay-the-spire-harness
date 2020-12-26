@@ -24,11 +24,11 @@ namespace StS
             Depth = depth;
         }
 
-        public FightNode AddChild(FightNode n, bool r)
+        public FightNode AddChild(FightNode n, bool rand)
         {
             n.Parent = this;
             n.FightAction = n.Fight.FightAction;
-            if (r)
+            if (rand)
             {
                 Randoms.Add(n);
             }
@@ -199,19 +199,28 @@ namespace StS
 
         private FightNode FindDuplicate(FightAction action)
         {
-            foreach (var c in Choices)
+            if (action.Random)
             {
-                if (c.FightAction.IsEqual(action))
+                foreach (var r in Randoms)
                 {
-                    return c;
+                    if (Randoms.Count > 10)
+                    {
+                        var ae = 34;
+                    }
+                    if (r.FightAction.IsEqual(action))
+                    {
+                        return r;
+                    }
                 }
             }
-            foreach (var r in Randoms)
+            else
             {
-                var f = r.FightAction.Card?.ToString();
-                if (r.FightAction.IsEqual(action))
+                foreach (var c in Choices)
                 {
-                    return r;
+                    if (c.FightAction.IsEqual(action))
+                    {
+                        return c;
+                    }
                 }
             }
             return null;
@@ -221,8 +230,16 @@ namespace StS
         {
             //check if a child already has this action; if so just return that one.
             //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
-
+            var rr = Randoms;
+            if (rr.Count > 10)
+            {
+                var ae = 4;
+            }
             var dup = FindDuplicate(action);
+            if (rr.Count>2 && dup == null)
+            {
+                var awe = 43;
+            }
             if (dup != null)
             {
                 dup.Weight++;
@@ -259,10 +276,10 @@ namespace StS
             FightAction = new FightAction(FightActionEnum.StartFight);
         }
 
-        internal FightNode StartTurn(FightAction action)
+        internal FightNode StartTurn(FightAction action = null)
         {
             var c = GetNode();
-            var rnd = c.Fight.StartTurn(initialHand: action.CardTargets);
+            var rnd = c.Fight.StartTurn(action);
             AddChild(c, rnd);
             return c;
         }
@@ -274,8 +291,8 @@ namespace StS
         {
             var c = GetNode();
 
-            var rnd = c.Fight.PlayCard(action.Card, action.CardTargets);
-            AddChild(c, rnd);
+            c.Fight.PlayCard(action.Card, action.CardTargets);
+            AddChild(c, action.Random);
             return c;
         }
 

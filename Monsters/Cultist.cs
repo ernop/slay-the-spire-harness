@@ -2,7 +2,10 @@
 
 namespace StS
 {
-    public class Cultist : Enemy, IEnemy
+
+
+
+    public class Cultist : Enemy
     {
         public Cultist(int? hp = null, int ? hpMax = null) : base(nameof(Cultist), hp, hpMax) { }
 

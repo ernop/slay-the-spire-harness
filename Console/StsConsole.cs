@@ -22,9 +22,9 @@ namespace StS
         
         public void Setup()
         {
-            _Player = new Player(hp: 100);
-            _Enemy = new Cultist(30,30);
-            var hand = Gsl("Strike", "Defend", "Bash");
+            _Player = new Player(hp: 80);
+            _Enemy = new Cultist(47);
+            var hand = Gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash");
             var deck = new Deck(hand, Gsl(), Gsl(), Gsl());
             _Fight = new Fight(deck, _Player, _Enemy);
             _Root = new FightNode(_Fight);

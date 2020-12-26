@@ -118,15 +118,23 @@ namespace StS
         /// <summary>
         /// meant to be a complete comparison of per-hand lists of CIs.
         /// </summary>
-        public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message)
+        public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message, bool ordered = false)
         {
             if (a.Count() != b.Count())
             {
                 message = "length mismatch";
                 return false;
             }
-            var al = string.Join(',', a.Select(el => el.ToString()).OrderBy(el => el));
-            var bl = string.Join(',', b.Select(el => el.ToString()).OrderBy(el => el));
+            if (!ordered)
+            {
+                a = a.OrderBy(el => el.ToString()).ToList();
+                b = b.OrderBy(el => el.ToString()).ToList();
+            }
+
+            var al = string.Join(',', a.Select(el => el.ToString()));
+            var bl = string.Join(',', b.Select(el => el.ToString()));
+            
+            
             if (al != bl)
             {
                 message = $"{al} != {bl}";

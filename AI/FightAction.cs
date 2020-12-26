@@ -18,6 +18,19 @@ namespace StS
         public CardInstance Card { get; private set; }
         public List<string> History { get; private set; }
         public IEntity Target { get; private set; }
+        
+        /// <summary>
+        /// Whether this was a random action at generation point.
+        /// </summary>
+        public bool Random { get; set; }
+        
+        /// <summary>
+        /// The key to disambiguate actions which are otherwise similar but involve randomness.
+        /// e.g. true grit exhausts one random card. So every time it's played in the same situation,
+        /// if there are 4 cards still in hand, there would be version with key 0-4
+        /// Similarly, wild strike would have N+1 where N is the number of cards in the draw pile.
+        /// </summary>
+        public int? Key { get; set; }
 
         /// <summary>
         /// either StartTurn in which case they represent cards drawn
@@ -36,7 +49,7 @@ namespace StS
         /// * enemy playerStatusATtack
         /// </summary>
         public FightAction(FightActionEnum fightActionType, IList<CardInstance> cardsDrawn = null, Potion potion = null, CardInstance card = null,
-            IEntity target = null, List<string> history = null)
+            IEntity target = null, List<string> history = null, int? key = null)
         {
             CardTargets = cardsDrawn;
             FightActionType = fightActionType;
@@ -44,6 +57,34 @@ namespace StS
             Card = card?.Copy();
             Target = target;
             History = history;
+            Key = key;
+            switch (fightActionType)
+            {
+                case FightActionEnum.Potion:
+                    Random = potion.Random;
+                    break;
+                case FightActionEnum.PlayCard:
+                case FightActionEnum.EndTurn:
+                case FightActionEnum.StartTurnEffect:
+                case FightActionEnum.EndTurnEffect:
+                case FightActionEnum.EndTurnDeckEffect:
+                case FightActionEnum.EndTurnOtherEffect:
+                case FightActionEnum.StartFightEffect:
+                case FightActionEnum.EndFightEffect:
+                case FightActionEnum.EnemyDied:
+                case FightActionEnum.EndEnemyTurn:
+                case FightActionEnum.StartFight:
+                case FightActionEnum.WonFight:
+                case FightActionEnum.LostFight:
+                case FightActionEnum.TooLong:
+                case FightActionEnum.NotInitialized:
+                    Random = false;
+                    break;
+                case FightActionEnum.StartTurn:
+                case FightActionEnum.EnemyMove:
+                    Random = true;
+                    break;
+            }
             Validate();
         }
 
@@ -151,10 +192,18 @@ namespace StS
             {
                 descPart = $" {string.Join(" ", History)}";
             }
+            var rnd = "";
+            if (Random)
+            {
+                rnd = $" R:{Key}";
+            }
 
-            return $"{label,-15}{descPart}";
+            return $"{label,-15}{rnd}{descPart}";
         }
 
+        /// <summary>
+        /// When we generate an action, we check to see if it's already a duplicate (in randoms or choices).  This is how we compare them.
+        /// </summary>
         public bool IsEqual(FightAction other)
         {
             if (FightActionType == other.FightActionType)
@@ -169,7 +218,19 @@ namespace StS
                             { return true; }
                             if (Helpers.CompareHands(CardTargets, other.CardTargets, out var msg))
                             {
-                                return true;
+                                if (Key == other.Key)
+                                {
+                                    if (Random == false)
+                                    {
+                                        return true;
+                                    }
+                                    
+                                    //random action with same key.
+                                    if (Key == other.Key)
+                                    {
+                                        return true;
+                                    }
+                                }
                             }
                         }
                     }

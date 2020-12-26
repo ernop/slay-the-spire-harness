@@ -2,7 +2,6 @@
 
 namespace StS
 {
-
     public class Defend : IroncladSkillCard
     {
         public override string Name => nameof(Defend);

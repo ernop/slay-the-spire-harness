@@ -20,6 +20,8 @@ namespace StS
             Init(GetCis(drawPile.ToArray()), GetCis(hand.ToArray()), GetCis(discardPile.ToArray()), GetCis(exhaustPile.ToArray()));
         }
 
+        
+
         public Deck(IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
         {
             Init(drawPile, hand, discardPile, exhaustPile);
@@ -313,7 +315,9 @@ namespace StS
                     res.Add(copy);
                 }
             }
-            Hand = res;
+            var handCopy = Hand.Select(el => el.Copy()).ToList();
+            handCopy.AddRange(res);
+            Hand = handCopy;
         }
 
         /// <summary>
@@ -483,12 +487,22 @@ namespace StS
         }
 
         /// <summary>
-        /// TODO: make this add to a random place in the draw pile.
+        /// Adds to a random spot in the draw pile
         /// </summary>
         internal void AddToDrawPile(CardInstance newCi)
         {
             //assuming we want to interleave it.
             DrawPile.Add(newCi);
+        }
+
+        /// <summary>
+        /// Returns position key.
+        /// </summary>
+        internal int AddToRandomSpotInDrawPile(CardInstance ci)
+        {
+            var position = Rnd.Next(DrawPile.Count+1);
+            DrawPile.Insert(position, ci);
+            return position;
         }
 
         internal void AddToDiscardPile(CardInstance newCi)

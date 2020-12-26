@@ -71,7 +71,7 @@ namespace StS
             return true;
         }
 
-        public void Play(EffectSet ef, Player player, IEnemy enemy, IList<CardInstance> cardTargets = null, Deck deck = null)
+        public virtual void Play(EffectSet ef, Player player, IEnemy enemy, IList<CardInstance> cardTargets = null, Deck deck = null)
         {
             Card.Play(ef, player, enemy, UpgradeCount, cardTargets, deck);
         }

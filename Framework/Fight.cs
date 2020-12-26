@@ -80,16 +80,16 @@ namespace StS
         /// <summary>
         /// for testing
         /// </summary>
-        public IList<CardInstance> GetDrawPile()
-        {
-            return _Deck.GetDrawPile;
-        }
+        public IList<CardInstance> GetDrawPile => _Deck.GetDrawPile;
 
         /// <summary>
         /// Three choices:
         /// * StartTurn
         /// * NormalActions
         /// * EnemyMove
+        /// There is some question about items which have keys.  i.e. you can play strike, defend, or battle trance x 1000 keys?
+        /// Answer: there actually is no BT randomness since the drawpile has a single random state.
+        /// But wild strike would actually have multiple states.
         /// </summary>
         public IList<FightAction> GetAllActions()
         {
@@ -111,8 +111,9 @@ namespace StS
 
         /// <summary>
         /// All playable cards, potions, or endturn.
+        /// Complication: Some cards generate multiple actions (when they have random effects.)
         /// </summary>
-        internal IList<FightAction> GetNormalActions() { 
+        public IList<FightAction> GetNormalActions() { 
 
             var res = new List<FightAction>();
             var hand = _Deck.GetHand;
@@ -122,8 +123,16 @@ namespace StS
             {
                 if (!consideredCis.Contains(ci.ToString()) && ci.EnergyCost() <= en && ci.Playable(hand))
                 {
-                    var sa = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
-                    res.Add(sa);
+                    if (ci.Card.RandomEffects)
+                    {
+                        var actions = ci.Card.GetActions(_Deck, ci);
+                        res.AddRange(actions);
+                    }
+                    else
+                    {
+                        var action = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
+                        res.Add(action);
+                    }
                     consideredCis.Add(ci.ToString());
                 }
             }
@@ -160,7 +169,7 @@ namespace StS
             ApplyEffectSet(startEf, _Player, _Enemies[0], history);
         }
 
-        public bool StartTurn(IList<CardInstance> initialHand = null)
+        public bool StartTurn(FightAction action = null)
         {
             if (PlayerTurn)
             {
@@ -178,7 +187,8 @@ namespace StS
             var ef = new EffectSet();
 
             var drawCount = _Player.GetDrawAmount();
-            if (initialHand == null)
+            List<CardInstance> initialHand = action?.CardTargets.ToList();
+            if (action?.CardTargets == null)
             {
                 initialHand = _Deck.DrawCards(drawCount, ef, history);
             }
@@ -321,7 +331,7 @@ namespace StS
         /// 
         /// TODO: why not send a cardDescriptor, and have this method just find a matching card? would make external combinatorics easier.
         /// </summary>
-        public bool PlayCard(CardInstance cardInstance, IList<CardInstance> cardTargets = null, 
+        public void PlayCard(CardInstance cardInstance, IList<CardInstance> cardTargets = null, 
             bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
         {
             if (!PlayerTurn) throw new Exception("Not your turn");
@@ -399,7 +409,6 @@ namespace StS
 
             AssignLastAction(new FightAction(FightActionEnum.PlayCard, card: cardInstance, history: history));
             _Deck.CardPlayCleanup();
-            return false;
         }
 
         /// <summary>
