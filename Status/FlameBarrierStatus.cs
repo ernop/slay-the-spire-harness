@@ -23,7 +23,6 @@ namespace StS
             e.BeAttacked += AttackResponse;
             Entity = e;
         }
-
         public override void Unapply(Fight f, Deck d, Entity e)
         {
             e.BeAttacked += AttackResponse;

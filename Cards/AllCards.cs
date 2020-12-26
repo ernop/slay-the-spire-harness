@@ -58,6 +58,7 @@ namespace StS
             cards["Clumsy"] = new Clumsy();
             cards["SeeingRed"] = new SeeingRed();
             cards["Warcry"] = new Warcry();
+            cards["Rage"] = new Rage();
 
             return cards;
         }

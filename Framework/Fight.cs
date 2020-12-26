@@ -383,6 +383,7 @@ namespace StS
             var ef = new EffectSet();
             cardInstance.Play(ef, _Player, _Enemies[0], cardTargets, _Deck);
 
+
             //generate an effect containing all the changes that will happen.
             foreach (var si in _Player.StatusInstances)
             {

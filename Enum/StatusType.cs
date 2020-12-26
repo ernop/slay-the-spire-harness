@@ -16,6 +16,7 @@
         FeelNoPainStatus = 10,
         Frail = 11,
         EvolveStatus = 12,
+        RageStatus = 13,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

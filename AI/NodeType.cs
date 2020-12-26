@@ -7,6 +7,5 @@
             Random = 2,
             Leaf = 3,
             TooLong = 4,
-        }
- 
+        } 
 }

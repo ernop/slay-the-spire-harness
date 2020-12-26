@@ -1095,6 +1095,27 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Rage()
+        {
+            var player = new Player(drawAmount:4);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Defend","Anger","Strike+","Rage+","Rage");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            Assert.AreEqual(player.Block, 0);
+            fight.PlayCard(initialCis[3]); //rage+
+            fight.PlayCard(initialCis[2]); //strike
+            Assert.AreEqual(5, player.Block);
+            fight.PlayCard(initialCis[4]); //rage, ragestatus => 8
+            fight.PlayCard(initialCis[1]); //strike
+            Assert.AreEqual(13, player.Block);
+            fight.EndTurn();
+            fight.EnemyMove();
+            fight.StartTurn();
+            Assert.AreEqual(player.Block, 0);
+        }
+
+            [Test]
         public static void Test_Anchor()
         {
             var player = new Player();
