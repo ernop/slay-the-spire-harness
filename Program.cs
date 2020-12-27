@@ -144,7 +144,7 @@ namespace StS
         public static List<FightNode> GetLeaves(FightNode node)
         {
             var res = new List<FightNode>();
-            foreach (var set in new List<List<FightNode>> { node.Choices, node.Randoms })
+            foreach (var set in new List<IList<FightNode>> { node.Choices, node.Randoms })
             {
                 foreach (var c in set)
                 {

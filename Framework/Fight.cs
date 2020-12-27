@@ -311,6 +311,7 @@ namespace StS
                     break;
                 case EntityType.Player:
                     Status = FightStatus.Lost;
+                    history.Add("Lost fight due to dying");
                     break;
                 default:
                     break;
@@ -602,6 +603,12 @@ namespace StS
             EnemyDone = true;
         }
 
+        /// <summary>
+        /// Todo: Why do I manually use the components of the monster move ef rather than just using
+        /// applyEffectSet?
+        /// </summary>
+        /// <param name="cardInstance"></param>
+        /// <param name="history"></param>
         public void _Attack(CardInstance cardInstance, List<string> history)
         {
             var enemy = _Enemies[0];
@@ -633,20 +640,20 @@ namespace StS
             ReceiveDamage(_Enemies[0], ef.EnemyEffect, ef, history, cardInstance);
             ReceiveDamage(_Player, ef.PlayerEffect, ef, history, cardInstance);
 
-            var aaa = _Enemies[0].HP;
-
             ApplyStatus(_Player, ef.PlayerEffect.Status, history);
             ApplyStatus(_Enemies[0], ef.EnemyEffect.Status, history);
 
-            if (_Enemies[0].HP <= 0)
-            {
-                history.Add("Enemy Died on his turn");
-                Died(_Enemies[0], history);
-            }
+            //enemy dying of  flame barrier status while killing the player, still results in a loss for the player.
             if (_Player.HP <= 0)
             {
                 history.Add("Player Died from enemy attack");
                 Died(_Player, history);
+                return;
+            }
+            if (_Enemies[0].HP <= 0)
+            {
+                history.Add("Enemy Died on his turn");
+                Died(_Enemies[0], history);
             }
         }
 

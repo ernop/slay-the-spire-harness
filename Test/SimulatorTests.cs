@@ -207,7 +207,7 @@ namespace StS.Tests
         {
             var cards = Gsl("Bash", "Inflame", "Strike");
             var enemy = new GenericEnemy(100, 100, 33, 33);
-            var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion() }, 
+            var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion() },
                 relics: new List<Relic>() { new FusionHammer() });
             var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
@@ -356,6 +356,103 @@ namespace StS.Tests
             // D
             //  S  win
             //  D  lose
+        }
+
+        [Test]
+        public static void Test_WildStrike_FightNode()
+        {
+            var player = new Player(drawAmount:1);
+            var enemy = new Cultist(40, 40);
+            var cis = GetCis("Strike", "WildStrike");
+            var deck = new Deck(cis);
+            var mc = new MonteCarlo(deck, enemy, player, firstHand: Gsl("WildStrike"));
+            var root = mc.SimAfterFirstDraw(100);
+            //TODO fix this.
+            //structure should be: root => 1 draw => play ws => 2 randoms for where the wound ended up.
+        }
+
+        [Test]
+        public void Test_Random_Playouts()
+        {
+            for (var loop = 0; loop < 100; loop++)
+            {
+                var ar = AllRelics.Relics.Keys.ToList();
+                var rcount = (int)Rnd.Next(10);
+                var relics = new List<Relic>();
+                for (var ii = 0; ii < rcount; ii++)
+                {
+                    var relic = AllRelics.Relics[ar[Rnd.Next(ar.Count)]];
+                    if (!relics.Contains(relic))
+                    {
+                        relics.Add(relic);
+                    }
+                }
+
+                var ac = AllCards.Cards.Keys.ToList();
+                var ccount = (int)Rnd.Next(20)+3;
+                var cards = new List<CardInstance>();
+                for (var ii = 0; ii < ccount; ii++)
+                {
+                    var card = AllCards.Cards[ac[Rnd.Next(ac.Count)]];
+                    var ci = new CardInstance(card, Rnd.Next(2) == 1 ? 1 : 0);
+                    cards.Add(ci);
+                }
+
+                var player = new Player(relics: relics);
+                var enemy = new Cultist(70, 70);
+                var deck = new Deck(cards);
+                var mc = new MonteCarlo(deck, enemy, player);
+                var histories = new List<double>();
+                FightNode root;
+                //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
+                //that's too bad.
+                for (var ii = 0; ii < 10; ii++)
+                {
+                    root = mc.SimIncludingDraw(1000);
+                    histories.Add(root.Value.Value);
+                }
+                Assert.IsTrue(histories.First() < histories.Last());
+            }
+        }
+
+        [Test]
+        public void Test_LookForBugs()
+        {
+            var player = new Player(relics: GetRelics("Torii", "LetterOpener", "MonkeyPaw","FusionHammer","Vajra"));
+            var enemy = new Cultist(70, 70);
+            var cis = GetCis("Rage", "Defend", "Defend", "Bash", "FlameBarrier", "Dazed","Shockwave","ShrugItOff","Inflame","Inflame","TwinStrike", "SeeingRed", "Pummel", "FeelNoPain","RecklessCharge");
+            var deck = new Deck(cis);
+            var mc = new MonteCarlo(deck, enemy, player);
+            var histories = new List<double>();
+            FightNode root;
+            //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
+            //that's too bad.
+            for (var ii = 0; ii < 100; ii++)
+            {
+                root = mc.SimIncludingDraw(1000);
+                histories.Add(root.Value.Value);
+            }
+            Assert.IsTrue(histories.First() < histories.Last());
+        }
+
+        [Test]
+        public void Test_Cultist()
+        {
+            var player = new Player(relics: GetRelics("Torii","LetterOpener"));
+            var enemy = new Cultist(60, 60);
+            var cis = GetCis( "Rage", "Defend", "Defend", "Bash","FlameBarrier","TwinStrike","SeeingRed","Pummel");
+            var deck = new Deck(cis);
+            var mc = new MonteCarlo(deck, enemy, player);
+            var histories = new List<double>();
+            FightNode root;
+            //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
+            //that's too bad.
+            for (var ii = 0; ii < 100; ii++)
+            {
+                root = mc.SimIncludingDraw(100);
+                histories.Add(root.Value.Value);
+            }
+            Assert.IsTrue(histories.First() < histories.Last());
         }
     }
 }

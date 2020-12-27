@@ -40,7 +40,7 @@ namespace StS
         public int HP { get; set; }
         public int HPMax { get; set; }
         public int Block { get; set; }
-        public bool Dead { get; set; }
+        public bool Dead { get; set; } = false;
 
         public List<StatusInstance> StatusInstances { get; set; } = new List<StatusInstance>();
 

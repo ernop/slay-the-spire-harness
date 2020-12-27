@@ -66,7 +66,8 @@ namespace StS
 
         public override string ToString()
         {
-            return $"NV{Value,-1} C{Cards}";
+            var val = Value.ToString("#.##");
+            return $"NV{val} C{Cards}";
         }
 
         public int CompareTo([AllowNull] NodeValue other)

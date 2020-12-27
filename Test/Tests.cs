@@ -328,6 +328,40 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_Death_Order()
+        {
+            //if P+E both die (from attacking a flame barrier), that is still a loss for the player.
+            var player = new Player(hp:3);
+            var enemy = new GenericEnemy(hp: 3, hpMax:3, amount:20, count:1);
+            var initialCis = GetCis("FlameBarrier+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            fight.EndTurn();
+            fight.EnemyMove();
+            Assert.AreEqual(FightStatus.Lost, fight.Status);
+        }
+
+        [Test]
+        public static void Test_FlameBarrier_Kills()
+        {
+            //if P+E both die (from attacking a flame barrier), that is still a loss for the player.
+            var player = new Player(hp: 5);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3, amount: 20, count: 1);
+            var initialCis = GetCis("FlameBarrier+");
+            var fight = new Fight(initialCis, player: player, enemy: enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            fight.EndTurn();
+            fight.EnemyMove();
+            Assert.AreEqual(FightStatus.Won, fight.Status);
+            Assert.AreEqual(-3, fight._Enemies[0].HP);
+            Assert.AreEqual(1, fight._Player.HP);
+        }
+
+        [Test]
         public static void Test_WildStrike()
         {
             var player = new Player(relics: GetRelics("BurningBlood"), drawAmount: 2);

@@ -33,18 +33,18 @@ namespace StS
         /// But now it will just do a bunch of MCs.
         /// Hopefully this will be enough to find the right solution.
         /// </summary>
-        public FightNode SimAfterFirstDraw()
+        public FightNode SimAfterFirstDraw(int? n = 10000)
         {
-            for (var ii = 0; ii < 10000; ii++)
+            for (var ii = 0; ii < n; ii++)
             {
                 MC(Root.Randoms.First());
             }
             return Root;
         }
 
-        public FightNode SimIncludingDraw()
+        public FightNode SimIncludingDraw(int? n = 10000)
         {
-            for (var ii = 0; ii < 10000; ii++)
+            for (var ii = 0; ii < n; ii++)
             {
                 MC(Root);
             }

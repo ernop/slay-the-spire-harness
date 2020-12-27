@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+
 namespace StS
 {
     /// <summary>
@@ -45,6 +48,20 @@ namespace StS
 
             return n;
         }
+
+        /// <summary>
+        /// Todo: this is actually a bit inaccurate because of innate random effects - monkey paw + power card selection, wildstrike
+        /// </summary>
+        public List<FightNode> Choices { get; set; } = new List<FightNode>();
+        public List<FightNode> Randoms { get; set; } = new List<FightNode>();
+        public Fight Fight { get; set; }
+        public FightNode Parent { get; set; }
+        public int Depth { get; private set; } = int.MinValue;
+        /// <summary>
+        /// The history of the single action here - including both player actions, draws, monster actions.
+        /// </summary>
+        public FightAction FightAction { get; internal set; } = new FightAction(FightActionEnum.NotInitialized);
+
 
         private void CalcValue()
         {
@@ -152,17 +169,6 @@ namespace StS
             
         }
 
-        public List<FightNode> Choices { get; set; } = new List<FightNode>();
-
-        public List<FightNode> Randoms { get; set; } = new List<FightNode>();
-        public Fight Fight { get; set; }
-        public FightNode Parent { get; set; }
-        public int Depth { get; private set; } = int.MinValue;
-        /// <summary>
-        /// The history of the single action here - including both player actions, draws, monster actions.
-        /// </summary>
-        public FightAction FightAction { get; internal set; } = new FightAction(FightActionEnum.NotInitialized);
-
         public IEnumerable<string> AALeafHistory()
         {
             
@@ -230,16 +236,12 @@ namespace StS
         {
             //check if a child already has this action; if so just return that one.
             //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
-            var rr = Randoms;
-            if (rr.Count > 10)
-            {
-                var ae = 4;
-            }
+            
             var dup = FindDuplicate(action);
-            if (rr.Count>2 && dup == null)
-            {
-                var awe = 43;
-            }
+            //if (rr.Count>2 && dup == null)
+            //{
+            //    var awe = 43;
+            //}
             if (dup != null)
             {
                 dup.Weight++;
@@ -354,19 +356,26 @@ namespace StS
 
         public override string ToString()
         {
-            var val = object.ReferenceEquals(Value, null) ? "" : Value.ToString();
-            var status = Fight.Status;
-            var fa = FightAction.ToString();
-            if (FightAction.FightActionType == FightActionEnum.StartTurn)
+            try
             {
-                var showTurn = $"T:{Fight.TurnNumber,2} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
-                var res = $"{showTurn}  {fa} {status} {val}";
-                return res;
-            }
-            else
+                var val = object.ReferenceEquals(Value, null) ? "" : Value.ToString();
+                var status = Fight.Status;
+                var fa = FightAction.ToString();
+                if (FightAction.FightActionType == FightActionEnum.StartTurn)
+                {
+                    var showTurn = $"T:{Fight.TurnNumber,2} {Fight._Player.Details()} {Fight._Enemies[0].Details()}\n";
+                    var res = $"{showTurn} {Weight} {val}  {fa} {status} ";
+                    return res;
+                }
+                else
+                {
+                    var res = $"  {val}{Weight}  {fa} ";
+                    return res;
+                }
+            } catch (Exception ex)
             {
-                var res = $"  {fa}";
-                return res;
+                var ae = 4;
+                return "Failure";
             }
          }
     }

@@ -21,7 +21,10 @@ Stages
 
 Todos
 ==
- - interactive mode with cmdline options.  normal cards - play card, potion, etc. and special mode addcard etc.
+ - actually, reshuffle is truly random, not draw. draw is deterministic.
+ - need to move the logic for creating randomnodes elsewhere.
+ - stop repeatedly visiting the same node?  First generate all actions and just pick one.
+ - profiling - guess I spend 99% of the time in .Copy methods.  How to do this better?
  - mc mode with focusing
  - don't repeatedly choose the same exact action.
  - later - identical full fight state evaluation
@@ -52,6 +55,7 @@ Todos
 
 Todos Done
 ==
+ - basic interactive mode with cmdline options.  normal cards - play card, potion, etc. and special mode addcard etc.
  - visualization improvements
  - fixup sense for statuses
  - unify status parameter - it means either "intensity" for things with fixed lengths like strength (permanent) or flame barrier status(1 round), or length, for things with fixed effects (vulnerable/weaken).
