@@ -467,6 +467,7 @@ namespace StS
 
             DiscardPile = new List<CardInstance>();
             ShuffleDrawPile();
+            ef.HadRandomness = true;
         }
 
         public void FightEnded()
@@ -498,9 +499,17 @@ namespace StS
         /// <summary>
         /// Returns position key.
         /// </summary>
-        internal int AddToRandomSpotInDrawPile(CardInstance ci)
+        internal int AddToRandomSpotInDrawPile(CardInstance ci, int? key = null)
         {
-            var position = Rnd.Next(DrawPile.Count+1);
+            int position;
+            if (key == null)
+            {
+                position = Rnd.Next(DrawPile.Count + 1);
+            }
+            else
+            {
+                position = key.Value;
+            }
             DrawPile.Insert(position, ci);
             return position;
         }

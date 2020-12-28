@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
+using static StS.Helpers;
+using System.Linq;
+
 namespace StS
 {
     /// <summary>
@@ -27,26 +30,75 @@ namespace StS
             Depth = depth;
         }
 
-        public FightNode AddChild(FightNode n, bool rand)
+        public FightNode AddChild(FightNode child)
         {
-            n.Parent = this;
-            n.FightAction = n.Fight.FightAction;
-            if (rand)
+            //interesting, although enemymoves are also randoms, there is no point in having an intermediate copy node.
+            //i.e. Cendturn => RenemyMove => [Rvarious enemy moves] is kind of of pointless
+            //unlike CstartTurn => Rwildstrike => [Rvarious wildstrikes]
+            //                  => Rother random card => [ROther random card random outputs]
+            child.FightAction = child.Fight.FightAction;
+
+            if (child.FightAction.FightActionType == FightActionEnum.EnemyMove)
             {
-                Randoms.Add(n);
+                child.Parent = this;
+                child.FightAction = child.Fight.FightAction;
+                Randoms.Add(child);
+            }
+
+            else if (child.FightAction.Random)
+            {
+                //two cases:
+                //the intermediate node is already created:
+                FightNode intermediateNode = null;
+                foreach (var c in Choices)
+                {
+                    if (c.FightAction.IsEqual(child.FightAction))
+                    {
+                        intermediateNode = c;
+                        break;
+                    }
+                }
+
+                if (intermediateNode == null)
+                {
+                    //if we have a random, then consider it a c with this as a random child.
+                    intermediateNode = new FightNode(child.Fight.Copy());
+                    intermediateNode.Parent = this;
+                    var src = child.Fight.FightAction;
+
+                    //we convert the specced out action into a generic one again.
+                    var nonspecifiecAction = new FightAction(fightActionType: src.FightActionType,
+                        card: src.Card, cardTargets: src.CardTargets, potion: src.Potion, target: src.Target,
+                        hadRandomEffects: src.Random);
+                    intermediateNode.FightAction = nonspecifiecAction;
+
+                    //zero these out since at this stage they represent the action pre-randomization.
+                    if (intermediateNode.Fight.FightNode!=null)
+                        intermediateNode.Fight.FightNode.FightAction.Key = null;
+                    intermediateNode.FightAction.Key = null;
+                    Choices.Add(intermediateNode);
+                    //there is not a random with this key already since this is the first time we played this card with random children.
+                }
+                
+                child.Parent = intermediateNode;
+                child.FightAction = child.Fight.FightAction;
+                //child.fightaction still has its key
+                intermediateNode.Randoms.Add(child);
             }
             else
             {
-                Choices.Add(n);
+                child.Parent = this;
+                child.FightAction = child.Fight.FightAction;
+                Choices.Add(child);
             }
 
             //Fight is over. Calc values.
-            if (n.Fight.Status != FightStatus.Ongoing)
+            if (child.Fight.Status != FightStatus.Ongoing)
             {
-                n.CalcValue();
+                child.CalcValue();
             }
 
-            return n;
+            return child;
         }
 
         /// <summary>
@@ -125,7 +177,7 @@ namespace StS
                     {
                         cards2++;
                     }
-                    var myVal = new NodeValue(value.Value, value.Cards+cards2, bc);
+                    var myVal = new NodeValue(value.Value, value.Cards + cards2, bc);
                     SetValue(myVal);
                     break;
                 case NodeType.Random:
@@ -153,7 +205,7 @@ namespace StS
             switch (GetChoiceType())
             {
                 case NodeType.Choice:
-                    if (v > oldValue || object.ReferenceEquals(oldValue,null))
+                    if (v > oldValue || object.ReferenceEquals(oldValue, null))
                     {
                         Parent?.CalcValue();
                     }
@@ -166,12 +218,12 @@ namespace StS
                     Parent.CalcValue();
                     break;
             }
-            
+
         }
 
         public IEnumerable<string> AALeafHistory()
         {
-            
+
             var target = this;
             var res = new List<string>();
 
@@ -203,45 +255,95 @@ namespace StS
             return child;
         }
 
+        /// <summary>
+        /// when trying to add a child node, we check if there already is one for the same action.
+        /// complexity: for random actions, we first add a choice then the child randoms.
+        /// This searches for both the child + the child random and if not returns nothing.
+        /// If the intermediate node *does* exist, but the appropriate random child isn't found,
+        /// that will be detected in AddChild
+        /// </summary>
         private FightNode FindDuplicate(FightAction action)
         {
-            if (action.Random)
+            if (action.FightActionType == FightActionEnum.EnemyMove)
             {
                 foreach (var r in Randoms)
                 {
-                    if (Randoms.Count > 10)
-                    {
-                        var ae = 34;
-                    }
                     if (r.FightAction.IsEqual(action))
                     {
                         return r;
                     }
                 }
             }
+            else if (Randoms.Count > 0)
+            {
+                throw new Exception("Should not happen");
+            }
             else
             {
-                foreach (var c in Choices)
+                if (action.FightActionType == FightActionEnum.PlayCard)
                 {
-                    if (c.FightAction.IsEqual(action))
+                    if (Choices.Count > 0)
+                    {
+                        if (action.Card.Card.Name == nameof(WildStrike))
+                        {
+                            var ae = 4;
+                        }
+                    }
+                }
+                
+                //there should only be one cardplay of this.
+                var c = Choices.SingleOrDefault(el => el.FightAction.IsEqual(action));
+                if (c == null) { return null; }
+                if (c.FightAction.IsEqual(action))
+                {
+                    if (!action.Random) //the nonrandom case; you simply found a normal node that represents this state already.
                     {
                         return c;
                     }
+                    //e.g. we have played wildstrike before so we found it in the choices.
+                    else
+                    {
+                        foreach (var r in c.Randoms)
+                        {
+                            if (r.FightAction.Key == action.Key)
+                            {
+                                return r;
+                            }
+                            if (r.FightAction.Key == null) throw new Exception("Should not happen");
+                        }
+                        //there is a node for playing this card, but no appropriate rchild.
+                        return null;
+                    }
                 }
             }
+
             return null;
+        }
+
+        private void GenerateKeyIfNecessary(FightAction action)
+        {
+            int? key = null;
+            if (action.Key.HasValue)
+            {
+                key = action.Key;
+            }
+            else if (action.Keys != null)
+            {
+                key = Rnd.Next(action.Keys.Count);
+                //note down which randomness we chose for this so that we can identify duplicates later.
+                action.Key = key;
+            }
         }
 
         public FightNode ApplyAction(FightAction action)
         {
             //check if a child already has this action; if so just return that one.
             //would be a lot better to just MC the child directly rather than MCing the parent and then redoing this traversal.
-            
+
+            GenerateKeyIfNecessary(action);
+            if (action.Random && action.Key == null) throw new Exception("Guard");
+
             var dup = FindDuplicate(action);
-            //if (rr.Count>2 && dup == null)
-            //{
-            //    var awe = 43;
-            //}
             if (dup != null)
             {
                 dup.Weight++;
@@ -275,14 +377,14 @@ namespace StS
         /// </summary>
         internal void StartFight()
         {
-            FightAction = new FightAction(FightActionEnum.StartFight);
+            FightAction = new FightAction(FightActionEnum.StartFight, hadRandomEffects: true);
         }
 
         internal FightNode StartTurn(FightAction action = null)
         {
             var c = GetNode();
-            var rnd = c.Fight.StartTurn(action);
-            AddChild(c, rnd);
+            c.Fight.StartTurn(action);
+            AddChild(c);
             return c;
         }
 
@@ -293,8 +395,8 @@ namespace StS
         {
             var c = GetNode();
 
-            c.Fight.PlayCard(action.Card, action.CardTargets);
-            AddChild(c, action.Random);
+            c.Fight.PlayCard(action);
+            AddChild(c);
             return c;
         }
 
@@ -302,15 +404,15 @@ namespace StS
         {
             var c = GetNode();
             var rnd = c.Fight.DrinkPotion(action.Potion, (Enemy)action.Target);
-            AddChild(c, rnd);
+            AddChild(c);
             return c;
         }
-        
+
         internal FightNode EndTurn()
         {
             var c = GetNode();
             c.Fight.EndTurn();
-            AddChild(c, false);
+            AddChild(c);
             return c;
         }
 
@@ -318,7 +420,7 @@ namespace StS
         {
             var c = GetNode();
             c.Fight.EnemyMove(action);
-            AddChild(c, true);
+            AddChild(c);
             return c;
         }
 
@@ -372,11 +474,11 @@ namespace StS
                     var res = $"  {val}{Weight}  {fa} ";
                     return res;
                 }
-            } catch (Exception ex)
-            {
-                var ae = 4;
-                return "Failure";
             }
-         }
+            catch (Exception ex)
+            {
+                return $"Failure {ex}";
+            }
+        }
     }
 }

@@ -268,8 +268,7 @@ namespace StS.Tests
             Assert.AreEqual(1, actions.Count);
             mc.Root.StartFight();
             mc.Root.StartTurn();
-            var actions2 = mc.Root.Randoms.First().Fight.GetAllActions();
-            var ae = 3;
+            var actions2 = mc.Root.Choices.First().Fight.GetAllActions();
         }
         
         [Test]
@@ -1292,7 +1291,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack:GSS(new Frail(), 3)),0)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
 
             Assert.AreEqual(0, player.StatusInstances.Count);
         }
@@ -1308,7 +1307,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(8, player.Block);
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)),0)));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
             Assert.AreEqual(1, player.StatusInstances.Count);
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);

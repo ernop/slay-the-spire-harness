@@ -37,7 +37,7 @@ namespace StS
         {
             for (var ii = 0; ii < n; ii++)
             {
-                MC(Root.Randoms.First());
+                MC(Root.Choices.First());
             }
             return Root;
         }
@@ -58,10 +58,15 @@ namespace StS
             _Player = player ?? throw new ArgumentNullException();
             _TurnNumber = turnNumber;
 
-            if (firstHand != null)
+            if (firstHand == null)
+            {
+                //by default shuffle the deck at fight start.
+                _Deck.Reshuffle(new EffectSet(), new List<string>());
+            }
+            else
             {
                 var cards = _Deck.FindSetOfCards(_Deck.GetDrawPile, firstHand);
-                var firstAction = new FightAction(FightActionEnum.StartTurn, cards);
+                var firstAction = new FightAction(FightActionEnum.StartTurn, cardTargets: cards);
                 _FirstAction = firstAction;
             }            
 

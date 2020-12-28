@@ -31,6 +31,17 @@ namespace StS
         /// </summary>
         public List<OneEffect> FightEffect { get; set; } = new List<OneEffect>();
         public List<EffectSet> NextEffectSet { get; set; } = new List<EffectSet>();
+        
+        /// <summary>
+        /// Whether during the application of this ef the deck was shuffled or other random action taken.
+        /// </summary>
+        public bool HadRandomness { get; internal set; } = false;
+        
+        /// <summary>
+        /// randomness key.  i.e. 0 for wildstrike means the wound was inserted at position 0 of the draw pile.
+        /// question: what does it mean for deck shuffling though?
+        /// </summary>
+        public int Key { get; set; }
 
         internal void AddNextEf(EffectSet newEf)
         {

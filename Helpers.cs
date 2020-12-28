@@ -89,6 +89,11 @@ namespace StS
         /// </summary>
         public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message, bool ordered = false)
         {
+            message = "";
+            if (a==null && b == null)
+            {
+                return true;
+            }
             if (a.Count() != b.Count())
             {
                 message = "length mismatch";
@@ -102,7 +107,6 @@ namespace StS
 
             var al = string.Join(',', a.Select(el => el.ToString()));
             var bl = string.Join(',', b.Select(el => el.ToString()));
-            
             
             if (al != bl)
             {
@@ -298,7 +302,7 @@ namespace StS
         ///// </summary>
         public static FightNode GetBestLeaf(FightNode root)
         {
-            return root.Randoms.OrderBy(el => el.GetValue().Value).First();
+            return root.Choices.OrderBy(el => el.GetValue().Value).First();
         }
 
         public static string SJ<T>(char separator = ',', IEnumerable<T> input = null)

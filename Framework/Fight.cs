@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using static StS.Helpers;
+
 namespace StS
 {
     public class Fight
@@ -99,7 +101,7 @@ namespace StS
                 {
                     //we actually need to run this many times to get more options for draws.
                     var cards = _Deck.WouldDraw(_Player.GetDrawAmount());
-                    return new List<FightAction>() { new FightAction(FightActionEnum.StartTurn, cardsDrawn:cards) };
+                    return new List<FightAction>() { new FightAction(FightActionEnum.StartTurn, cardTargets: cards) };
                 }
                 else
                 {
@@ -113,7 +115,8 @@ namespace StS
         /// All playable cards, potions, or endturn.
         /// Complication: Some cards generate multiple actions (when they have random effects.)
         /// </summary>
-        public IList<FightAction> GetNormalActions() { 
+        public IList<FightAction> GetNormalActions()
+        {
 
             var res = new List<FightAction>();
             var hand = _Deck.GetHand;
@@ -125,8 +128,8 @@ namespace StS
                 {
                     if (ci.Card.RandomEffects)
                     {
-                        var actions = ci.Card.GetActions(_Deck, ci);
-                        res.AddRange(actions);
+                        var action = ci.Card.GetActions(_Deck, ci);
+                        res.Add(action);
                     }
                     else
                     {
@@ -146,7 +149,7 @@ namespace StS
                     continue;
                 }
                 seenPots.Add(key);
-                var sa = new FightAction(FightActionEnum.Potion, potion: pot, target:_Enemies[0]);
+                var sa = new FightAction(FightActionEnum.Potion, potion: pot, target: _Enemies[0]);
                 res.Add(sa);
             }
 
@@ -197,7 +200,7 @@ namespace StS
                 _Deck.ForceDrawCards(initialHand, ef, history);
             }
 
-            history.Add($"Drew:{string.Join(',', initialHand.OrderBy(el=>el.ToString()))}");
+            history.Add($"Drew:{string.Join(',', initialHand.OrderBy(el => el.ToString()))}");
 
             _Player.Energy = _Player.MaxEnergy();
             _Player.Block = 0;
@@ -214,7 +217,11 @@ namespace StS
 
             ApplyEffectSet(ef, _Player, _Enemies[0], history);
 
-            AssignLastAction(new FightAction(FightActionEnum.StartTurn, cardsDrawn: initialHand, history: history));
+            if (action == null)
+            {
+                action = new FightAction(FightActionEnum.StartTurn, cardTargets: initialHand, history: history);
+            }
+            AssignLastAction(action);
             return true;
         }
 
@@ -327,14 +334,23 @@ namespace StS
             }
             _Player.StatusInstances = new List<StatusInstance>();
         }
+
+        public void PlayCard(CardInstance ci, List<CardInstance> cardTargets = null, bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
+        {
+            var action = new FightAction(FightActionEnum.PlayCard, card: ci, cardTargets: cardTargets, hadRandomEffects: ci.Card.RandomEffects);
+            PlayCard(action, forceExhaust: forceExhaust, newCard: newCard, source: source);
+        }
+
+
         /// <summary>
         /// From monster POV, player is the enemy.
         /// 
         /// TODO: why not send a cardDescriptor, and have this method just find a matching card? would make external combinatorics easier.
         /// </summary>
-        public void PlayCard(CardInstance cardInstance, IList<CardInstance> cardTargets = null, 
-            bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
+        public void PlayCard(FightAction action, bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
         {
+            var cardInstance = action.Card;
+            var cardTargets = action.CardTargets;
             if (!PlayerTurn) throw new Exception("Not your turn");
             //get a copy since action was generated from an earlier version.
             if (source == null)
@@ -382,8 +398,8 @@ namespace StS
 
             //set the initial effect, or status.
             var ef = new EffectSet();
-            cardInstance.Play(ef, _Player, _Enemies[0], cardTargets, _Deck);
-
+            
+            cardInstance.Play(ef, _Player, _Enemies[0], cardTargets, _Deck, action.Key);
 
             //generate an effect containing all the changes that will happen.
             foreach (var si in _Player.StatusInstances)
@@ -409,7 +425,9 @@ namespace StS
 
             ApplyEffectSet(ef, _Player, _Enemies[0], history: history, ci: cardInstance);
 
-            AssignLastAction(new FightAction(FightActionEnum.PlayCard, card: cardInstance, history: history));
+            //reuse the same action.
+            action.History = history;
+            AssignLastAction(action);
             _Deck.CardPlayCleanup();
         }
 
@@ -424,10 +442,9 @@ namespace StS
             var history = new List<string>();
             var ef = new EffectSet();
             p.Apply(this, _Player, enemy, ef);
-            Entity target;
             ApplyEffectSet(ef, _Player, enemy, history);
 
-            AssignLastAction(new FightAction(FightActionEnum.Potion, potion: p, target: enemy, history: history));
+            AssignLastAction(new FightAction(FightActionEnum.Potion, potion: p, target: enemy, history: history, hadRandomEffects: ef.HadRandomness, key: ef.Key));
             return false;
         }
 
@@ -582,7 +599,7 @@ namespace StS
         public void EnemyMove(int amount, int count)
         {
             if (PlayerTurn) throw new Exception("Not your turn");
-            var ea = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(amount, count), 0));
+            var ea = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(amount, count), 0), hadRandomEffects: true);
             EnemyMove(ea);
         }
 
@@ -670,7 +687,7 @@ namespace StS
         {
             return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]}";
         }
-        
+
         internal void SetEnemyHp(int v)
         {
             foreach (var enemy in _Enemies)

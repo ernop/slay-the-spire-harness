@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StS
 {
@@ -8,17 +9,17 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
         public override bool RandomEffects => true;
-        public override List<FightAction> GetActions(Deck d, CardInstance ci)
+        public override FightAction GetActions(Deck d, CardInstance ci)
         {
-            var res = new List<FightAction>();
-            for (var ii = 0; ii < d.GetDrawPile.Count; ii++)
+            var res = new List<int>();
+            for (var ii = 0; ii < d.GetDrawPile.Count + 1; ii++)
             {
-                var action = new FightAction(FightActionEnum.PlayCard, card: ci, key: ii);
-                res.Add(action);
+                res.Add(ii);
             }
-            return res;
+            var action = new FightAction(FightActionEnum.PlayCard, card: ci, hadRandomEffects: true, keys: res);
+            return action;
         }
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
         {
             //I need some way to:
             // * make sure the childnode from playing this ends up in the random list (not choices)
@@ -26,11 +27,13 @@ namespace StS
             ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
                 var newCi = new CardInstance(new Wound(), 0);
-                var position = d.AddToRandomSpotInDrawPile(newCi);
-                return "Wound added to draw pile";
+                var position = d.AddToRandomSpotInDrawPile(newCi, key);
+                return $"Wound added to draw pile key:{key}";
             });
             var dmg = upgradeCount == 0 ? 12 : 17;
             ef.EnemyEffect.SetInitialDamage(dmg);
+            ef.HadRandomness = true;
+            ef.Key = key ?? 0;
         }
     }
 }

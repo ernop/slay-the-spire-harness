@@ -13,7 +13,7 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => int.MaxValue;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null) { }
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null) { }
         public override void LeftInHandAtEndOfTurn(IndividualEffect ie, int upgradeCount)
         {
             var dmg = upgradeCount == 0 ? 2 : 4;

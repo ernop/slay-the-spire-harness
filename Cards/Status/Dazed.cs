@@ -11,7 +11,7 @@ namespace StS
         public override TargetType TargetType => TargetType.Player;
         internal override bool Ethereal(int upgradeCount) => true;
         public override int CiCanCallEnergyCost(int upgradeCount) => int.MaxValue;
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null) { }
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null) { }
         public override bool Playable(List<CardInstance> hand) => false;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StS
 {
@@ -13,7 +14,7 @@ namespace StS
         /// Does this card have random effects?
         /// </summary>
         public virtual bool RandomEffects => false;
-        internal abstract void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null);
+        internal abstract void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null);
         internal virtual bool Exhausts(int upgradeCount) => false;
         internal virtual bool Ethereal(int upgradeCount) => false;
 
@@ -40,7 +41,7 @@ namespace StS
 
         public virtual void LeftInHandAtEndOfTurn(IndividualEffect playerEffect, int upgradeCount) { }
 
-        public virtual List<FightAction> GetActions(Deck d, CardInstance ci)
+        public virtual FightAction GetActions(Deck d, CardInstance ci)
         {
             throw new System.Exception("Can't call this upon non-random marked card.");
         }

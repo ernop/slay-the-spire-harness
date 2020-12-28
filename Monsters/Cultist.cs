@@ -13,12 +13,12 @@ namespace StS
         {
             if (turn == 1)
             {
-                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(buffs: new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }),0));
+                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects:true, card: new CardInstance(new EnemyCard(buffs: new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }), 0), key:1);
                 return res;
             }
             else
             {
-                var res = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(6, 1),0));
+                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects: true, card: new CardInstance(new EnemyCard(6, 1), 0), key:1);
                 return res;
             }
         }

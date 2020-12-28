@@ -75,7 +75,7 @@ namespace StS.Tests
 
             Assert.AreEqual(1, node.GetValue().Value);
             //assert the right cards were played.
-            var drawNode = node.Randoms.First();
+            var drawNode = node.Choices.First();
             var enlightenment = drawNode.Choices.Single(el => el.Value.Value == 1);
             Assert.AreEqual(nameof(Enlightenment), enlightenment.FightAction.Card.Card.Name);
             Assert.AreEqual(1, enlightenment.FightAction.Card.UpgradeCount);
@@ -98,7 +98,7 @@ namespace StS.Tests
 
             Assert.AreEqual(1, node.GetValue().Value);
             //assert the right cards were played.
-            var drawNode = node.Randoms.First();
+            var drawNode = node.Choices.First();
             var wins = drawNode.Choices.Where(el => el.Value.Value == 1);
             Assert.AreEqual(3, wins.Count());
             //block, pot, inflame
@@ -161,9 +161,9 @@ namespace StS.Tests
             var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
-            Assert.AreEqual(1, node.Randoms.Count);
+            Assert.AreEqual(1, node.Choices.Count);
             //also assert there is only one good path.
-            var wins = node.Randoms.First().Choices.Where(el => el.GetValue().Value == 100);
+            var wins = node.Choices.First().Choices.Where(el => el.GetValue().Value == 100);
             var win = wins.First();
             var hh = win.GetTurnHistory();
             Assert.AreEqual(1, wins.ToList().Count());
@@ -212,9 +212,10 @@ namespace StS.Tests
             var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
-            Assert.AreEqual(1, node.Randoms.Count);
+            Assert.AreEqual(0, node.Randoms.Count);
+            Assert.AreEqual(1, node.Choices.Count);
             //also assert there is only one good path.
-            var best = node.Randoms.Max(el => el.GetValue());
+            var best = node.Choices.Max(el => el.GetValue());
             //var bb = GetBestLeaf(node.Randoms);
             //var hh = bb.AALeafHistory();
             Assert.AreEqual(-1, best.Value);
@@ -236,11 +237,11 @@ namespace StS.Tests
 
             var fs = new MonteCarlo(deck, enemy, player, firstHand: firstHand);
             var node = fs.SimAfterFirstDraw();
-            Assert.AreEqual(1, node.Randoms.Count);
+            Assert.AreEqual(1, node.Choices.Count);
             //also assert there is only one good path.
-            var best = node.Randoms.Max(el => el.GetValue());
+            var best = node.Choices.Max(el => el.GetValue());
 
-            var bests = node.Randoms.Where(el => el.GetValue().Value == 5);
+            var bests = node.Choices.Where(el => el.GetValue().Value == 5);
             //this is good but there can still be dumb paths that are longer.
 
             var win = bests.First();
@@ -266,9 +267,9 @@ namespace StS.Tests
             var firstHand = Gsl("Defend", "Defend", "Inflame", "Inflame", "Inflame");
             var fs = new MonteCarlo(deck, enemy, player, firstHand: firstHand);
             var node = fs.SimAfterFirstDraw();
-            Assert.AreEqual(1, node.Randoms.Count);
+            Assert.AreEqual(1, node.Choices.Count);
             //also assert there is only one good path.
-            var best = node.Randoms.Max(el => el.GetValue());
+            var best = node.Choices.Max(el => el.GetValue());
 
             //var bests = node.Randoms.Where(el => el.GetValue().Value == 5);
             //this is good but there can still be dumb paths that are longer.
@@ -317,8 +318,8 @@ namespace StS.Tests
             var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
             var fs = new MonteCarlo(deck, enemy, player);
             var node = fs.SimIncludingDraw();
-            Assert.AreEqual(3, node.Randoms.Count);
-            var values = node.Randoms.Select(el => el.GetValue().Value).OrderBy(el => el).ToList();
+            Assert.AreEqual(3, node.Choices.Count);
+            var values = node.Choices.Select(el => el.GetValue().Value).OrderBy(el => el).ToList();
             CollectionAssert.AreEqual(new List<double>() { 100, -1, -1 }.OrderBy(el => el), values);
         }
 
@@ -332,10 +333,10 @@ namespace StS.Tests
             var fs = new MonteCarlo(deck, enemy, player);
             var root = fs.SimIncludingDraw();
             //there should be two randomChoice nodes
-            Assert.AreEqual(0, root.Choices.Count);
-            Assert.AreEqual(2, root.Randoms.Count);
+            Assert.AreEqual(2, root.Choices.Count);
+            Assert.AreEqual(0, root.Randoms.Count);
 
-            foreach (var r in root.Randoms)
+            foreach (var r in root.Choices)
             {
                 //var v = r.GetValue();
                 //endturn and play your single card.
@@ -366,7 +367,11 @@ namespace StS.Tests
             var cis = GetCis("Strike", "WildStrike");
             var deck = new Deck(cis);
             var mc = new MonteCarlo(deck, enemy, player, firstHand: Gsl("WildStrike"));
+            //testing: this should create one choice with the first draw (which is force)
+
             var root = mc.SimAfterFirstDraw(100);
+            //this should create root C=> draw => Cwildstrike => [R,various keys with no duplication]
+            var a = 43;
             //TODO fix this.
             //structure should be: root => 1 draw => play ws => 2 randoms for where the wound ended up.
         }
@@ -429,7 +434,7 @@ namespace StS.Tests
             //that's too bad.
             for (var ii = 0; ii < 10; ii++)
             {
-                root = mc.SimIncludingDraw(1000);
+                root = mc.SimIncludingDraw(100);
                 histories.Add(root.Value.Value);
             }
             Assert.IsTrue(histories.First() < histories.Last());

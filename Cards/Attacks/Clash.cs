@@ -11,7 +11,7 @@ namespace StS
 
         public override bool Playable(IList<CardInstance> hand) => hand.All(el => el.Card.CardType == CardType.Attack);
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
         {
             var dmg = upgradeCount == 0 ? 14 : 18;
             ef.EnemyEffect.SetInitialDamage(dmg);

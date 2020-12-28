@@ -8,7 +8,7 @@ namespace StS
         public override string Name => nameof(SearingBlow);
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
         {
             var amt = 4;
             var tot = 0;

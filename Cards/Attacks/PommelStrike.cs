@@ -8,7 +8,7 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
         {
             var cardAmt = upgradeCount == 0 ? 1 : 2;
             var dmg = upgradeCount == 0 ? 9 : 10;

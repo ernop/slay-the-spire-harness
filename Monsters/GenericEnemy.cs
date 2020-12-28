@@ -22,7 +22,7 @@ namespace StS
 
         public override FightAction GetAction(int turnNumber)
         {
-            return new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(Amount, Count),0));
+            return new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(Amount, Count), 0), hadRandomEffects: true, key:1);
         }
 
         public override IEnemy Copy()
