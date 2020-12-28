@@ -42,10 +42,7 @@ namespace StS
                 return;
             }
             //can we just set player block? No never.  Because there are things like "do damage when gain block".
-            ef.PlayerEffect.BlockAdjustments.Add(new Progression("FNP Blocks", (el, entity) =>
-            {
-                return el + si.Intensity;
-            }));
+            ef.PlayerEffect.AddBlockStep("FNP Blocks", si.Intensity);
         }
     }
 }

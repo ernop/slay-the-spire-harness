@@ -14,7 +14,7 @@ namespace StS
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
             var blk = upgradeCount == 0 ? 10 : 13;
-            ef.PlayerEffect.InitialBlock = blk;
+            ef.PlayerEffect.AddBlockStep("GhostlyArmor", blk);
         }
     }
 }

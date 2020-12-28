@@ -13,7 +13,7 @@ namespace StS
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
             //is it as simple as this?
-            ef.PlayerEffect.BlockAdjustments.Add(new Progression("Entrench", (el, entity) => entity.Block));
+            ef.PlayerEffect.AddBlockStep("Entrench", player.Block, 10,true);
         }
     }
 }

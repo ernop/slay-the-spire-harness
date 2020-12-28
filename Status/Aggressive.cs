@@ -40,7 +40,7 @@
                         //since here we're 
                         enemySet.Status.Add(negativeAggressiveStatus);
 
-                        enemySet.BlockAdjustments.Add(new Progression("AggroStatus", (el, entity) => intensity));
+                        enemySet.AddBlockStep("Aggrostatus", intensity);
                     }
                 }
             }

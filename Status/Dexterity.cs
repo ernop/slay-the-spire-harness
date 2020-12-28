@@ -1,4 +1,6 @@
-﻿namespace StS
+﻿using System.Linq;
+
+namespace StS
 {
 
     public class Dexterity : Status
@@ -16,18 +18,18 @@
         {
             //TODO: it would be better if this was a running total of defense so we could directly compare.
             //only add block if it's actually a block card (not entrench)
-            if (card.CardType == CardType.Skill && statusIsTargeted && playerSet.InitialBlock != 0)
+            if (card.CardType == CardType.Skill && statusIsTargeted)
             {
-                playerSet.BlockAdjustments.Add(new Progression("DexEffect",
-                    (el, entity) =>
+                //dex only adds block if there is an existing additive.
+                //i.e. entrench doesn't quality.
+                foreach (var existingSteps in playerSet.GetBlockActions.Where(el=>el.Order<10))
+                {
+                    if (existingSteps.Additive)
                     {
-                        var blockGain = el + intensity;
-                        if (blockGain >= 0)
-                        {
-                            return blockGain;
-                        }
-                        return 0;
-                    }));
+                        playerSet.AddBlockStep("Dex", intensity);
+                        break;
+                    }
+                }                
             }
         }
     }

@@ -85,37 +85,6 @@ namespace StS
         }
 
         /// <summary>
-        /// sometimes we'll have target effects (gaining block from playing "defend")
-        /// and source effects (afterimage is a status that gives +1 block per card played)
-        /// When target == source, we have to combine them.
-        /// </summary>
-        public static IndividualEffect Combine(IndividualEffect ef1, IndividualEffect ef2)
-        {
-            var combined = new IndividualEffect();
-            combined.InitialBlock = ef1.InitialBlock + ef2.InitialBlock;
-            var res = new List<int>();
-            if (ef1.GetInitialDamage() != null || ef2.GetInitialDamage() != null)
-            {
-                foreach (var ls in new List<IEnumerable<int>>() { ef1.GetInitialDamage(), ef2.GetInitialDamage() })
-                {
-                    foreach (var el in ls)
-                    {
-                        res.Add(el);
-                    }
-                }
-                combined.SetInitialDamage(res.ToArray());
-            }
-
-            combined.DamageAdjustments.AddRange(ef1.DamageAdjustments);
-            combined.DamageAdjustments.AddRange(ef2.DamageAdjustments);
-            combined.BlockAdjustments.AddRange(ef1.BlockAdjustments);
-            combined.BlockAdjustments.AddRange(ef2.BlockAdjustments);
-            combined.Status.AddRange(ef1.Status);
-            combined.Status.AddRange(ef2.Status);
-            return combined;
-        }
-
-        /// <summary>
         /// meant to be a complete comparison of per-hand lists of CIs.
         /// </summary>
         public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message, bool ordered = false)
@@ -332,8 +301,9 @@ namespace StS
             return root.Randoms.OrderBy(el => el.GetValue().Value).First();
         }
 
-        public static string SJ<T>(IEnumerable<T> input, char separator = ',')
+        public static string SJ<T>(char separator = ',', IEnumerable<T> input = null)
         {
+            if (input == null) { return ""; }
             return string.Join(separator, input.Select(el => el.ToString()));
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static StS.Helpers;
 
 namespace StS
 {
@@ -18,6 +19,7 @@ namespace StS
         public IndividualEffect PlayerEffect = new IndividualEffect();
         public IndividualEffect EnemyEffect = new IndividualEffect();
         public int PlayerEnergy { get; set; } = 0;
+
 
         /// <summary>
         /// After playing the card, call these on the hand (temporarily); things like monkey paw.
@@ -64,7 +66,8 @@ namespace StS
 
     public class IndividualEffect
     {
-        public double InitialBlock { get; set; }
+        private List<FightStep> BlockActions { get; set; } = new List<FightStep>();
+        public List<FightStep> GetBlockActions => BlockActions;
         private IList<int> InitialDamage { get; set; }
         public int AttackCount => InitialDamage?.Count ?? 0; 
         public IList<int> GetInitialDamage()
@@ -80,21 +83,25 @@ namespace StS
         {
             InitialDamage = new List<int>(dmg);
         }
-        public List<Progression> BlockAdjustments { get; set; } = new List<Progression>();
         public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();
         public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
 
         public override string ToString()
         {
 
-            var ib = InitialBlock == 0 ? "" : $"B{InitialBlock}";
+            var block = SJ(input: BlockActions.Select(el=>el.ToString()));
             var id = InitialDamage.Count == 0 ? "" : $"D{string.Join(',', InitialDamage)}";
-            var ba = string.Join(',', BlockAdjustments.Select(el => el.Desc));
+            var ba = string.Join(',', BlockActions.Select(el => el.Desc));
             var da = string.Join(',', DamageAdjustments.Select(el => el.Desc));
             var s = string.Join(',', Status.Select(el => el.ToString()));
-            var res = string.Join('|', new List<string>() { ib, id, ba, da, s }.Where(el => !string.IsNullOrEmpty(el)));
+            var res = SJ('|', new List<string>() { block, id, ba, da, s }.Where(el => !string.IsNullOrEmpty(el)));
 
             return res;
+        }
+
+        internal void AddBlockStep(string v, double v2, int? order = null, bool additive = true)
+        {
+            BlockActions.Add(new FightStep(v, v2, order, additive));
         }
     }
 }

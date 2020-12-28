@@ -138,7 +138,7 @@ namespace StS
         {
             System.IO.File.AppendAllText(Output, $"\n==============Fight {mcCount} {leaf.Fight.Status} {leaf.Value}\n");
             var hh = leaf.AALeafHistory();
-            System.IO.File.AppendAllText(Output, SJ(hh, '\n'));
+            System.IO.File.AppendAllText(Output, SJ('\n', hh));
         }
 
         public static List<FightNode> GetLeaves(FightNode node)

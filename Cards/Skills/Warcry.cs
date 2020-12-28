@@ -21,7 +21,7 @@ namespace StS
                 var drewDesc = "";
                 var toDrawPileDesc = "";
                 var would = d.WouldDraw(ct);
-                drewDesc = SJ(would);
+                drewDesc = SJ(input: would);
                 d.ForceDrawCards(would, ef, history);
 
                 //target is only the card we are going to throw away.

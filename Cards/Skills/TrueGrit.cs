@@ -17,7 +17,9 @@ namespace StS
         /// </summary>
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
-            ef.PlayerEffect.InitialBlock = upgradeCount == 0 ? 7 : 10;
+            var amt = upgradeCount == 0 ? 7 : 10;
+            ef.PlayerEffect.AddBlockStep("TrueGrit", amt);
+
             ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
                 if (targets == null)

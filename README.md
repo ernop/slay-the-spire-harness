@@ -21,6 +21,7 @@ Stages
 
 Todos
 ==
+ - random testing => means I need to fix the InitialBlock / blockAdjustment concept
  - actually, reshuffle is truly random, not draw. draw is deterministic.
  - need to move the logic for creating randomnodes elsewhere.
  - stop repeatedly visiting the same node?  First generate all actions and just pick one.

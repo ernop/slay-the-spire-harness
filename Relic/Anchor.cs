@@ -9,14 +9,9 @@
         {
             RoundNumber++;
 
-            if (relicEf.PlayerEffect.InitialBlock != 0)
-            {
-                throw new System.Exception("Shouldn't happen.");
-            }
-
             if (RoundNumber == 1)
             {
-                relicEf.PlayerEffect.InitialBlock = 10;
+                relicEf.PlayerEffect.AddBlockStep("Anchor", 10);
             }
         }
 

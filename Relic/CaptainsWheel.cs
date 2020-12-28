@@ -8,15 +8,10 @@
         public override void StartTurn(Player player, IEntity enemy, EffectSet relicEf)
         {
             RoundNumber++;
-
-            if (relicEf.PlayerEffect.InitialBlock != 0)
-            {
-                throw new System.Exception("Shouldn't happen.");
-            }
-
+          
             if (RoundNumber == 3)
             {
-                relicEf.PlayerEffect.InitialBlock = 18;
+                relicEf.PlayerEffect.AddBlockStep("Wheel", 18);
             }
         }
 

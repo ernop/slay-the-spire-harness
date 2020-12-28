@@ -14,7 +14,7 @@ namespace StS
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
             var blockAmount = upgradeCount == 0 ? 12 : 16;
-            ef.PlayerEffect.InitialBlock = blockAmount;
+            ef.PlayerEffect.AddBlockStep("FB", blockAmount); ;
 
             var intensity = upgradeCount == 0 ? 4 : 6;
             ef.PlayerEffect.Status.Add(new StatusInstance(new FlameBarrierStatus(), intensity));

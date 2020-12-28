@@ -119,7 +119,18 @@ namespace StS.Tests
             }
         }
 
+        [Test]
+        public static void DefendDexTests()
+        {
+            RunTest(name: "DefendNeg3", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -5) });
+            RunTest(name: "DefendNeg5", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -7) });
+            RunTest(name: "DefendNeg2", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 3, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -4) });
+            RunTest(name: "Defend", cis: GetCis("Defend"), finalPlayerBlock: 5);
+            RunTest(name: "FootDefend", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 7);
+            RunTest(name: "Foot+Defend", cis: GetCis("Footwork+", "Defend"), finalPlayerBlock: 8);
+            RunTest(name: "FootFoot+Defend", cis: GetCis("Footwork", "Footwork+", "Defend"), finalPlayerBlock: 10);
 
+        }
 
         [Test]
         public static void BasicTests()
@@ -129,13 +140,6 @@ namespace StS.Tests
             RunTest(name: "BashIronwave", en2: 32, cis: GetCis("Bash", "IronWave+"), finalPlayerBlock: 7);
             RunTest(name: "BashInflameIronwave", en2: 27, cis: GetCis("Bash", "Inflame+", "IronWave+"), finalPlayerBlock: 7, playerEnergy: 10);
 
-            RunTest(name: "DefendNeg3", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 2, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -5) });
-            RunTest(name: "DefendNeg5", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 0, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -7) });
-            RunTest(name: "DefendNeg2", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 3, playerStatuses: new List<StatusInstance>() { new StatusInstance(new Dexterity(), -4) });
-            RunTest(name: "Defend", cis: GetCis("Defend"), finalPlayerBlock: 5);
-            RunTest(name: "FootDefend", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 7);
-            RunTest(name: "Foot+Defend", cis: GetCis("Footwork+", "Defend"), finalPlayerBlock: 8);
-            RunTest(name: "FootFoot+Defend", cis: GetCis("Footwork", "Footwork+", "Defend"), finalPlayerBlock: 10);
             RunTest(name: "Strike works", en2: 44, cis: GetCis("Strike"));
             RunTest(name: "Strike, Strike+ works", en2: 35, cis: GetCis("Strike", "Strike+"));
 
@@ -160,9 +164,34 @@ namespace StS.Tests
             RunTest(name: "WeakenEnemy", cis: GetCis("Uppercut+"), en2: 37,
                 enemyFinalStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2), new StatusInstance(new Weak(), 2) });
 
-            RunTest(name: "Entrench", cis: GetCis("Footwork+", "Defend+", "Entrench", "Defend"), finalPlayerBlock: 30, playerEnergy: 10);
+            
         }
 
+        [Test]
+        public static void Test_Entrench()
+        {
+            var player = new Player();
+            var cis = GetCis("Entrench+", "Defend","Footwork","Entrench");
+            var deck = new Deck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(cis[1]);
+            Assert.AreEqual(5, player.Block);
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(10, player.Block);
+            fight.PlayCard(cis[2]);
+            Assert.AreEqual(10, player.Block);
+            fight.EndTurn();
+            fight.EnemyMove();
+            fight.StartTurn();
+            fight.PlayCard(cis[1]);
+            Assert.AreEqual(7, player.Block);
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(14, player.Block); //NOT 23
+        }
+        
         [Test]
         public static void Test_Vajra()
         {

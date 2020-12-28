@@ -371,7 +371,7 @@ namespace StS.Tests
             //structure should be: root => 1 draw => play ws => 2 randoms for where the wound ended up.
         }
 
-        [Test]
+        //[Test]
         public void Test_Random_Playouts()
         {
             for (var loop = 0; loop < 100; loop++)
@@ -427,7 +427,7 @@ namespace StS.Tests
             FightNode root;
             //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
             //that's too bad.
-            for (var ii = 0; ii < 100; ii++)
+            for (var ii = 0; ii < 10; ii++)
             {
                 root = mc.SimIncludingDraw(1000);
                 histories.Add(root.Value.Value);

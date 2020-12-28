@@ -508,11 +508,20 @@ namespace StS
         {
             //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
             // (for example, exhausting a card with Feel No Pain on.)
-            var val = ef.InitialBlock;
-            foreach (var prog in ef.BlockAdjustments.OrderBy(el => el.Order))
+            var val = 0d;
+            foreach (var prog in ef.GetBlockActions.OrderBy(el => el.Order))
             {
-                val = prog.Fun(val, entity);
+                if (prog.Additive)
+                {
+                    val += prog.Amount;
+                }
+                else
+                {
+                    val *= prog.Amount;
+                }
+                history.Add($"{prog} affected block");
             }
+
             if (val > 0)
             {
                 var gain = (int)val;

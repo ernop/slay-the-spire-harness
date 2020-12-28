@@ -16,7 +16,7 @@
             if (card.CardType == CardType.Attack && playerAction)
             {
                 //TODO this is not exactly right; e.g. what if we double play a card?
-                playerSet.InitialBlock = num;
+                playerSet.AddBlockStep("Rage", num);
             }
         }
     }

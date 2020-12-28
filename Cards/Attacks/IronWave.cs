@@ -22,7 +22,7 @@ namespace StS
             }
 
             ef.EnemyEffect.SetInitialDamage(dmg);
-            ef.PlayerEffect.InitialBlock = block;
+            ef.PlayerEffect.AddBlockStep("Ironwave", block);
         }
     }
 }

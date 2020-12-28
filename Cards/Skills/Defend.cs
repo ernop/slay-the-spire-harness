@@ -22,7 +22,7 @@ namespace StS
                 amount = 8;
             }
 
-            ef.PlayerEffect.InitialBlock = amount;
+            ef.PlayerEffect.AddBlockStep("Defend", amount);
         }
     }
 }

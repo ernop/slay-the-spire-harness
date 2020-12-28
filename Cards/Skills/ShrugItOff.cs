@@ -15,7 +15,8 @@ namespace StS
         /// </summary>
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null)
         {
-            ef.PlayerEffect.InitialBlock = upgradeCount == 0 ? 8 : 11;
+            var amt = upgradeCount == 0 ? 8 : 11;
+            ef.PlayerEffect.AddBlockStep("Shrug", amt);
             ef.DeckEffect.Add((Deck d,  List<string> h) =>
             {
                 var drawn = d.DrawToHand(targets, 1, true, ef, h);

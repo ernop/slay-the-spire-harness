@@ -37,7 +37,7 @@
         /// </summary>
         internal override void StatusStartTurn(Entity parent, StatusInstance instance, IndividualEffect statusHolderIe, IndividualEffect otherId)
         {
-            statusHolderIe.InitialBlock = instance.Intensity;
+            statusHolderIe.AddBlockStep("PlatedArmor", instance.Intensity);
         }
 
         private void PlatedArmorAttackedAndTookDamage(EffectSet ef, int damageAmount, CardInstance ci)

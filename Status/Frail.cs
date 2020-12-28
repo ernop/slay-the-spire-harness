@@ -16,7 +16,7 @@
         {
             if (card.CardType == CardType.Skill && statusIsTargeted)
             {
-                playerSet.BlockAdjustments.Add(new Progression("Frail", (el, entity) => 0.75 * el, 10));
+                playerSet.AddBlockStep("Frail", 0.75, 10, additive: false);
             }
         }
     }
