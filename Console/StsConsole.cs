@@ -23,10 +23,12 @@ namespace StS
         
         public void Setup()
         {
-            _Player = new Player(hp: 80);
+            var relics = GetRandomRelics(3);
+            _Player = new Player(hp: 80, relics: relics);
             _Enemy = new Cultist(47);
-            var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
-            var deck = new Deck(hand, gsl(), gsl(), gsl());
+            //var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
+            var cis = GetRandomCards(20);
+            var deck = new Deck(cis);
             _Fight = new Fight(deck, _Player, _Enemy);
             _Root = new FightNode(_Fight);
             _Current = _Root;
@@ -45,12 +47,17 @@ namespace StS
                 var actions = _Current.Fight.GetAllActions();
                 foreach (var a in actions)
                 {
-                    Console.WriteLine($"{ii}: {a}");
+                    var cost = "";
+                    if (a.FightActionType == FightActionEnum.PlayCard)
+                    {
+                        cost = $" E: {a.Card.EnergyCost()}";
+                    }
+                    Console.WriteLine($"{ii}: {a}{cost}");
                     actionMap[ii] = a;
                     ii++;
                 }
 
-                var parsed = Int32.TryParse(Console.ReadLine(), out int num);
+                 var parsed = Int32.TryParse(Console.ReadLine(), out int num);
                 if (!parsed)
                 {
                     continue;

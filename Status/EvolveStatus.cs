@@ -40,8 +40,8 @@ namespace StS
                 var newEf = new EffectSet();
                 newEf.DeckEffect.Add((Deck d, List<string> h) =>
                 {
-                    var drawn = d.DrawToHand(null, si.Intensity, true, newEf, h);
-                    return $"{ci} Caused card draw: {string.Join(',', drawn)}";
+                    var drawn = d.DrawToHand(null, si.Intensity, true, null, newEf, h);
+                    h.Add($"{ci} Caused card draw: {string.Join(',', drawn)}");
                 });
                 ef.AddNextEf(newEf);
             }

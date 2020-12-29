@@ -26,6 +26,7 @@ Stages
 
 Todos
 ==
+ - in general how to handle random oneoff relics/statuses like frail/BTNodraw?  Really does seem easier to just patch the draw method.
  - handle reshuffle variation randomness => when you reshuffle, create a normal choice node and add a random child with key corresponding to it
  - random testing => means I need to fix the InitialBlock / blockAdjustment concept
  - actually, reshuffle is truly random, not draw. draw is deterministic.

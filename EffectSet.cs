@@ -24,7 +24,7 @@ namespace StS
         /// <summary>
         /// After playing the card, call these on the hand (temporarily); things like monkey paw.
         /// </summary>
-        public List<Func<Deck, List<string>, string>> DeckEffect { get; set; } = new List<Func<Deck, List<string>, string>>();
+        public List<Action<Deck, List<string>>> DeckEffect { get; set; } = new List<Action<Deck, List<string>>>();
 
         /// <summary>
         /// The ultimate power; can see everything.

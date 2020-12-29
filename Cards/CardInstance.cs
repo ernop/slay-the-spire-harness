@@ -81,6 +81,17 @@ namespace StS
             Card.OtherAction(action, ef, UpgradeCount);
         }
 
+        internal void StartFight()
+        {
+            PerTurnOverrideEnergyCost = null;
+            PerFightOverrideEnergyCost = null;
+        }
+
+        internal void LeftInHandAtEndOfTurn(IndividualEffect playerEffect)
+        {
+            Card.LeftInHandAtEndOfTurn(playerEffect, UpgradeCount);
+        }
+
         /// <summary>
         /// full unique identifier of a per-fight or per-hand cardInstance
         /// </summary>
@@ -115,15 +126,5 @@ namespace StS
             return ci;
         }
 
-        internal void StartFight()
-        {
-            PerTurnOverrideEnergyCost = null;
-            PerFightOverrideEnergyCost = null;
-        }
-
-        internal void LeftInHandAtEndOfTurn(IndividualEffect playerEffect)
-        {
-            Card.LeftInHandAtEndOfTurn(playerEffect, UpgradeCount);
-        }
     }
 }

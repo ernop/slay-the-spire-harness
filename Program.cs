@@ -14,6 +14,7 @@ namespace StS
         {
             SetRandom(0);
             System.IO.File.WriteAllText(Helpers.Output, "");
+            //Tests.McTests.Test_StrikePlusImprovesResult();
             var c = new StsConsole();
             //TestCultistMC();
         }

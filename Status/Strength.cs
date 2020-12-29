@@ -33,7 +33,6 @@ namespace StS
 
                 //this should be genericized; here it's assuming strength only hits enemy when actually it hits whoever the target is.
                 targetSet.DamageAdjustments.Insert(0, new AttackProgression("StrengthStatus", (el) => el.Select(qq => qq + intensity).ToList()));
-
             }
         }
     }

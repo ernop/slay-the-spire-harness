@@ -471,32 +471,16 @@ namespace StS.Tests
             //structure should be: root => 1 draw => play ws => 2 randoms for where the wound ended up.
         }
 
-        //[Test]
+        [Test]
         public void Test_Random_Playouts()
         {
             for (var loop = 0; loop < 100; loop++)
             {
-                var ar = AllRelics.Relics.Keys.ToList();
                 var rcount = (int)Rnd.Next(10);
-                var relics = new List<Relic>();
-                for (var ii = 0; ii < rcount; ii++)
-                {
-                    var relic = AllRelics.Relics[ar[Rnd.Next(ar.Count)]];
-                    if (!relics.Contains(relic))
-                    {
-                        relics.Add(relic);
-                    }
-                }
-
-                var ac = AllCards.Cards.Keys.ToList();
+                var relics = GetRandomRelics(rcount);
+                
                 var ccount = (int)Rnd.Next(20) + 3;
-                var cards = new List<CardInstance>();
-                for (var ii = 0; ii < ccount; ii++)
-                {
-                    var card = AllCards.Cards[ac[Rnd.Next(ac.Count)]];
-                    var ci = new CardInstance(card, Rnd.Next(2) == 1 ? 1 : 0);
-                    cards.Add(ci);
-                }
+                var cards = GetRandomCards(ccount);
 
                 var player = new Player(relics: relics);
                 var enemy = new Cultist(70, 70);
@@ -511,7 +495,7 @@ namespace StS.Tests
                     root = mc.SimIncludingDraw(1000);
                     histories.Add(root.Value.Value);
                 }
-                Assert.IsTrue(histories.First() < histories.Last());
+                Assert.IsTrue(histories.First() == 100 || histories.First() < histories.Last());
             }
         }
 
@@ -533,6 +517,48 @@ namespace StS.Tests
                 histories.Add(root.Value.Value);
             }
             Assert.IsTrue(histories.First() < histories.Last());
+        }
+
+        [Test]
+        public static void Test_StrikePlusImprovesResult()
+        {
+            //generally weights are very very low later on even though state is similar.
+            var hp = 80;
+
+            var player = new Player();
+            var enemy = new Cultist(hp, hp);
+            var cis = GetCis("Bash", "Defend", "Strike", "Defend", "Strike", "Strike");
+            var deck = new Deck(cis);
+            var mc = new MonteCarlo(deck, enemy, player);
+            var histories = new List<double>();
+            FightNode root;
+            //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
+            //that's too bad.
+            for (var ii = 0; ii < 10; ii++)
+            {
+                root = mc.SimIncludingDraw(1000);
+                histories.Add(root.Value.Value);
+            }
+            Assert.IsTrue(histories.First() < histories.Last());
+
+            var player2 = new Player();
+            var enemy2 = new Cultist(hp, hp);
+            var cis2 = GetCis("Bash", "Defend", "Strike+", "Defend", "Strike", "Strike");
+            var deck2 = new Deck(cis2);
+            var mc2 = new MonteCarlo(deck2, enemy2, player2);
+            var histories2 = new List<double>();
+            FightNode root2;
+            //can there ever be decreasing values? yes, when we re-explore a random draw and get a worse result.
+            //that's too bad.
+            for (var ii = 0; ii < 10; ii++)
+            {
+                root2 = mc2.SimIncludingDraw(1000);
+                histories2.Add(root2.Value.Value);
+            }
+            Assert.IsTrue(histories2.First() < histories2.Last());
+
+            //this is an improved deck
+            Assert.IsTrue(histories.Last() < histories2.Last());
         }
 
         [Test]

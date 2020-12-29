@@ -27,7 +27,7 @@ namespace StS
             {
                 var newCi = new CardInstance(new Wound(), 0);
                 var position = d.AddToRandomSpotInDrawPile(newCi, key);
-                return $"Wound added to draw pile position:{position}";
+                h.Add($"Wound added to draw pile position:{position}");
             });
             var dmg = upgradeCount == 0 ? 12 : 17;
             ef.EnemyEffect.SetInitialDamage(dmg);

@@ -17,6 +17,7 @@
         Frail = 11,
         EvolveStatus = 12,
         RageStatus = 13,
+        NoDrawStatus = 14,
 
         //start at 200 for enemy-only statuses.
         Aggressive = 200,

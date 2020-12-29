@@ -27,7 +27,7 @@ namespace StS
                             count++;
                         }
                     }
-                    return $"Upgraded {count} cards to cost 1 this turn";
+                    h.Add($"Upgraded {count} cards to cost 1 this turn");
                 });
             }
             else
@@ -44,7 +44,7 @@ namespace StS
                         }
 
                     }
-                    return $"Upgraded {count} cards to cost 1 this fight";
+                    h.Add($"Upgraded {count} cards to cost 1 this fight");
                 });
             }
         }

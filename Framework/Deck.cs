@@ -7,8 +7,6 @@ using static StS.Helpers;
 
 namespace StS
 {
-
-
     public class Deck
     {
         /// <summary>
@@ -19,8 +17,6 @@ namespace StS
         {
             Init(GetCis(drawPile.ToArray()), GetCis(hand.ToArray()), GetCis(discardPile.ToArray()), GetCis(exhaustPile.ToArray()));
         }
-
-        
 
         public Deck(IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
         {
@@ -90,10 +86,18 @@ namespace StS
 
         /// <summary>
         /// TargetCards are forced choice even if the choice ought to be random.
+        /// Note: this needs to take into account nodraw effects.
         /// </summary>
-        internal List<CardInstance> DrawToHand(IList<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
+        internal List<CardInstance> DrawToHand(IList<CardInstance> targetCards, int count, bool reshuffle, Player player, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
+            
+            //player is only null in the case of evolve, since that is a guaranteed pass of this situation anyway.
+            if (player!=null && player.StatusInstances.Any(el => el.Status.Name == nameof(NoDrawStatus)))
+            {
+                history.Add("No drawing due to nodraw status.");
+                return res;
+            }
             if (targetCards == null)
             {
                 while (res.Count < count)
@@ -500,7 +504,7 @@ namespace StS
             var ex = ExhaustPile.Select(el => el.Copy()).ToList();
             var d = new Deck(h, dr, dis, ex);
             d._PreserveOrder = _PreserveOrder;
-            
+
             return d;
         }
 

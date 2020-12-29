@@ -16,7 +16,7 @@ namespace StS
             {
                 var burn = new CardInstance(new Burn(), 0);
                 d.AddToDiscardPile(burn);
-                return "Added burn to discard pile";
+                h.Add("Added burn to discard pile");
             });
         }
     }

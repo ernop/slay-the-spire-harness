@@ -28,9 +28,12 @@ namespace StS
                     d.ExhaustFromHand(target, ef);
                     if (target == null)
                     {
-                        return $"True Grit: Nothing to exhaust";
+                        h.Add($"True Grit: Nothing to exhaust");
                     }
-                    return $"True Grit: Exhausted {target} by random";
+                    else
+                    {
+                        h.Add($"True Grit: Exhausted {target} by random");
+                    }
                 }
                 else
                 {
@@ -45,7 +48,7 @@ namespace StS
                         throw new System.Exception();
                     }
                     d.ExhaustFromHand(ci, ef);
-                    return $"True Grit: Exhausted {ci} by by specification.";
+                    h.Add($"True Grit: Exhausted {ci} by by specification.");
                 }
             });
         }

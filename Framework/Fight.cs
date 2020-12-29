@@ -37,23 +37,17 @@ namespace StS
         /// </summary>
         public bool PlayerTurn { get; set; } = false;
         public bool EnemyDone { get; set; } = true;
-        public IList<CardInstance> GetExhaustPile => _Deck.GetExhaustPile;
-        public IList<CardInstance> GetDiscardPile => _Deck.GetDiscardPile;
+        /// <summary>
+        /// for testing
+        /// </summary>
+        public IList<CardInstance> GetDrawPile => _Deck.GetDrawPile;
         public IList<CardInstance> GetHand => _Deck.GetHand;
+        public IList<CardInstance> GetDiscardPile => _Deck.GetDiscardPile;
+        public IList<CardInstance> GetExhaustPile => _Deck.GetExhaustPile;
 
         /// <summary>
         /// accumulate lastActions here for collection by fightSim and ignoring by others.
         /// </summary>
-        internal string GetPlayerHP()
-        {
-            return _Player.HP.ToString();
-        }
-
-        public int GetEnemyHP()
-        {
-            return _Enemies[0].HP;
-        }
-
         private void Init(Deck d, Player player, List<IEnemy> enemies)
         {
             _Deck = d;
@@ -79,10 +73,6 @@ namespace StS
             Init(deck, player, new List<IEnemy>() { enemy });
         }
 
-        /// <summary>
-        /// for testing
-        /// </summary>
-        public IList<CardInstance> GetDrawPile => _Deck.GetDrawPile;
 
         /// <summary>
         /// Three choices:
@@ -270,15 +260,7 @@ namespace StS
             EnemyDone = false;
         }
 
-        public void AssignLastAction(FightAction a)
-        {
-            //unless a fight is part of a fightnode, don't assign history.  e.g. tests.
-            if (FightAction != null && FightNode != null)
-            {
-                throw new Exception("protection");
-            }
-            FightAction = a;
-        }
+
 
         /// <summary>
         /// Enemy statuses actually apply at the start of their turn.
@@ -336,8 +318,6 @@ namespace StS
             var action = new FightAction(FightActionEnum.PlayCard, card: ci, cardTargets: cardTargets, hadRandomEffects: ci.Card.RandomEffects);
             PlayCard(action, forceExhaust: forceExhaust, newCard: newCard, source: source);
         }
-
-
         /// <summary>
         /// From monster POV, player is the enemy.
         /// 
@@ -431,7 +411,6 @@ namespace StS
             AssignLastAction(action);
             _Deck.CardPlayCleanup();
         }
-
         /// <summary>
         /// Returns whether there was randomness involved in drinking the potion. 
         /// </summary>
@@ -448,7 +427,6 @@ namespace StS
             AssignLastAction(new FightAction(FightActionEnum.Potion, potion: p, target: enemy, history: history, hadRandomEffects: ef.HadRandomness, key: ef.Key));
             return false;
         }
-
         private void ApplyEffectSet(EffectSet ef, Player player, IEnemy enemy, List<string> history, Potion potion = null, CardInstance ci = null, bool subEffectSet = false)
         {
             //TODO not clear if this order is the most sensible really or not.
@@ -459,7 +437,7 @@ namespace StS
             //TODO this is complicated.  Evolve actually adds new deckeffects in the deckeffect evaluation.
             foreach (var f in ef.DeckEffect)
             {
-                history.Add(f.Invoke(_Deck, history));
+                f.Invoke(_Deck, history);
             }
 
             GainBlock(player, ef.PlayerEffect, history);
@@ -509,7 +487,6 @@ namespace StS
                 }
             }
         }
-
         /// <summary>
         /// For use during a fight; add a status to an entity
         /// </summary>
@@ -521,7 +498,6 @@ namespace StS
                 history.Add($"{entity} gained {status}");
             }
         }
-
         private void GainBlock(IEntity entity, IndividualEffect ef, List<string> history)
         {
             //unlike attacks, initialBlock defaults to zero so that you can have adjustments on zero
@@ -547,7 +523,6 @@ namespace StS
                 history.Add($"{entity} gained {gain}B");
             }
         }
-
         private void ReceiveDamage(IEntity entity, IndividualEffect ie, EffectSet ef, List<string> history, CardInstance ci)
         {
             if (ie.GetInitialDamage() == null && ie.DamageAdjustments?.Count > 0)
@@ -596,7 +571,6 @@ namespace StS
                 history.Add($"{entity.Details()}");
             }
         }
-
         public void EnemyMove(int amount, int count)
         {
             if (PlayerTurn) throw new Exception("Not your turn");
@@ -684,6 +658,15 @@ namespace StS
             }
         }
 
+        public void AssignLastAction(FightAction a)
+        {
+            //unless a fight is part of a fightnode, don't assign history.  e.g. tests.
+            if (FightAction != null && FightNode != null)
+            {
+                throw new Exception("protection");
+            }
+            FightAction = a;
+        }
         public override string ToString()
         {
             return $"Fight: {_Player}({_Player.Energy}) vs {_Enemies[0]}";

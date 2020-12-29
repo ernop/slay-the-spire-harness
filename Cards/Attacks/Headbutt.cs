@@ -35,7 +35,7 @@ namespace StS
                 }
 
                 deck.MoveFromDiscardToDraw(headbuttTarget);
-                return $"Headbutt: Moved {headbuttTarget} to top of draw pile.";
+                h.Add($"Headbutt: Moved {headbuttTarget} to top of draw pile.");
             });
         }
     }

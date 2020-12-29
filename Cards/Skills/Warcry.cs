@@ -8,10 +8,8 @@ namespace StS
         public override string Name => nameof(Warcry);
 
         public override TargetType TargetType => TargetType.Player;
-
+        public override bool RandomEffects => true;
         public override int CiCanCallEnergyCost(int upgradeCount) => 0;
-
- 
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
@@ -40,8 +38,7 @@ namespace StS
                 d.AddToDrawPile(cardToPutOnTopOfDiscardPile);
                 d.GetHand.Remove(cardToPutOnTopOfDiscardPile);
 
-                history.Add("Added card to a random spot in draw pile");
-                return $"warcry drew '{drewDesc}' and put '{toDrawPileDesc}' on top of draw pile";
+                history.Add($"warcry drew '{drewDesc}' and put '{toDrawPileDesc}' on top of draw pile");
             });
         }
     }

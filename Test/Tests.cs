@@ -129,7 +129,6 @@ namespace StS.Tests
             RunTest(name: "FootDefend", cis: GetCis("Footwork", "Defend"), finalPlayerBlock: 7);
             RunTest(name: "Foot+Defend", cis: GetCis("Footwork+", "Defend"), finalPlayerBlock: 8);
             RunTest(name: "FootFoot+Defend", cis: GetCis("Footwork", "Footwork+", "Defend"), finalPlayerBlock: 10);
-
         }
 
         [Test]
@@ -142,7 +141,6 @@ namespace StS.Tests
 
             RunTest(name: "Strike works", en2: 44, cis: GetCis("Strike"));
             RunTest(name: "Strike, Strike+ works", en2: 35, cis: GetCis("Strike", "Strike+"));
-
 
             RunTest(name: "Bashing", en2: 21, cis: GetCis("Strike", "Bash+", "Strike+"), playerEnergy: 10);
             RunTest(name: "SwordBoomerang", en2: 41, cis: GetCis("SwordBoomerang"));
@@ -255,10 +253,30 @@ namespace StS.Tests
         }
 
         [Test]
+        public static void Test_BattleTrance()
+        {
+            var player = new Player(drawAmount: 2);
+            var cis = GetCis("Strike", "Bash", "WildStrike", "Bash", "PommelStrike+", "BattleTrance", "Defend", "BattleTrance");
+            var deck = new Deck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            Assert.AreEqual(2, deck.GetHand.Count());
+            fight.PlayCard(cis[7]);
+            Assert.AreEqual(4, deck.GetHand.Count());
+            Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "BattleTrance", "PommelStrike+", "Bash"), out var x),x);
+            fight.PlayCard(cis[5]); //hit nodraw
+            Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "PommelStrike+", "Bash"), out var x2), x2);
+            fight.PlayCard(cis[4]); //hit nodraw
+            Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "Bash"), out var x3), x3);
+        }
+
+        [Test]
         public static void Test_WildStrike_Randomization()
         {
-            var player = new Player(drawAmount:2);
-            var cis = gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend","WildStrike");
+            var player = new Player(drawAmount: 2);
+            var cis = gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend", "WildStrike");
             var deck = new Deck(cis, gsl(), gsl(), gsl());
             var enemy = new GenericEnemy();
 
@@ -270,7 +288,7 @@ namespace StS.Tests
             mc.Root.StartTurn();
             var actions2 = mc.Root.Choices.First().Fight.GetAllActions();
         }
-        
+
         [Test]
         public static void Test_Aggressive()
         {

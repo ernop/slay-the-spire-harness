@@ -18,11 +18,11 @@ namespace StS
                     if (ci != null)
                     {
                         ci.PerTurnOverrideEnergyCost = 0;
-                        return $"monkey paw set {ci} to cost zero.";
+                        h.Add($"monkey paw set {ci} to cost zero.");
                     }
                     else
                     {
-                        return $"monkey paw had no card to reduce in value..";
+                        h.Add($"monkey paw had no card to reduce in value..");
                     }
                 });
             }

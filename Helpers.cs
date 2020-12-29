@@ -320,5 +320,33 @@ namespace StS
         {
             return new List<string>(input);
         }
+        public static List<CardInstance> GetRandomCards(int ccount)
+        {
+            var ac = AllCards.Cards.Keys.ToList();
+            var cards = new List<CardInstance>();
+            for (var ii = 0; ii < ccount; ii++)
+            {
+                var card = AllCards.Cards[ac[Rnd.Next(ac.Count)]];
+                var ci = new CardInstance(card, Rnd.Next(2) == 1 ? 1 : 0);
+                cards.Add(ci);
+            }
+            return cards;
+        }
+
+        public static List<Relic> GetRandomRelics(int rcount)
+        {
+            var ar = AllRelics.Relics.Keys.ToList();
+            
+            var relics = new List<Relic>();
+            for (var ii = 0; ii < rcount; ii++)
+            {
+                var relic = AllRelics.Relics[ar[Rnd.Next(ar.Count)]];
+                if (!relics.Contains(relic))
+                {
+                    relics.Add(relic);
+                }
+            }
+            return relics;
+        }
     }
 }

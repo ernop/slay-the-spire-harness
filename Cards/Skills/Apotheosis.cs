@@ -24,7 +24,7 @@ namespace StS
                         c.UpgradeCount++;
                     }
                 }
-                return "Apotheosis Upgraded all cards";
+                h.Add("Apotheosis Upgraded all cards");
             });
         }
     }

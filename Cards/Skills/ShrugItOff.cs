@@ -19,8 +19,8 @@ namespace StS
             ef.PlayerEffect.AddBlockStep("Shrug", amt);
             ef.DeckEffect.Add((Deck d,  List<string> h) =>
             {
-                var drawn = d.DrawToHand(targets, 1, true, ef, h);
-                return $"ShrugDrew: {string.Join(',', drawn)}";
+                var drawn = d.DrawToHand(targets, 1, true, player, ef, h);
+                h.Add($"ShrugDrew: {string.Join(',', drawn)}");
             });
         }
     }
