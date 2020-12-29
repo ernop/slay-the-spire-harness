@@ -13,7 +13,7 @@ namespace StS
         /// <summary>
         /// for the AI to control, just specify targets.
         /// </summary>
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var amt = upgradeCount == 0 ? 8 : 11;
             ef.PlayerEffect.AddBlockStep("Shrug", amt);

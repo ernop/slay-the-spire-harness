@@ -258,12 +258,12 @@ namespace StS.Tests
         public static void Test_WildStrike_Randomization()
         {
             var player = new Player(drawAmount:2);
-            var cis = Gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend","WildStrike");
-            var deck = new Deck(cis, Gsl(), Gsl(), Gsl());
+            var cis = gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend","WildStrike");
+            var deck = new Deck(cis, gsl(), gsl(), gsl());
             var enemy = new GenericEnemy();
 
 
-            var mc = new MonteCarlo(deck, enemy, player, firstHand: Gsl("WildStrike", "Defend"));
+            var mc = new MonteCarlo(deck, enemy, player, firstHand: gsl("WildStrike", "Defend"));
             var actions = mc.Root.Fight.GetAllActions();
             Assert.AreEqual(1, actions.Count);
             mc.Root.StartFight();

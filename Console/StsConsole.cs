@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using static StS.Helpers;
@@ -24,8 +25,8 @@ namespace StS
         {
             _Player = new Player(hp: 80);
             _Enemy = new Cultist(47);
-            var hand = Gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash");
-            var deck = new Deck(hand, Gsl(), Gsl(), Gsl());
+            var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
+            var deck = new Deck(hand, gsl(), gsl(), gsl());
             _Fight = new Fight(deck, _Player, _Enemy);
             _Root = new FightNode(_Fight);
             _Current = _Root;
@@ -38,6 +39,7 @@ namespace StS
             {
                 Console.WriteLine(_Current);
                 Console.WriteLine($"What should I do? Energy{_Current.Fight._Player.Energy}");
+                Console.WriteLine($"Hand: {SJ(_Current.Fight.GetHand)}");
                 var ii = 0;
                 var actionMap = new Dictionary<int, FightAction>() { };
                 var actions = _Current.Fight.GetAllActions();

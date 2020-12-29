@@ -39,9 +39,9 @@ namespace StS
         
         /// <summary>
         /// randomness key.  i.e. 0 for wildstrike means the wound was inserted at position 0 of the draw pile.
-        /// question: what does it mean for deck shuffling though?
+        /// Attempt: use the same key for the hash of the ordered cards in the draw pile.
         /// </summary>
-        public int Key { get; set; }
+        public long Key { get; set; }
 
         internal void AddNextEf(EffectSet newEf)
         {

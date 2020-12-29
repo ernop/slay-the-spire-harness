@@ -25,10 +25,10 @@ namespace StS
             var initialDeck = new List<string>() { "Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash" };
             //initialHand.AddRange(new List<string>() {"Pummel", "Exhume"});
 
-            var hand = Gsl();
+            var hand = gsl();
             var drawPile = initialDeck;
-            var exhaustPile = Gsl();
-            var discardPile = Gsl();
+            var exhaustPile = gsl();
+            var discardPile = gsl();
             var enemyHp = 51;
             var playerHp = 1;
             var firstDraw = new List<string>() { "Strike", "Strike", "Defend", "Defend", "Bash" };
@@ -38,8 +38,8 @@ namespace StS
             {
                 turnNumber = 1;
                 discardPile = firstDraw;
-                drawPile = Gsl("Strike", "Strike", "Defend", "Defend", "Strike");
-                firstDraw = Gsl("Strike", "Strike", "Defend", "Defend", "Strike");
+                drawPile = gsl("Strike", "Strike", "Defend", "Defend", "Strike");
+                firstDraw = gsl("Strike", "Strike", "Defend", "Defend", "Strike");
                 statuses = new List<StatusInstance>() { GS(new Feather(), 3), GS(new Vulnerable(), 1) };
             }
 

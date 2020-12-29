@@ -7,6 +7,11 @@
 4. obviously the dream is a complete player of the entire game - simulating every choice fully
 	annoying part of this is having to manually enter the behavior patterns of every enemy
 
+Questions
+==
+1. what is the best single card to add to the starting deck for a fight with nob, cubes, or sleeping guy
+2. when cultist has 25hp and 1vuln and you have DS and 1 energy, should you strike or not?
+3. try all possible 2,3,N-card decks vs specific enemies and see what's best
 
 Stages
 ==
@@ -21,6 +26,7 @@ Stages
 
 Todos
 ==
+ - handle reshuffle variation randomness => when you reshuffle, create a normal choice node and add a random child with key corresponding to it
  - random testing => means I need to fix the InitialBlock / blockAdjustment concept
  - actually, reshuffle is truly random, not draw. draw is deterministic.
  - need to move the logic for creating randomnodes elsewhere.
@@ -34,9 +40,6 @@ Todos
  - if you have A with children B and C and are calculating values, if B_v < A_v (by direct HP analysis) there is no reason to completely calculate its value; just return A as bestchild.
  - evolve needs structure adjustments.  ef can modify itself with more work.
  - minimal example of C/RC situation and verify that all paths are considered
- - absolute/montecarlo - which way to go? for very small fights absolute is okay.
- - I need helper methods to visualize the Choice/RandomChoice method
- - better "show full turn" methods
  - why isn't it finding all good lines?
  - tests for exhaustion of all good lines. make sure it finds all.
  - picking the shorter line to a win 
@@ -56,6 +59,7 @@ Todos
 
 Todos Done
 ==
+ - split out randomness a bit better
  - basic interactive mode with cmdline options.  normal cards - play card, potion, etc. and special mode addcard etc.
  - visualization improvements
  - fixup sense for statuses

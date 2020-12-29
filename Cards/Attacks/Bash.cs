@@ -7,7 +7,7 @@ namespace StS
         public override string Name => nameof(Bash);
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             int amt;
             StatusInstance si;

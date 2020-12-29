@@ -15,7 +15,7 @@ namespace StS
         /// 1. AI forcing a certain random choice
         /// 2. Normal play of the upgraded card, specifying the target
         /// </summary>
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var amt = upgradeCount == 0 ? 7 : 10;
             ef.PlayerEffect.AddBlockStep("TrueGrit", amt);

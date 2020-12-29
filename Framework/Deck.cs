@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-
+using System.Security.Cryptography;
 using static StS.Helpers;
 
 namespace StS
@@ -468,6 +468,23 @@ namespace StS
             DiscardPile = new List<CardInstance>();
             ShuffleDrawPile();
             ef.HadRandomness = true;
+            ef.Key = GenerateCardSetKey(DrawPile);
+        }
+
+        /// <summary>
+        /// When we reshuffle, we mark the shuffle order with this key for disambiguation in the fightnode tree.
+        /// </summary>
+        public long GenerateCardSetKey(IList<CardInstance> cis)
+        {
+            var strings = cis.Select(el => el.ToString());
+            var combined = SJ(strings);
+            var bytes = System.Text.Encoding.ASCII.GetBytes(combined);
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(bytes);
+                var res = BitConverter.ToInt64(hash);
+                return res;
+            }
         }
 
         public void FightEnded()
@@ -499,9 +516,9 @@ namespace StS
         /// <summary>
         /// Returns position key.
         /// </summary>
-        internal int AddToRandomSpotInDrawPile(CardInstance ci, int? key = null)
+        internal long AddToRandomSpotInDrawPile(CardInstance ci, long? key = null)
         {
-            int position;
+            long position;
             if (key == null)
             {
                 position = Rnd.Next(DrawPile.Count + 1);
@@ -510,7 +527,7 @@ namespace StS
             {
                 position = key.Value;
             }
-            DrawPile.Insert(position, ci);
+            DrawPile.Insert((int)position, ci);
             return position;
         }
 

@@ -24,11 +24,11 @@ namespace StS.Tests
         public void Test_Basic()
         {
             //I want to validate that I am properly generating all outcomes.
-            var cards = Gsl("Strike");
+            var cards = gsl("Strike");
 
             var enemy = new Cultist(1);
             var player = new Player(hp: 1);
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var results = fs.SimAfterFirstDraw();
             Assert.AreEqual(1, results.Value.Value);
@@ -48,11 +48,11 @@ namespace StS.Tests
         {
             //It is now a requirement that all fights end before maxTurns
             //since we can't calculate value for incomplete fights.
-            var cards = Gsl("Defend", "Defend", "Strike");
+            var cards = gsl("Defend", "Defend", "Strike");
 
             var enemy = new GenericEnemy(amount: 5, count: 1, hp: 8, statuses: GSS(new Feather(), 5));
             var player = new Player(hp: 5); //fullblock first turn. 2nd turn take 5
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
             var best = GetBestLeaf(node);
@@ -62,14 +62,14 @@ namespace StS.Tests
         [Test]
         public void Test_UsingEnlightenment_ToFindPath()
         {
-            var cards = Gsl("Strike", "Strike", "HeavyBlade", "Enlightenment+", "Bash");
+            var cards = gsl("Strike", "Strike", "HeavyBlade", "Enlightenment+", "Bash");
 
             var enemy = new Cultist(hp: 80, hpMax: 80);
             var player = new Player(hp: 1); //player must kill turn 2.
 
             //best line: play e+, bash (8+vuln), hb (21), strike (9) = 38.
             //turn 2: redraw same cards but play differently.  HB (21) S(9) b(12) = 42
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
 
@@ -86,13 +86,108 @@ namespace StS.Tests
         }
 
         [Test]
+        public void Test_PommelStrike_Randomness()
+        {
+            var cards = gsl("Defend", "Strike", "Inflame", "PommelStrike+");
+
+            var enemy = new GenericEnemy(15, 3, 10, 10);
+            var player = new Player(drawAmount: 1);
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
+            var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
+            var node = fs.SimAfterFirstDraw();
+            Assert.AreEqual(1, node.Choices);
+            var ps = node.Choices.Single(el => el.FightAction.Card.Card.Name == nameof(PommelStrike));
+            Assert.AreEqual(1, ps.Randoms.Count()); //we only draw the one reality that the deck was shuffled into.
+        }
+
+
+        [Test]
+        public void Test_PommelStrike_Random_Simple()
+        {
+            //reshuffle has only one option due to all identical
+            var cards = gsl("PommelStrike+");
+            var discard = gsl("Defend", "Defend", "Defend");
+
+            var enemy = new GenericEnemy(15, 3, 20, 20);
+            var player = new Player(drawAmount: 1);
+            var deck = new Deck(cards, gsl(), discard, gsl());
+            var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
+            var node = fs.SimAfterFirstDraw(5000);
+            Assert.AreEqual(1, node.Choices.Count);
+            Assert.AreEqual(2, node.Choices.First().Choices.Count);
+            var qq = node.Choices.First();
+            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            Assert.AreEqual(1, psa.Count());
+            var ps = psa.First();
+            Assert.AreEqual(1, ps.Randoms.Count());
+        }
+
+        [Test]
+        public void Test_PommelStrike_Random_Simple2()
+        {
+            //reshuffle has only one option due to all identical
+            var cards = gsl("PommelStrike+");
+            var discard = gsl("Defend", "Strike");
+
+            var enemy = new GenericEnemy(15, 3, 20, 20);
+            var player = new Player(drawAmount: 1);
+            var deck = new Deck(cards, gsl(), discard, gsl());
+            var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
+            var node = fs.SimAfterFirstDraw(5000);
+            Assert.AreEqual(1, node.Choices.Count);
+            Assert.AreEqual(2, node.Choices.First().Choices.Count);
+            var qq = node.Choices.First();
+            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            Assert.AreEqual(1, psa.Count());
+            var ps = psa.First();
+            Assert.AreEqual(2, ps.Randoms.Count());
+            //it's not ideal that if you reshuffle to ABC and draw 2, we will also count ACB as identical.
+        }
+
+        [Test]
+        public void Test_PommelStrike_Randomness_Reshuffle()
+        {
+            var cards = gsl("Defend", "PommelStrike+");
+            var discard = gsl("Defend", "Strike", "Inflame", "Pummel", "Shockwave", "Defend");
+
+            var enemy = new GenericEnemy(15, 3, 20, 20);
+            var player = new Player(drawAmount: 1);
+            var deck = new Deck(cards, gsl(), discard, gsl());
+            var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
+            var node = fs.SimAfterFirstDraw(5000);
+            Assert.AreEqual(1, node.Choices.Count);
+            Assert.AreEqual(2, node.Choices.First().Choices.Count);
+            var qq = node.Choices.First();
+            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            Assert.AreEqual(1, psa.Count());
+            var ps = psa.First();
+            var res = new List<string>();
+            foreach (var r in ps.Randoms)
+            {
+                var draw = r.Fight.GetDrawPile;
+                //although there are only a few draws, there are many orderings.
+                //draw = D S I P Sh D.  6!
+                res.Add(SJ(draw));
+                //there should be 360 here.  6!/2! due to duplicate defend
+            }
+            res.Sort();
+            Assert.AreEqual(360, res.Count);
+
+            //structure
+            //R=>C1 (ps) => [1 R for each of the possible draws; defend+every other card in discard]
+            //note that there are two defends so they should not be doublecounted.
+
+            //Assert.AreEqual(5, ps.Randoms.Count()); //we only draw the one reality that the deck was shuffled into.
+        }
+
+        [Test]
         public void Test_UsingPotionAndInflameDefending()
         {
-            var cards = Gsl("Defend", "Defend", "Inflame", "Defend", "Strike");
+            var cards = gsl("Defend", "Defend", "Inflame", "Defend", "Strike");
 
             var enemy = new GenericEnemy(15, 3, 10, 10);
             var player = new Player(hp: 1, potions: new List<Potion>() { new StrengthPotion() });
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
 
@@ -141,11 +236,11 @@ namespace StS.Tests
         [Test]
         public void Test_Using_Inflame()
         {
-            var cards = Gsl("Strike", "Defend", "Inflame", "Defend", "Defend");
+            var cards = gsl("Strike", "Defend", "Inflame", "Defend", "Defend");
 
             var enemy = new GenericEnemy(4, 4, 8, 8);
             var player = new Player(hp: 1);
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
 
@@ -155,10 +250,10 @@ namespace StS.Tests
         [Test]
         public void Test_Finds_Single_Line()
         {
-            var cards = Gsl("Bash", "Strike");
+            var cards = gsl("Bash", "Strike");
             var enemy = new GenericEnemy(100, 100, 32, 32);
             var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion(), new StrengthPotion() }, relics: new List<Relic>() { new FusionHammer() });
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
             Assert.AreEqual(1, node.Choices.Count);
@@ -205,11 +300,11 @@ namespace StS.Tests
         [Test]
         public void Test_Fails_Impossible_Fight_Barely()
         {
-            var cards = Gsl("Bash", "Inflame", "Strike");
+            var cards = gsl("Bash", "Inflame", "Strike");
             var enemy = new GenericEnemy(100, 100, 33, 33);
             var player = new Player(potions: new List<Potion>() { new StrengthPotion(), new StrengthPotion() },
                 relics: new List<Relic>() { new FusionHammer() });
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: cards);
             var node = fs.SimAfterFirstDraw();
             Assert.AreEqual(0, node.Randoms.Count);
@@ -256,15 +351,15 @@ namespace StS.Tests
         [Test]
         public void Test_SelfControl_SavingPummelAndDefending()
         {
-            var draw = Gsl("Pummel", "Inflame", "Inflame",    /* first round cards: */ "Defend", "Defend", "Inflame", "Inflame", "Inflame");
+            var draw = gsl("Pummel", "Inflame", "Inflame",    /* first round cards: */ "Defend", "Defend", "Inflame", "Inflame", "Inflame");
             // correct strat: take 5 first round, playing all inflames then pummel.
             var enemyStatuses = GSS(new Feather(), 10);
             enemyStatuses.AddRange(GSS(new Strength(), -10));
             var enemy = new GenericEnemy(amount: 1, count: 5, hp: 48, statuses: enemyStatuses);
             //after 2nd round enemy will kill player.
             var player = new Player(hp: 10);
-            var deck = new Deck(draw, Gsl(), Gsl(), Gsl());
-            var firstHand = Gsl("Defend", "Defend", "Inflame", "Inflame", "Inflame");
+            var deck = new Deck(draw, gsl(), gsl(), gsl());
+            var firstHand = gsl("Defend", "Defend", "Inflame", "Inflame", "Inflame");
             var fs = new MonteCarlo(deck, enemy, player, firstHand: firstHand);
             var node = fs.SimAfterFirstDraw();
             Assert.AreEqual(1, node.Choices.Count);
@@ -311,11 +406,11 @@ namespace StS.Tests
         public void Test_Fractions()
         {
             //You have a 1/3 chance of living
-            var cards = Gsl("Strike", "Defend", "Inflame");
+            var cards = gsl("Strike", "Defend", "Inflame");
 
             var enemy = new GenericEnemy(100, 100, 1, 1);
             var player = new Player(drawAmount: 1);
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player);
             var node = fs.SimIncludingDraw();
             Assert.AreEqual(3, node.Choices.Count);
@@ -326,10 +421,10 @@ namespace StS.Tests
         [Test]
         public void Test_ExploringDrawSpace()
         {
-            var cards = Gsl("Strike", "Defend");
+            var cards = gsl("Strike", "Defend");
             var enemy = new Cultist(hp: 1, hpMax: 1);
             var player = new Player(hp: 1, maxEnergy: 1, drawAmount: 1);
-            var deck = new Deck(cards, Gsl(), Gsl(), Gsl());
+            var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player);
             var root = fs.SimIncludingDraw();
             //there should be two randomChoice nodes
@@ -362,11 +457,11 @@ namespace StS.Tests
         [Test]
         public static void Test_WildStrike_FightNode()
         {
-            var player = new Player(drawAmount:1);
+            var player = new Player(drawAmount: 1);
             var enemy = new Cultist(40, 40);
             var cis = GetCis("Strike", "WildStrike");
             var deck = new Deck(cis);
-            var mc = new MonteCarlo(deck, enemy, player, firstHand: Gsl("WildStrike"));
+            var mc = new MonteCarlo(deck, enemy, player, firstHand: gsl("WildStrike"));
             //testing: this should create one choice with the first draw (which is force)
 
             var root = mc.SimAfterFirstDraw(100);
@@ -394,7 +489,7 @@ namespace StS.Tests
                 }
 
                 var ac = AllCards.Cards.Keys.ToList();
-                var ccount = (int)Rnd.Next(20)+3;
+                var ccount = (int)Rnd.Next(20) + 3;
                 var cards = new List<CardInstance>();
                 for (var ii = 0; ii < ccount; ii++)
                 {
@@ -423,9 +518,9 @@ namespace StS.Tests
         [Test]
         public void Test_LookForBugs()
         {
-            var player = new Player(relics: GetRelics("Torii", "LetterOpener", "MonkeyPaw","FusionHammer","Vajra"));
+            var player = new Player(relics: GetRelics("Torii", "LetterOpener", "MonkeyPaw", "FusionHammer", "Vajra"));
             var enemy = new Cultist(70, 70);
-            var cis = GetCis("Rage", "Defend", "Defend", "Bash", "FlameBarrier", "Dazed","Shockwave","ShrugItOff","Inflame","Inflame","TwinStrike", "SeeingRed", "Pummel", "FeelNoPain","RecklessCharge");
+            var cis = GetCis("Rage", "Defend", "Defend", "Bash", "FlameBarrier", "Dazed", "Shockwave", "ShrugItOff", "Inflame", "Inflame", "TwinStrike", "SeeingRed", "Pummel", "FeelNoPain", "RecklessCharge");
             var deck = new Deck(cis);
             var mc = new MonteCarlo(deck, enemy, player);
             var histories = new List<double>();
@@ -443,9 +538,9 @@ namespace StS.Tests
         [Test]
         public void Test_Cultist()
         {
-            var player = new Player(relics: GetRelics("Torii","LetterOpener"));
+            var player = new Player(relics: GetRelics("Torii", "LetterOpener"));
             var enemy = new Cultist(60, 60);
-            var cis = GetCis( "Rage", "Defend", "Defend", "Bash","FlameBarrier","TwinStrike","SeeingRed","Pummel");
+            var cis = GetCis("Rage", "Defend", "Defend", "Bash", "FlameBarrier", "TwinStrike", "SeeingRed", "Pummel");
             var deck = new Deck(cis);
             var mc = new MonteCarlo(deck, enemy, player);
             var histories = new List<double>();

@@ -9,17 +9,16 @@ namespace StS
 
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
         public override bool RandomEffects => true;
-        public override FightAction GetActions(Deck d, CardInstance ci)
+        public override List<int> GetKeys(Deck d, CardInstance ci)
         {
             var res = new List<int>();
             for (var ii = 0; ii < d.GetDrawPile.Count + 1; ii++)
             {
                 res.Add(ii);
             }
-            var action = new FightAction(FightActionEnum.PlayCard, card: ci, hadRandomEffects: true, keys: res);
-            return action;
+            return res;
         }
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             //I need some way to:
             // * make sure the childnode from playing this ends up in the random list (not choices)
@@ -28,7 +27,7 @@ namespace StS
             {
                 var newCi = new CardInstance(new Wound(), 0);
                 var position = d.AddToRandomSpotInDrawPile(newCi, key);
-                return $"Wound added to draw pile key:{key}";
+                return $"Wound added to draw pile position:{position}";
             });
             var dmg = upgradeCount == 0 ? 12 : 17;
             ef.EnemyEffect.SetInitialDamage(dmg);

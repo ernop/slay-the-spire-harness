@@ -126,16 +126,8 @@ namespace StS
             {
                 if (!consideredCis.Contains(ci.ToString()) && ci.EnergyCost() <= en && ci.Playable(hand))
                 {
-                    if (ci.Card.RandomEffects)
-                    {
-                        var action = ci.Card.GetActions(_Deck, ci);
-                        res.Add(action);
-                    }
-                    else
-                    {
-                        var action = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
-                        res.Add(action);
-                    }
+                    var action = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
+                    res.Add(action);
                     consideredCis.Add(ci.ToString());
                 }
             }
@@ -220,6 +212,10 @@ namespace StS
             if (action == null)
             {
                 action = new FightAction(FightActionEnum.StartTurn, cardTargets: initialHand, history: history);
+            }
+            else
+            {
+                action.History = history;
             }
             AssignLastAction(action);
             return true;
@@ -398,7 +394,7 @@ namespace StS
 
             //set the initial effect, or status.
             var ef = new EffectSet();
-            
+
             cardInstance.Play(ef, _Player, _Enemies[0], cardTargets, _Deck, action.Key);
 
             //generate an effect containing all the changes that will happen.
@@ -427,6 +423,11 @@ namespace StS
 
             //reuse the same action.
             action.History = history;
+            if (ef.HadRandomness)
+            {
+                action.Random = true;
+                action.Key = ef.Key;
+            }
             AssignLastAction(action);
             _Deck.CardPlayCleanup();
         }

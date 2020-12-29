@@ -305,13 +305,18 @@ namespace StS
             return root.Choices.OrderBy(el => el.GetValue().Value).First();
         }
 
+        public static string SJ<T>(IEnumerable<T> input = null)
+        {
+            return SJ(',', input);
+        }
+
         public static string SJ<T>(char separator = ',', IEnumerable<T> input = null)
         {
             if (input == null) { return ""; }
             return string.Join(separator, input.Select(el => el.ToString()));
         }
 
-        public static List<string> Gsl(params string[] input)
+        public static List<string> gsl(params string[] input)
         {
             return new List<string>(input);
         }

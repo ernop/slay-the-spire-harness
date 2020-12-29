@@ -30,6 +30,9 @@ namespace StS
             Depth = depth;
         }
 
+        /// <summary>
+        /// Add node to the proper place and return it for further MCing
+        /// </summary>
         public FightNode AddChild(FightNode child)
         {
             //interesting, although enemymoves are also randoms, there is no point in having an intermediate copy node.
@@ -73,13 +76,27 @@ namespace StS
                     intermediateNode.FightAction = nonspecifiecAction;
 
                     //zero these out since at this stage they represent the action pre-randomization.
-                    if (intermediateNode.Fight.FightNode!=null)
+                    if (intermediateNode.Fight.FightNode != null)
                         intermediateNode.Fight.FightNode.FightAction.Key = null;
                     intermediateNode.FightAction.Key = null;
                     Choices.Add(intermediateNode);
                     //there is not a random with this key already since this is the first time we played this card with random children.
                 }
-                
+
+                //we also have to check for identity with the child nodes.
+                foreach (var other in intermediateNode.Randoms)
+                {
+                    if (other.FightAction.IsEqual(child.Fight.FightAction) && other.FightAction.Key==child.Fight.FightAction.Key)
+                    {
+                        //I should just compare the order of the draw pile actually.
+                        other.Weight++;
+                        return other;
+                    }
+                    else
+                    {
+                        var ae = 4;
+                    }
+                }
                 child.Parent = intermediateNode;
                 child.FightAction = child.Fight.FightAction;
                 //child.fightaction still has its key
@@ -284,13 +301,13 @@ namespace StS
                 {
                     if (Choices.Count > 0)
                     {
-                        if (action.Card.Card.Name == nameof(WildStrike))
+                        if (action.Card.Card.Name == nameof(PommelStrike))
                         {
                             var ae = 4;
                         }
                     }
                 }
-                
+
                 //there should only be one cardplay of this.
                 var c = Choices.SingleOrDefault(el => el.FightAction.IsEqual(action));
                 if (c == null) { return null; }
@@ -322,16 +339,10 @@ namespace StS
 
         private void GenerateKeyIfNecessary(FightAction action)
         {
-            int? key = null;
-            if (action.Key.HasValue)
+            if (action.Keys != null)
             {
-                key = action.Key;
-            }
-            else if (action.Keys != null)
-            {
-                key = Rnd.Next(action.Keys.Count);
+                action.Key = Rnd.Next(action.Keys.Count);
                 //note down which randomness we chose for this so that we can identify duplicates later.
-                action.Key = key;
             }
         }
 

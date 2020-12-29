@@ -44,6 +44,7 @@ namespace StS
 
         public FightNode SimIncludingDraw(int? n = 10000)
         {
+            //todo: this needs fixing. it should reshuffle the deck between mcs or something.
             for (var ii = 0; ii < n; ii++)
             {
                 MC(Root);
@@ -96,7 +97,9 @@ namespace StS
             var actions = fn.Fight.GetAllActions();
           
             var ii = Rnd.Next(actions.Count());
+            //ii = 0;
             var action = actions[ii];
+
 
             var childNode = fn.ApplyAction(action);
 

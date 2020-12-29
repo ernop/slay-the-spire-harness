@@ -10,7 +10,7 @@ namespace StS
         internal override bool Exhausts(int upgradeCount) => upgradeCount == 0 ? true : false;
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
-        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, int? key = null)
+        internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var exi = player.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Strength);
             if (exi == null)

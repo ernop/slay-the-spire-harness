@@ -30,12 +30,12 @@ namespace StS
         /// if there are 4 cards still in hand, there would be version with key 0-4
         /// Similarly, wild strike would have N+1 where N is the number of cards in the draw pile.
         /// </summary>
-        public int? Key { get; set; }
+        public long? Key { get; set; }
         
         /// <summary>
         /// for generic actions when iterating over possibilities, there are multiple keys.
         /// </summary>
-        public List<int> Keys { get; set; }
+        public List<long> Keys { get; set; }
 
         /// <summary>
         /// either StartTurn in which case they represent cards drawn
@@ -54,7 +54,7 @@ namespace StS
         /// * enemy playerStatusATtack
         /// </summary>
         public FightAction(FightActionEnum fightActionType, CardInstance card = null, IList<CardInstance> cardTargets = null, Potion potion = null,
-            IEntity target = null, List<string> history = null, int? key = null, List<int> keys = null, bool hadRandomEffects = false)
+            IEntity target = null, List<string> history = null, long? key = null, List<long> keys = null, bool hadRandomEffects = false)
         {
             CardTargets = cardTargets;
             FightActionType = fightActionType;
@@ -71,7 +71,8 @@ namespace StS
                     if (hadRandomEffects!=potion.Random) throw new Exception("Enemy moves always random.");
                     break;
                 case FightActionEnum.PlayCard:
-                    if (card.Card.RandomEffects != hadRandomEffects) throw new Exception("Unexpected");
+                    if (hadRandomEffects && !card.Card.RandomEffects) throw new Exception("Unexpected");
+                    //had => rE but RE !=> had since not every randomizable effect card will actually have an effect every time.
                     break;
                 case FightActionEnum.EndTurn:
                 case FightActionEnum.StartTurnEffect:
