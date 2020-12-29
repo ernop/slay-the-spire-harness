@@ -71,7 +71,7 @@ namespace StS
 
     public class OneEffect
     {
-        public Func<Fight, Deck, List<string>, string> Action { get; set; }
+        public Action<Fight, Deck, List<string>> Action { get; set; }
     }
 
 

@@ -19,7 +19,7 @@ namespace StS
             {
                 foreach (var sl in new List<IList<CardInstance>>() { d.GetDrawPile, d.GetHand, d.GetDiscardPile, d.GetExhaustPile })
                 {
-                    foreach (var c in d.GetDrawPile)
+                    foreach (var c in sl)
                     {
                         c.UpgradeCount++;
                     }

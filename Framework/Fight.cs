@@ -179,7 +179,7 @@ namespace StS
             }
             else
             {
-                _Deck.ForceDrawCards(initialHand, ef, history);
+                _Deck.ForceDrawCards(_Player, initialHand, ef, history);
             }
 
             history.Add($"Drew:{string.Join(',', initialHand.OrderBy(el => el.ToString()))}");
@@ -455,7 +455,7 @@ namespace StS
             }
 
 
-            ef.FightEffect.ForEach(fe => history.Add(fe.Action.Invoke(this, _Deck, history)));
+            ef.FightEffect.ForEach(fe => fe.Action.Invoke(this, _Deck, history));
 
             foreach (var en in _Enemies)
             {

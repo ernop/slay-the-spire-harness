@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static StS.Helpers;
 
 namespace StS
 {
@@ -116,7 +117,8 @@ namespace StS
             {
                 statuses = " " + statuses;
             }
-            return $"{Name} {HP}/{HPMax} B{Block}{statuses}";
+            var relics = " "+SJ(Relics);
+            return $"{Name} {HP}/{HPMax} B{Block}{statuses}{relics}";
         }
 
         public override string ToString()

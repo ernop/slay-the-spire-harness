@@ -20,7 +20,12 @@ namespace StS
                 var toDrawPileDesc = "";
                 var would = d.WouldDraw(ct);
                 drewDesc = SJ(input: would);
-                d.ForceDrawCards(would, ef, history);
+                if (HasNoDrawStatus(player))
+                {
+                    history.Add("Nodraw status so no draw.");
+                    return;
+                }
+                d.ForceDrawCards(player: player, would, ef, history);
 
                 //target is only the card we are going to throw away.
                 CardInstance cardToPutOnTopOfDiscardPile;

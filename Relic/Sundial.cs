@@ -34,5 +34,10 @@ namespace StS
                 ef.PlayerEnergy = 2;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Sundial)}:{ShuffleCount}";
+        }
     }
 }

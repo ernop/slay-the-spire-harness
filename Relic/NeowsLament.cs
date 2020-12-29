@@ -17,10 +17,14 @@ namespace StS
                     Action = (Fight f, Deck d, List<string> history) =>
                     {
                         f.SetEnemyHp(1);
-                        return "Set enemy HP to 1";
+                        history.Add("Set enemy HP to 1");
                     }
                 });
             }
+        }
+        public override string ToString()
+        {
+            return $"{nameof(NeowsLament)}:{Charges}";
         }
 
         internal override Relic Copy()

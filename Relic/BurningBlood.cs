@@ -15,7 +15,7 @@ namespace StS
             oe.Action = (Fight f, Deck d, List<string> history) =>
             {
                 f._Player.HealFor(6, out string healres);
-                return $"Burning Blood Heal {healres}";
+                history.Add($"Burning Blood Heal {healres}");
             };
             relicEf.FightEffect.Add(oe);
         }

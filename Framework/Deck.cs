@@ -92,8 +92,7 @@ namespace StS
         {
             var res = new List<CardInstance>() { };
             
-            //player is only null in the case of evolve, since that is a guaranteed pass of this situation anyway.
-            if (player!=null && player.StatusInstances.Any(el => el.Status.Name == nameof(NoDrawStatus)))
+            if (HasNoDrawStatus(player))
             {
                 history.Add("No drawing due to nodraw status.");
                 return res;
@@ -137,9 +136,14 @@ namespace StS
             return res;
         }
 
-        internal List<CardInstance> Draw(List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
+        internal List<CardInstance> Draw(Player player, List<CardInstance> targetCards, int count, bool reshuffle, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
+            if (HasNoDrawStatus(player))
+            {
+                history.Add("No drawing due to nodraw status.");
+                return res;
+            }
             if (targetCards == null)
             {
                 while (res.Count < count)
@@ -288,9 +292,14 @@ namespace StS
         /// for the cards we know we will draw, draw them from drawpile.
         /// If drawpile runs out, reshuffle and do it again.
         /// </summary>
-        internal void ForceDrawCards(IList<CardInstance> initialHand, EffectSet ef, List<string> history)
+        internal void ForceDrawCards(Player player, IList<CardInstance> initialHand, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>();
+            //if (HasNoDrawStatus(player))
+            //{
+            //    history.Add("No drawing due to nodraw status.");
+            //    return;
+            //}
             var found = new List<CardInstance>();
             var initialCopy = initialHand.Select(el => el.Copy()).ToList();
             foreach (var ci in initialCopy)

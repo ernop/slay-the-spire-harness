@@ -18,7 +18,7 @@ namespace StS
              (Fight f, Deck d, List<string> history) =>
              {
                  f._Player.Energy += 2;
-                 return "Gained 2 energy mana from SeeingRed";
+                 history.Add("Gained 2 energy mana from SeeingRed");
              }
             };
         }

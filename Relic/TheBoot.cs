@@ -9,7 +9,7 @@ namespace StS
         public override string Name => nameof(TheBoot);
         public override void CardPlayed(Card card, EffectSet ef, IEntity player, IEntity enemy)
         {
-            if (card.CardType == CardType.Attack)
+            if (card.CardType == CardType.Attack && card.TargetType == TargetType.Enemy)
             {
                 ef.EnemyEffect.DamageAdjustments.Add(new AttackProgression("TheBoot", (input) => input.Select(el => Math.Max(el, 5)).ToList(), 10));
             }

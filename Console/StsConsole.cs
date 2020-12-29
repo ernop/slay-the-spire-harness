@@ -23,9 +23,10 @@ namespace StS
         
         public void Setup()
         {
+            SetRandom(1);
             var relics = GetRandomRelics(3);
             _Player = new Player(hp: 80, relics: relics);
-            _Enemy = new Cultist(47);
+            _Enemy = new Cultist(88);
             //var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
             var cis = GetRandomCards(20);
             var deck = new Deck(cis);
@@ -33,6 +34,7 @@ namespace StS
             _Root = new FightNode(_Fight);
             _Current = _Root;
             _Fight.FightNode = _Root;
+            _Fight.StartFight();
         }
 
         public void Start()
@@ -40,6 +42,8 @@ namespace StS
             while(true)
             {
                 Console.WriteLine(_Current);
+                Console.WriteLine(_Current.Fight._Player.Details());
+                Console.WriteLine(_Current.Fight._Enemies[0].Details());
                 Console.WriteLine($"What should I do? Energy{_Current.Fight._Player.Energy}");
                 Console.WriteLine($"Hand: {SJ(_Current.Fight.GetHand)}");
                 var ii = 0;
@@ -62,6 +66,9 @@ namespace StS
                 {
                     continue;
                 }
+                if (!actionMap.ContainsKey(num)) {
+                    continue;
+                }
                 var action = actionMap[num];
                 _Current = _Current.ApplyAction(action);
                 if (_Current.Fight.Status != FightStatus.Ongoing)
@@ -69,6 +76,7 @@ namespace StS
                     Console.Write("End");
                     break;
                 }
+
             }
         }
 

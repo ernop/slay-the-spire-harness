@@ -516,7 +516,7 @@ namespace StS.Tests
                 root = mc.SimIncludingDraw(100);
                 histories.Add(root.Value.Value);
             }
-            Assert.IsTrue(histories.First() < histories.Last());
+            Assert.IsTrue(histories.First() == 100 || histories.First() < histories.Last());
         }
 
         [Test]

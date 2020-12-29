@@ -19,6 +19,7 @@ namespace StS
             var dmg = upgradeCount == 0 ? 2 : 4;
 
             //in this context (end of player turn), there is no pattern of initialdamage/damage mods.  more like a seq of events.
+            //todo: fix this to just have independent sequences of damage.
             if (ie.GetInitialDamage() == null)
             {
                 ie.SetInitialDamage(dmg);

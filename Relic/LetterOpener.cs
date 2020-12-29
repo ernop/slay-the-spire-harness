@@ -27,5 +27,10 @@ namespace StS
         {
             return new LetterOpener { SkillCt = SkillCt };
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(LetterOpener)}:{SkillCt}";
+        }
     }
 }
