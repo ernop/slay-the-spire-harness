@@ -7,7 +7,7 @@ namespace StS
         public override string Name => nameof(ShrugItOff);
 
         public override TargetType TargetType => TargetType.Player;
-
+        public override bool RandomEffects => true;
         public override int CiCanCallEnergyCost(int upgradeCount) => 1;
 
         /// <summary>

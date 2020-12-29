@@ -90,14 +90,14 @@ namespace StS.Tests
         {
             var cards = gsl("Defend", "Strike", "Inflame", "PommelStrike+");
 
-            var enemy = new GenericEnemy(15, 3, 10, 10);
+            var enemy = new GenericEnemy(15, 3, 20, 20);
             var player = new Player(drawAmount: 1);
             var deck = new Deck(cards, gsl(), gsl(), gsl());
             var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
             var node = fs.SimAfterFirstDraw();
-            Assert.AreEqual(1, node.Choices);
-            var ps = node.Choices.Single(el => el.FightAction.Card.Card.Name == nameof(PommelStrike));
-            Assert.AreEqual(1, ps.Randoms.Count()); //we only draw the one reality that the deck was shuffled into.
+            Assert.AreEqual(1, node.Choices.Count);
+            var ps = node.Choices.First().Choices.Single(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            Assert.AreEqual(0, ps.Randoms.Count()); //we only draw the one reality that the deck was shuffled into.
         }
 
 
