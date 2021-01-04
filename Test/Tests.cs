@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-
 using static StS.AllRelics;
 using static StS.Helpers;
 
@@ -162,14 +161,14 @@ namespace StS.Tests
             RunTest(name: "WeakenEnemy", cis: GetCis("Uppercut+"), en2: 37,
                 enemyFinalStatuses: new List<StatusInstance>() { new StatusInstance(new Vulnerable(), 2), new StatusInstance(new Weak(), 2) });
 
-            
+
         }
 
         [Test]
         public static void Test_Entrench()
         {
             var player = new Player();
-            var cis = GetCis("Entrench+", "Defend","Footwork","Entrench");
+            var cis = GetCis("Entrench+", "Defend", "Footwork", "Entrench");
             var deck = new Deck(cis);
             var enemy = new GenericEnemy();
             var fight = new Fight(deck, player, enemy);
@@ -189,7 +188,7 @@ namespace StS.Tests
             fight.PlayCard(cis[0]);
             Assert.AreEqual(14, player.Block); //NOT 23
         }
-        
+
         [Test]
         public static void Test_Vajra()
         {
@@ -265,7 +264,7 @@ namespace StS.Tests
             Assert.AreEqual(2, deck.GetHand.Count());
             fight.PlayCard(cis[7]);
             Assert.AreEqual(4, deck.GetHand.Count());
-            Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "BattleTrance", "PommelStrike+", "Bash"), out var x),x);
+            Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "BattleTrance", "PommelStrike+", "Bash"), out var x), x);
             fight.PlayCard(cis[5]); //hit nodraw
             Assert.IsTrue(CompareHands(deck.GetHand, GetCis("Defend", "PommelStrike+", "Bash"), out var x2), x2);
             fight.PlayCard(cis[4]); //hit nodraw
@@ -377,8 +376,8 @@ namespace StS.Tests
         public static void Test_Death_Order()
         {
             //if P+E both die (from attacking a flame barrier), that is still a loss for the player.
-            var player = new Player(hp:3);
-            var enemy = new GenericEnemy(hp: 3, hpMax:3, amount:20, count:1);
+            var player = new Player(hp: 3);
+            var enemy = new GenericEnemy(hp: 3, hpMax: 3, amount: 20, count: 1);
             var initialCis = GetCis("FlameBarrier+");
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartFight();
@@ -1133,9 +1132,9 @@ namespace StS.Tests
         [Test]
         public static void Test_Warcry()
         {
-            var player = new Player(drawAmount:2);
+            var player = new Player(drawAmount: 2);
             var enemy = new GenericEnemy();
-            var initialCis = GetCis("Inflame","TwinStrike","Defend","Strike","Warcry");
+            var initialCis = GetCis("Inflame", "TwinStrike", "Defend", "Strike", "Warcry");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
@@ -1145,7 +1144,7 @@ namespace StS.Tests
             Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Strike"), out var msg, ordered: true), msg);
             Assert.AreEqual(3, fight.GetDrawPile.Count);
             Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis("Inflame", "TwinStrike", "Defend"), out var msg2, ordered: true), msg2);
-            
+
             Assert.AreEqual(1, fight.GetDiscardPile.Count); //warcry and defend
             Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry"), out var msg3, ordered: true), msg3);
         }
@@ -1159,27 +1158,27 @@ namespace StS.Tests
             var initialCis = GetCis("Inflame", "TwinStrike", "Defend", "PommelStrike", "Warcry+");
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn(); //draw d, ps, w+
-            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Warcry+","PommelStrike","Defend"), out var msg1, ordered: false), msg1);
-            
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Warcry+", "PommelStrike", "Defend"), out var msg1, ordered: false), msg1);
+
             var targets = new List<CardInstance>() { initialCis[1] }; //going to put back ts and keep inflame
             fight.PlayCard(initialCis[4], targets); //play warcry.  draw ts & inflame
-            
-            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Defend","PommelStrike","Inflame"), out var msg2, ordered: false), msg2);
+
+            Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Defend", "PommelStrike", "Inflame"), out var msg2, ordered: false), msg2);
             Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis("TwinStrike"), out var msg3, ordered: true), msg3);
             Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry+"), out var msg4, ordered: true), msg4);
 
             fight.PlayCard(initialCis[3]);
             Assert.IsTrue(CompareHands(fight.GetHand, GetCis("Defend", "TwinStrike", "Inflame"), out var msg5, ordered: false), msg5);
             Assert.IsTrue(CompareHands(fight.GetDrawPile, GetCis(), out var msg6, ordered: true), msg6);
-            Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry+","PommelStrike"), out var msg7, ordered: true), msg7);
+            Assert.IsTrue(CompareHands(fight.GetDiscardPile, GetCis("Warcry+", "PommelStrike"), out var msg7, ordered: true), msg7);
         }
 
         [Test]
         public static void Test_Rage()
         {
-            var player = new Player(drawAmount:4);
+            var player = new Player(drawAmount: 4);
             var enemy = new GenericEnemy();
-            var initialCis = GetCis("Defend","Anger","Strike+","Rage+","Rage");
+            var initialCis = GetCis("Defend", "Anger", "Strike+", "Rage+", "Rage");
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
             Assert.AreEqual(player.Block, 0);
@@ -1195,7 +1194,25 @@ namespace StS.Tests
             Assert.AreEqual(player.Block, 0);
         }
 
-            [Test]
+        [Test]
+        public static void Test_SeeingRed()
+        {
+            var player = new Player();
+            player.Relics.Add(Relics["Anchor"]);
+            var enemy = new GenericEnemy();
+            var initialCis = GetCis("Apotheosis+", "SeeingRed");
+            var fight = new Fight(initialCis, player: player, enemy: enemy, true);
+            fight.StartTurn();
+            fight.PlayCard(initialCis[0]);
+            fight.PlayCard(initialCis[1]);
+            Assert.AreEqual(4, fight._Player.Energy);
+            fight.EndTurn();
+            fight.EnemyMove();
+            fight.StartTurn();
+            Assert.AreEqual(3, fight._Player.Energy);
+        }
+
+        [Test]
         public static void Test_Anchor()
         {
             var player = new Player();
@@ -1309,7 +1326,7 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy);
             fight.StartTurn();
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(targetType: TargetType.Player, playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
 
             Assert.AreEqual(0, player.StatusInstances.Count);
         }
@@ -1325,7 +1342,7 @@ namespace StS.Tests
             fight.PlayCard(initialCis[0]);
             Assert.AreEqual(8, player.Block);
             fight.EndTurn();
-            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
+            fight.EnemyMove(new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(targetType: TargetType.Player, playerStatusAttack: GSS(new Frail(), 3)), 0), hadRandomEffects: true));
             Assert.AreEqual(1, player.StatusInstances.Count);
             fight.StartTurn();
             fight.PlayCard(initialCis[0]);

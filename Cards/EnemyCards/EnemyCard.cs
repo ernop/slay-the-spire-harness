@@ -4,18 +4,19 @@ namespace StS
 {
     public class EnemyCard : Card
     {
-        public override string Name => nameof(EnemyCard);        
+        public override string Name => nameof(EnemyCard);
         public override CardType CardType { get; }
         public override CardDomain CardDomain => CardDomain.Enemy;
         public int? Amount { get; set; }
         public int? Count { get; set; }
 
-        public override TargetType TargetType => TargetType.Player;
+        public override TargetType TargetType { get; }
         public List<StatusInstance> Buffs { get; set; }
         public List<StatusInstance> PlayerStatusAttack { get; set; }
         public override int CiCanCallEnergyCost(int upgradeCount) => 0;
-        public EnemyCard(int? amount = null, int? count = null, List<StatusInstance> buffs = null, List<StatusInstance> playerStatusAttack = null)
+        public EnemyCard(TargetType targetType, int? amount = null, int? count = null, List<StatusInstance> buffs = null, List<StatusInstance> playerStatusAttack = null)
         {
+            TargetType = targetType;
             Amount = amount;
             Count = count;
             Buffs = buffs;
@@ -45,11 +46,11 @@ namespace StS
                 ef.EnemyEffect.Status.AddRange(Buffs);
             }
         }
-        
+
         public override string ToString()
         {
-            var p = PlayerStatusAttack == null ? "" :  " P:"+string.Join(',', PlayerStatusAttack);
-            var b = Buffs == null ? "" : " B:"+string.Join(',', Buffs);
+            var p = PlayerStatusAttack == null ? "" : " P:" + string.Join(',', PlayerStatusAttack);
+            var b = Buffs == null ? "" : " B:" + string.Join(',', Buffs);
             var a = Amount == null ? "" : $" amt:{Amount}x{Count}";
             return $"{nameof(EnemyCard)}{a}{b}{p}";
         }

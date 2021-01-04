@@ -11,7 +11,19 @@ namespace StS
     /// </summary>
     public class CardInstance
     {
-        public int UpgradeCount { get; set; }
+        public int UpgradeCount { get; private set; }
+        public void Upgrade()
+        {
+            if (Card.MultiUpgrade)
+            {
+                UpgradeCount++;
+            }
+            else if (UpgradeCount == 0)
+            {
+                UpgradeCount++;
+            }
+
+        }
         public Card Card { get; set; }
         public int? PerTurnOverrideEnergyCost { get; set; } = null;
         public int? PerFightOverrideEnergyCost { get; set; } = null;

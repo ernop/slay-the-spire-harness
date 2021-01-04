@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace StS
 {
@@ -14,6 +13,9 @@ namespace StS
         /// Can this card have random effects at all?
         /// </summary>
         public virtual bool RandomEffects => false;
+
+        public virtual bool MultiUpgrade => false;
+
         internal abstract void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null);
         internal virtual bool Exhausts(int upgradeCount) => false;
         internal virtual bool Ethereal(int upgradeCount) => false;

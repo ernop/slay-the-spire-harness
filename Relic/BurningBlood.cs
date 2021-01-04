@@ -4,7 +4,7 @@ namespace StS
 {
     public class BurningBlood : Relic
     {
-        public override string Name => throw new System.NotImplementedException();
+        public override string Name => nameof(BurningBlood);
 
         public override void EndFight(Deck d, EffectSet relicEf)
         {

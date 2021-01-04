@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using static StS.Helpers;
-
 namespace StS
 {
     public class Fight
@@ -574,7 +572,7 @@ namespace StS
         public void EnemyMove(int amount, int count)
         {
             if (PlayerTurn) throw new Exception("Not your turn");
-            var ea = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(amount, count), 0), hadRandomEffects: true);
+            var ea = new FightAction(FightActionEnum.EnemyMove, card: new CardInstance(new EnemyCard(targetType: TargetType.Player, amount, count), 0), hadRandomEffects: true);
             EnemyMove(ea);
         }
 

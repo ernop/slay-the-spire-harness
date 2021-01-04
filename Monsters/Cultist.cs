@@ -7,18 +7,18 @@ namespace StS
 
     public class Cultist : Enemy
     {
-        public Cultist(int? hp = null, int ? hpMax = null) : base(nameof(Cultist), hp, hpMax) { }
+        public Cultist(int? hp = null, int? hpMax = null) : base(nameof(Cultist), hp, hpMax) { }
 
         public override FightAction GetAction(int turn)
         {
             if (turn == 1)
             {
-                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects:true, card: new CardInstance(new EnemyCard(buffs: new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }), 0), key:1);
+                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects: true, card: new CardInstance(new EnemyCard(targetType: TargetType.Enemy, buffs: new List<StatusInstance>() { new StatusInstance(new Feather(), 3) }), 0), key: 1);
                 return res;
             }
             else
             {
-                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects: true, card: new CardInstance(new EnemyCard(6, 1), 0), key:1);
+                var res = new FightAction(FightActionEnum.EnemyMove, hadRandomEffects: true, card: new CardInstance(new EnemyCard(targetType: TargetType.Player, 6, 1), 0), key: 1);
                 return res;
             }
         }

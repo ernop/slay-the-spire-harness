@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using static StS.Helpers;
 
@@ -20,15 +18,16 @@ namespace StS
             Setup();
             Start();
         }
-        
+
         public void Setup()
         {
-            SetRandom(1);
+            SetRandom(7);
             var relics = GetRandomRelics(3);
             _Player = new Player(hp: 80, relics: relics);
             _Enemy = new Cultist(88);
             //var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
             var cis = GetRandomCards(20);
+            Console.WriteLine("Deck: " + SJ(cis));
             var deck = new Deck(cis);
             _Fight = new Fight(deck, _Player, _Enemy);
             _Root = new FightNode(_Fight);
@@ -39,7 +38,7 @@ namespace StS
 
         public void Start()
         {
-            while(true)
+            while (true)
             {
                 Console.WriteLine(_Current);
                 Console.WriteLine(_Current.Fight._Player.Details());
@@ -61,12 +60,13 @@ namespace StS
                     ii++;
                 }
 
-                 var parsed = Int32.TryParse(Console.ReadLine(), out int num);
+                var parsed = Int32.TryParse(Console.ReadLine(), out int num);
                 if (!parsed)
                 {
                     continue;
                 }
-                if (!actionMap.ContainsKey(num)) {
+                if (!actionMap.ContainsKey(num))
+                {
                     continue;
                 }
                 var action = actionMap[num];

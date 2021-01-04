@@ -7,7 +7,7 @@ namespace StS
 
         public override string Name => nameof(SearingBlow);
         public override int CiCanCallEnergyCost(int upgradeCount) => 2;
-
+        public override bool MultiUpgrade => true;
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var amt = 4;
@@ -18,7 +18,7 @@ namespace StS
                 amt++;
                 upgradeCount--;
             }
-            var dmg = 12 +tot;
+            var dmg = 12 + tot;
             ef.EnemyEffect.SetInitialDamage(dmg);
         }
     }

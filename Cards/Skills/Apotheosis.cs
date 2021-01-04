@@ -21,7 +21,7 @@ namespace StS
                 {
                     foreach (var c in sl)
                     {
-                        c.UpgradeCount++;
+                        c.Upgrade();
                     }
                 }
                 h.Add("Apotheosis Upgraded all cards");

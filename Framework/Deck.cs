@@ -13,6 +13,31 @@ namespace StS
         /// if you want a certain hand to be drawn, create the deck with those cards in the drawpile, and set this.
         /// </summary>
         private bool _PreserveOrder { get; set; }
+
+        private IList<CardInstance> DrawPile { get; set; }
+        private IList<CardInstance> Hand { get; set; } = new List<CardInstance>();
+        private IList<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
+        private IList<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
+
+        /// <summary>
+        /// should these all just return by value?  or do I need to modify them in tests?
+        /// </summary>
+        public IList<CardInstance> GetDrawPile => DrawPile;
+        public IList<CardInstance> GetHand => Hand;
+        public IList<CardInstance> GetDiscardPile => DiscardPile;
+        public IList<CardInstance> GetExhaustPile => ExhaustPile;
+
+        public event NotifyOfExhaustion ExhaustCard;
+
+        public delegate void NotifyOfExhaustion(EffectSet ef);
+
+        public event NotifyDeckShuffle DeckShuffle;
+        public delegate void NotifyDeckShuffle(EffectSet ef, List<string> history);
+
+        public event NotifyDrawCard DrawCard;
+        public delegate void NotifyDrawCard(CardInstance ci, EffectSet ef);
+
+
         public Deck(IList<string> drawPile, IList<string> hand, IList<string> discardPile, IList<string> exhaustPile)
         {
             Init(GetCis(drawPile.ToArray()), GetCis(hand.ToArray()), GetCis(discardPile.ToArray()), GetCis(exhaustPile.ToArray()));
@@ -91,7 +116,7 @@ namespace StS
         internal List<CardInstance> DrawToHand(IList<CardInstance> targetCards, int count, bool reshuffle, Player player, EffectSet ef, List<string> history)
         {
             var res = new List<CardInstance>() { };
-            
+
             if (HasNoDrawStatus(player))
             {
                 history.Add("No drawing due to nodraw status.");
@@ -208,28 +233,6 @@ namespace StS
         /// <summary>
         /// The actual cards in the deck; the rest are copies.
         /// </summary>
-        private IList<CardInstance> DrawPile { get; set; }
-        private IList<CardInstance> Hand { get; set; } = new List<CardInstance>();
-        private IList<CardInstance> DiscardPile { get; set; } = new List<CardInstance>();
-        private IList<CardInstance> ExhaustPile { get; set; } = new List<CardInstance>();
-
-        /// <summary>
-        /// should these all just return by value?  or do I need to modify them in tests?
-        /// </summary>
-        public IList<CardInstance> GetDrawPile => DrawPile;
-        public IList<CardInstance> GetHand => Hand;
-        public IList<CardInstance> GetDiscardPile => DiscardPile;
-        public IList<CardInstance> GetExhaustPile => ExhaustPile;
-
-        public event NotifyOfExhaustion ExhaustCard;
-
-        public delegate void NotifyOfExhaustion(EffectSet ef);
-
-        public event NotifyDeckShuffle DeckShuffle;
-        public delegate void NotifyDeckShuffle(EffectSet ef, List<string> history);
-
-        public event NotifyDrawCard DrawCard;
-        public delegate void NotifyDrawCard(CardInstance ci, EffectSet ef);
 
         internal Deck(List<CardInstance> hand, List<CardInstance> draw, List<CardInstance> discard, List<CardInstance> ex)
         {
@@ -513,6 +516,11 @@ namespace StS
             var ex = ExhaustPile.Select(el => el.Copy()).ToList();
             var d = new Deck(h, dr, dis, ex);
             d._PreserveOrder = _PreserveOrder;
+
+            //it is pretty bad we have to copy event connections.
+            d.DeckShuffle = DeckShuffle;
+            d.DrawCard = DrawCard;
+            d.ExhaustCard = ExhaustCard;
 
             return d;
         }
