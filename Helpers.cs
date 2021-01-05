@@ -90,7 +90,7 @@ namespace StS
         public static bool CompareHands(IList<CardInstance> a, IList<CardInstance> b, out string message, bool ordered = false)
         {
             message = "";
-            if (a==null && b == null)
+            if (a == null && b == null)
             {
                 return true;
             }
@@ -107,7 +107,7 @@ namespace StS
 
             var al = string.Join(',', a.Select(el => el.ToString()));
             var bl = string.Join(',', b.Select(el => el.ToString()));
-            
+
             if (al != bl)
             {
                 message = $"{al} != {bl}";
@@ -286,12 +286,12 @@ namespace StS
             }
             return res;
         }
-         
+
         public static StatusInstance GS(Status status, int num)
         {
             return new StatusInstance(status, num);
         }
-        
+
         public static List<StatusInstance> GSS(Status status, int num)
         {
             return new List<StatusInstance>() { new StatusInstance(status, num) };
@@ -320,6 +320,20 @@ namespace StS
         {
             return new List<string>(input);
         }
+
+        public static List<Potion> GetRandomPotions(int count)
+        {
+            var ap = AllPotions.Potions.Keys.ToList();
+            var potions = new List<Potion>();
+            for (var ii = 0; ii < count; ii++)
+            {
+                var potion = AllPotions.Potions[ap[Rnd.Next(ap.Count)]];
+
+                potions.Add(potion);
+            }
+            return potions;
+        }
+
         public static List<CardInstance> GetRandomCards(int ccount)
         {
             var ac = AllCards.Cards.Keys.ToList();
@@ -336,7 +350,7 @@ namespace StS
         public static List<Relic> GetRandomRelics(int rcount)
         {
             var ar = AllRelics.Relics.Keys.ToList();
-            
+
             var relics = new List<Relic>();
             for (var ii = 0; ii < rcount; ii++)
             {

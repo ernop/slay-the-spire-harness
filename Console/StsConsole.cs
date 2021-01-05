@@ -21,10 +21,12 @@ namespace StS
 
         public void Setup()
         {
-            SetRandom(7);
+            SetRandom(9);
             var relics = GetRandomRelics(3);
-            _Player = new Player(hp: 80, relics: relics);
-            _Enemy = new Cultist(88);
+            var potions = GetRandomPotions(2);
+            var enemyHp = 100;
+            _Player = new Player(hp: 80, relics: relics, potions: potions);
+            _Enemy = new Cultist(enemyHp);
             //var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
             var cis = GetRandomCards(20);
             Console.WriteLine("Deck: " + SJ(cis));
@@ -47,6 +49,9 @@ namespace StS
                 Console.WriteLine($"Hand: {SJ(_Current.Fight.GetHand)}");
                 var ii = 0;
                 var actionMap = new Dictionary<int, FightAction>() { };
+
+                //problem: this hides duplicates, etc.
+                //should create a method to display all cards.
                 var actions = _Current.Fight.GetAllActions();
                 foreach (var a in actions)
                 {
@@ -73,6 +78,7 @@ namespace StS
                 _Current = _Current.ApplyAction(action);
                 if (_Current.Fight.Status != FightStatus.Ongoing)
                 {
+                    Console.WriteLine(_Current.FightAction);
                     Console.Write("End");
                     break;
                 }

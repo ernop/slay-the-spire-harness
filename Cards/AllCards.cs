@@ -2,6 +2,7 @@
 
 namespace StS
 {
+
     public static class AllCards
     {
 
@@ -10,56 +11,56 @@ namespace StS
         private static Dictionary<string, Card> GetAllCards()
         {
             var cards = new Dictionary<string, Card>();
-            cards["Bash"] = new Bash();
-            cards["Strike"] = new Strike();
-            cards["Defend"] = new Defend();
-            cards["Inflame"] = new Inflame();
-            cards["LimitBreak"] = new LimitBreak();
-            cards["Footwork"] = new Footwork();
-            cards["IronWave"] = new IronWave();
-            cards["Disarm"] = new Disarm();
-            cards["Uppercut"] = new Uppercut();
-            cards["SwordBoomerang"] = new SwordBoomerang();
-            cards["FlameBarrier"] = new FlameBarrier();
-            cards["Entrench"] = new Entrench();
-            cards["BodySlam"] = new BodySlam();
-            cards["Shockwave"] = new Shockwave();
-            cards["Sentinel"] = new Sentinel();
-            cards["Clothesline"] = new Clothesline();
-            cards["SearingBlow"] = new SearingBlow();
-            cards["Headbutt"] = new Headbutt();
-            cards["Clash"] = new Clash();
-            cards["PerfectedStrike"] = new PerfectedStrike();
-            cards["TwinStrike"] = new TwinStrike();
-            cards["HeavyBlade"] = new HeavyBlade();
-            cards["ShrugItOff"] = new ShrugItOff();
-            cards["Carnage"] = new Carnage();
-            cards["Slimed"] = new Slimed();
-            cards["Dazed"] = new Dazed();
-            cards["PommelStrike"] = new PommelStrike();
-            cards["Havok"] = new Havok();
-            cards["TrueGrit"] = new TrueGrit();
-            cards["FeelNoPain"] = new FeelNoPain();
-            cards["Pummel"] = new Pummel();
-            cards["Intimidate"] = new Intimidate();
-            cards["Thunderclap"] = new Thunderclap();
-            cards["Anger"] = new Anger();
-            cards["WildStrike"] = new WildStrike();
-            cards["Wound"] = new Wound();
-            cards["Evolve"] = new Evolve();
-            cards["Trip"] = new Trip();
-            cards["GhostlyArmor"] = new GhostlyArmor();
-            cards["RecklessCharge"] = new RecklessCharge();
-            cards["Apotheosis"] = new Apotheosis();
-            cards["AscendersBane"] = new AscendersBane();
-            cards["Enlightenment"] = new Enlightenment();
-            cards["Immolate"] = new Immolate();
-            cards["Burn"] = new Burn();
-            cards["Clumsy"] = new Clumsy();
-            cards["SeeingRed"] = new SeeingRed();
-            cards["Warcry"] = new Warcry();
-            cards["Rage"] = new Rage();
-            cards["BattleTrance"] = new BattleTrance();
+            cards[nameof(Bash)] = new Bash();
+            cards[nameof(Strike)] = new Strike();
+            cards[nameof(Defend)] = new Defend();
+            cards[nameof(Inflame)] = new Inflame();
+            cards[nameof(LimitBreak)] = new LimitBreak();
+            cards[nameof(Footwork)] = new Footwork();
+            cards[nameof(IronWave)] = new IronWave();
+            cards[nameof(Disarm)] = new Disarm();
+            cards[nameof(Uppercut)] = new Uppercut();
+            cards[nameof(SwordBoomerang)] = new SwordBoomerang();
+            cards[nameof(FlameBarrier)] = new FlameBarrier();
+            cards[nameof(Entrench)] = new Entrench();
+            cards[nameof(BodySlam)] = new BodySlam();
+            cards[nameof(Shockwave)] = new Shockwave();
+            cards[nameof(Sentinel)] = new Sentinel();
+            cards[nameof(Clothesline)] = new Clothesline();
+            cards[nameof(SearingBlow)] = new SearingBlow();
+            cards[nameof(Headbutt)] = new Headbutt();
+            cards[nameof(Clash)] = new Clash();
+            cards[nameof(PerfectedStrike)] = new PerfectedStrike();
+            cards[nameof(TwinStrike)] = new TwinStrike();
+            cards[nameof(HeavyBlade)] = new HeavyBlade();
+            cards[nameof(ShrugItOff)] = new ShrugItOff();
+            cards[nameof(Carnage)] = new Carnage();
+            cards[nameof(Slimed)] = new Slimed();
+            cards[nameof(Dazed)] = new Dazed();
+            cards[nameof(PommelStrike)] = new PommelStrike();
+            cards[nameof(Havok)] = new Havok();
+            cards[nameof(TrueGrit)] = new TrueGrit();
+            cards[nameof(FeelNoPain)] = new FeelNoPain();
+            cards[nameof(Pummel)] = new Pummel();
+            cards[nameof(Intimidate)] = new Intimidate();
+            cards[nameof(Thunderclap)] = new Thunderclap();
+            cards[nameof(Anger)] = new Anger();
+            cards[nameof(WildStrike)] = new WildStrike();
+            cards[nameof(Wound)] = new Wound();
+            cards[nameof(Evolve)] = new Evolve();
+            cards[nameof(Trip)] = new Trip();
+            cards[nameof(GhostlyArmor)] = new GhostlyArmor();
+            cards[nameof(RecklessCharge)] = new RecklessCharge();
+            cards[nameof(Apotheosis)] = new Apotheosis();
+            cards[nameof(AscendersBane)] = new AscendersBane();
+            cards[nameof(Enlightenment)] = new Enlightenment();
+            cards[nameof(Immolate)] = new Immolate();
+            cards[nameof(Burn)] = new Burn();
+            cards[nameof(Clumsy)] = new Clumsy();
+            cards[nameof(SeeingRed)] = new SeeingRed();
+            cards[nameof(Warcry)] = new Warcry();
+            cards[nameof(Rage)] = new Rage();
+            cards[nameof(BattleTrance)] = new BattleTrance();
 
             return cards;
         }
