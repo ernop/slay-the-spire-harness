@@ -21,7 +21,7 @@ namespace StS
 
         public void Setup()
         {
-            SetRandom(9);
+            SetRandom(13);
             var relics = GetRandomRelics(3);
             var potions = GetRandomPotions(2);
             var enemyHp = 100;

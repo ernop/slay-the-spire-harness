@@ -22,7 +22,7 @@
         /// Some scalable statues are permanent (str, dex) (but removed when zero), while others are impermanent like flame barrier
         /// 
         /// Scalable, impermanent: flame barrier
-        /// Scalable, permanent: str, feelnopain.  in this  case the number represents the strength of the effect.
+        /// Scalable, permanent: str, feelnopain.  in this case the number represents the strength of the effect.
         /// Unscalable, impermanent: vuln. In this case the number represents the *duration* of the effect.
         /// Unscalable, permanent: ?
         /// 

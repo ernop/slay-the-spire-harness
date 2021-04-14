@@ -1,4 +1,6 @@
 ﻿
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static StS.Helpers;
@@ -22,7 +24,7 @@ namespace StS
         static void TestCultistMC()
         {
             var turnNumber = 0;
-            
+
             var initialDeck = new List<string>() { "Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash" };
             //initialHand.AddRange(new List<string>() {"Pummel", "Exhume"});
 
@@ -33,7 +35,7 @@ namespace StS
             var enemyHp = 51;
             var playerHp = 1;
             var firstDraw = new List<string>() { "Strike", "Strike", "Defend", "Defend", "Bash" };
-            var statuses = new List<StatusInstance>() {  };
+            var statuses = new List<StatusInstance>() { };
 
             if (false)
             {
@@ -49,9 +51,9 @@ namespace StS
             var player = new Player(hp: playerHp);
 
             var deck = new Deck(drawPile, hand, discardPile, exhaustPile);
-            
+
             var mc = new MonteCarlo(deck, enemy, player, turnNumber, firstDraw);
-            var bestValue = new NodeValue(-100,0, null);
+            var bestValue = new NodeValue(-100, 0, null);
 
             for (var ii = 0; ii < 100000; ii++)
             {
@@ -110,7 +112,7 @@ namespace StS
         public static void ShowInitialValues(FightNode drawNode)
         {
             System.IO.File.AppendAllText(Output, $"\n---------Best FirstRound Choices: {drawNode.Choices.Count}");
-            foreach (var c in drawNode.Choices.OrderByDescending(el=>el.Value))
+            foreach (var c in drawNode.Choices.OrderByDescending(el => el.Value))
             {
                 ShowRound(c);
             }

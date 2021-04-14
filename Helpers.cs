@@ -292,6 +292,9 @@ namespace StS
             return new StatusInstance(status, num);
         }
 
+        /// <summary>
+        /// GetStatusInstanceList
+        /// </summary>
         public static List<StatusInstance> GSS(Status status, int num)
         {
             return new List<StatusInstance>() { new StatusInstance(status, num) };
