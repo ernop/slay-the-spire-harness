@@ -23,7 +23,7 @@ namespace StS
         /// <summary>
         /// Only callable from cardInstance, to detect per-fight and per-hand cost changes.
         /// </summary>
-        public abstract int CiCanCallEnergyCost(int upgradeCount);
+        public abstract EnergyCostInt CiCanCallEnergyCost(int upgradeCount);
 
         public virtual bool Playable(List<CardInstance> hand) { return true; }
 

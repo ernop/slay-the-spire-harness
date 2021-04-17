@@ -71,7 +71,7 @@ namespace StS
 
                     //we convert the specced out action into a generic one again.
                     var nonspecifiecAction = new FightAction(fightActionType: src.FightActionType,
-                        card: src.Card, cardTargets: src.CardTargets, potion: src.Potion, target: src.Target,
+                        card: src.CardInstance, cardTargets: src.CardTargets, potion: src.Potion, target: src.Target,
                         hadRandomEffects: src.Random);
                     intermediateNode.FightAction = nonspecifiecAction;
 
@@ -86,7 +86,7 @@ namespace StS
                 //we also have to check for identity with the child nodes.
                 foreach (var other in intermediateNode.Randoms)
                 {
-                    if (other.FightAction.IsEqual(child.Fight.FightAction) && other.FightAction.Key==child.Fight.FightAction.Key)
+                    if (other.FightAction.IsEqual(child.Fight.FightAction) && other.FightAction.Key == child.Fight.FightAction.Key)
                     {
                         //I should just compare the order of the draw pile actually.
                         other.Weight++;
@@ -301,7 +301,7 @@ namespace StS
                 {
                     if (Choices.Count > 0)
                     {
-                        if (action.Card.Card.Name == nameof(PommelStrike))
+                        if (action.CardInstance.Card.Name == nameof(PommelStrike))
                         {
                             var ae = 4;
                         }

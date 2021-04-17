@@ -7,7 +7,7 @@ namespace StS
     {
         public override string Name => nameof(WildStrike);
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(1);
         public override bool RandomEffects => true;
         public override List<int> GetKeys(Deck d, CardInstance ci)
         {

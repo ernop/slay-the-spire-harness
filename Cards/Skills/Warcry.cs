@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using static StS.Helpers;
 
 namespace StS
@@ -9,13 +10,14 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Player;
         public override bool RandomEffects => true;
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var ct = upgradeCount == 0 ? 1 : 2;
 
-            ef.DeckEffect.Add((Deck d, List<string> history) => {
+            ef.DeckEffect.Add((Deck d, List<string> history) =>
+            {
                 var drewDesc = "";
                 var toDrawPileDesc = "";
                 var would = d.WouldDraw(ct);
@@ -32,7 +34,7 @@ namespace StS
                 if (targets == null)
                 {
                     cardToPutOnTopOfDiscardPile = d.GetHand[Rnd.Next(d.GetHand.Count)];
-                    
+
                 }
                 else
                 {

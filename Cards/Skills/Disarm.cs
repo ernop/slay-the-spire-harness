@@ -7,7 +7,7 @@ namespace StS
         public override string Name => nameof(Disarm);
 
         public override TargetType TargetType => TargetType.Enemy;
-        public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(1);
         internal override bool Exhausts(int upgradeCount) => true;
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)

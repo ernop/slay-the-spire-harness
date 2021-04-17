@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -15,9 +16,10 @@ namespace StS
     {
         public FightActionEnum FightActionType { get; private set; }
         public Potion Potion { get; private set; }
-        public CardInstance Card { get; private set; }
+        public CardInstance CardInstance { get; private set; }
         public List<string> History { get; set; }
         public IEntity Target { get; private set; }
+        public bool Playable { get; set; }
 
         /// <summary>
         /// Whether this was a random action at generation point.
@@ -31,7 +33,7 @@ namespace StS
         /// Similarly, wild strike would have N+1 where N is the number of cards in the draw pile.
         /// </summary>
         public long? Key { get; set; }
-        
+
         /// <summary>
         /// for generic actions when iterating over possibilities, there are multiple keys.
         /// </summary>
@@ -54,21 +56,24 @@ namespace StS
         /// * enemy playerStatusATtack
         /// </summary>
         public FightAction(FightActionEnum fightActionType, CardInstance card = null, IList<CardInstance> cardTargets = null, Potion potion = null,
-            IEntity target = null, List<string> history = null, long? key = null, List<long> keys = null, bool hadRandomEffects = false)
+            IEntity target = null, List<string> history = null, long? key = null, List<long> keys = null, bool hadRandomEffects = false, bool playable = true)
         {
             CardTargets = cardTargets;
             FightActionType = fightActionType;
             Potion = potion?.Copy();
-            Card = card?.Copy();
+            CardInstance = card?.Copy();
             Target = target;
             History = history;
             Keys = keys;
             Key = key;
             Random = hadRandomEffects;
+
+            // For console view, whether it can actually be chosen/played.
+            Playable = playable;
             switch (fightActionType)
             {
                 case FightActionEnum.Potion:
-                    if (hadRandomEffects!=potion.Random) throw new Exception("Enemy moves always random.");
+                    if (hadRandomEffects != potion.Random) throw new Exception("Enemy moves always random.");
                     break;
                 case FightActionEnum.PlayCard:
                     if (hadRandomEffects && !card.Card.RandomEffects) throw new Exception("Unexpected");
@@ -83,7 +88,7 @@ namespace StS
                 case FightActionEnum.EndFightEffect:
                 case FightActionEnum.EnemyDied:
                 case FightActionEnum.EndEnemyTurn:
-                
+
                 case FightActionEnum.WonFight:
                 case FightActionEnum.LostFight:
                 case FightActionEnum.TooLong:
@@ -110,7 +115,7 @@ namespace StS
             switch (FightActionType)
             {
                 case FightActionEnum.PlayCard:
-                    if (Card == null) throw new InvalidOperationException();
+                    if (CardInstance == null) throw new InvalidOperationException();
                     if (Target != null) throw new InvalidOperationException();
                     break;
                 case FightActionEnum.Potion:
@@ -150,7 +155,7 @@ namespace StS
         public bool IsEqual(FightAction other)
         {
             if (FightActionType != other.FightActionType) return false;
-            if (Card?.ToString() != other.Card?.ToString()) return false;
+            if (CardInstance?.ToString() != other.CardInstance?.ToString()) return false;
             if (Potion?.Name != other.Potion?.Name) return false;
             if (Target?.Name != other.Target?.Name) return false;
             if (CardTargets != null && other.CardTargets == null) return false;
@@ -159,7 +164,7 @@ namespace StS
             //if (Key != other.Key) return false;
             //we do not compare key here because this is at the "choice" stage.
             if (Random != other.Random) return false;
-            
+
             return true;
         }
 
@@ -171,13 +176,20 @@ namespace StS
 
         public override string ToString()
         {
+            var historyParts = GetList();
+            var descPart = string.Join(" ", historyParts.Skip(1));
+            return $"{historyParts[0],-15}{descPart}";
+        }
+
+        public List<string> GetList()
+        {
             var label = FightActionType.ToString();
 
             //Certain types are always labelled
             switch (FightActionType)
             {
                 case FightActionEnum.PlayCard:
-                    label = $"{Card}";
+                    label = $"{CardInstance}";
                     break;
                 case FightActionEnum.Potion:
                     label = "Potion:" + Potion.ToString();
@@ -214,19 +226,18 @@ namespace StS
 
 
             //we always return a fighthistory.
+            var res = new List<string>() { label };
 
-            var descPart = "";
-            if (History?.Count > 0)
+            if (History != null)
             {
-                descPart = $" {string.Join(" ", History)}";
+                res.AddRange(History);
             }
-            var rnd = "";
             if (Random)
             {
-                rnd = $" R:{Key}";
+                res.Add($" R:{Key}");
             }
 
-            return $"{label,-15}{rnd}{descPart}";
+            return res;
         }
     }
 }

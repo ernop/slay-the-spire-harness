@@ -13,7 +13,7 @@ namespace StS
         public override TargetType TargetType { get; }
         public List<StatusInstance> Buffs { get; set; }
         public List<StatusInstance> PlayerStatusAttack { get; set; }
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
         public EnemyCard(TargetType targetType, int? amount = null, int? count = null, List<StatusInstance> buffs = null, List<StatusInstance> playerStatusAttack = null)
         {
             TargetType = targetType;

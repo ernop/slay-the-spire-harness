@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using static StS.Helpers;
 
 namespace StS
@@ -17,7 +18,7 @@ namespace StS
                     var ci = SelectNonZeroCostCard(d.GetHand);
                     if (ci != null)
                     {
-                        ci.PerTurnOverrideEnergyCost = 0;
+                        ci.PerTurnOverrideEnergyCost = new EnergyCostInt(0);
                         h.Add($"monkey paw set {ci} to cost zero.");
                     }
                     else

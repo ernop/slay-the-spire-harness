@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using static StS.Helpers;
 
 namespace StS
@@ -31,12 +32,12 @@ namespace StS
         /// </summary>
         public List<OneEffect> FightEffect { get; set; } = new List<OneEffect>();
         public List<EffectSet> NextEffectSet { get; set; } = new List<EffectSet>();
-        
+
         /// <summary>
         /// Whether during the application of this ef the deck was shuffled or other random action taken.
         /// </summary>
         public bool HadRandomness { get; internal set; } = false;
-        
+
         /// <summary>
         /// randomness key.  i.e. 0 for wildstrike means the wound was inserted at position 0 of the draw pile.
         /// Attempt: use the same key for the hash of the ordered cards in the draw pile.
@@ -80,7 +81,10 @@ namespace StS
         private List<FightStep> BlockActions { get; set; } = new List<FightStep>();
         public List<FightStep> GetBlockActions => BlockActions;
         private IList<int> InitialDamage { get; set; }
-        public int AttackCount => InitialDamage?.Count ?? 0; 
+        public int AttackCount => InitialDamage?.Count ?? 0;
+        public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();
+        public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
+
         public IList<int> GetInitialDamage()
         {
             return InitialDamage;
@@ -89,18 +93,17 @@ namespace StS
         {
             InitialDamage = new List<int>() { dmg };
         }
-        
+
         public void SetInitialDamage(params int[] dmg)
         {
             InitialDamage = new List<int>(dmg);
         }
-        public List<AttackProgression> DamageAdjustments { get; set; } = new List<AttackProgression>();
-        public List<StatusInstance> Status { get; set; } = new List<StatusInstance>();
+
+
 
         public override string ToString()
         {
-
-            var block = SJ(input: BlockActions.Select(el=>el.ToString()));
+            var block = SJ(input: BlockActions.Select(el => el.ToString()));
             var id = InitialDamage.Count == 0 ? "" : $"D{string.Join(',', InitialDamage)}";
             var ba = string.Join(',', BlockActions.Select(el => el.Desc));
             var da = string.Join(',', DamageAdjustments.Select(el => el.Desc));

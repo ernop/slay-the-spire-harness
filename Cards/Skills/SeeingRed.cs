@@ -8,7 +8,7 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Player;
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => upgradeCount == 0 ? 1 : 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => upgradeCount == 0 ? new EnergyCostInt(1) : new EnergyCostInt(0);
         internal override bool Exhausts(int upgradeCount) => true;
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)

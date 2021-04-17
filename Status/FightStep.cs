@@ -19,7 +19,7 @@ namespace StS
         public FightStep(string desc, double amt, int? order = 1, bool additive = true)
         {
             var usingOrder = order ?? 1;
-            
+
             Desc = desc;
             Amount = amt;
             Order = usingOrder;

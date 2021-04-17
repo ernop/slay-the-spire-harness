@@ -1,18 +1,19 @@
 ﻿
 using Newtonsoft.Json;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using static StS.Helpers;
 
 namespace StS
 {
     class Program
     {
+        public static List<CardInstance> InitialDeck = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend").ToList();
 
-        static List<CardInstance> InitialDeck = GetCis("Strike", "Strike", "Strike", "Defend", "Bash", "Strike", "Strike", "Defend", "Defend", "Defend").ToList();
-
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             SetRandom(0);
             System.IO.File.WriteAllText(Helpers.Output, "");
@@ -21,7 +22,7 @@ namespace StS
             //TestCultistMC();
         }
 
-        static void TestCultistMC()
+        public static void TestCultistMC()
         {
             var turnNumber = 0;
 

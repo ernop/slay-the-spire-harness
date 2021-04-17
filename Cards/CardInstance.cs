@@ -9,7 +9,7 @@ namespace StS
     /// per-fight would include extra copies of cards like anger, for example.
     /// per-hand would have instances that were more upgraded (armaments) or had different costs (monkey paw).
     /// </summary>
-    public class CardInstance
+    public partial class CardInstance
     {
         public int UpgradeCount { get; private set; }
         public void Upgrade()
@@ -25,8 +25,8 @@ namespace StS
 
         }
         public Card Card { get; set; }
-        public int? PerTurnOverrideEnergyCost { get; set; } = null;
-        public int? PerFightOverrideEnergyCost { get; set; } = null;
+        public EnergyCostInt PerTurnOverrideEnergyCost { get; set; } = null;
+        public EnergyCostInt PerFightOverrideEnergyCost { get; set; } = null;
         public bool OverrideExhaust { get; set; }
         public int Id { get; set; }
         public CardInstance(Card card, int upgradeCount)
@@ -58,15 +58,15 @@ namespace StS
             //HandleLeavingHand(ef);
         }
 
-        public int EnergyCost()
+        public EnergyCostInt EnergyCost()
         {
             if (PerTurnOverrideEnergyCost != null)
             {
-                return PerTurnOverrideEnergyCost.Value;
+                return PerTurnOverrideEnergyCost;
             }
             if (PerFightOverrideEnergyCost != null)
             {
-                return PerFightOverrideEnergyCost.Value;
+                return PerFightOverrideEnergyCost;
             }
             return Card.CiCanCallEnergyCost(UpgradeCount);
         }

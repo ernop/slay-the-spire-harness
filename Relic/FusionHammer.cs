@@ -1,5 +1,8 @@
 ﻿namespace StS
 {
+    /// <summary>
+    /// Todo: blocks upgrading cards at campfires.
+    /// </summary>
     public class FusionHammer : Relic
     {
         public override string Name => nameof(FusionHammer);

@@ -7,7 +7,7 @@ namespace StS
     {
         public override string Name => nameof(Clash);
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
 
         public override bool Playable(IList<CardInstance> hand) => hand.All(el => el.Card.CardType == CardType.Attack);
 

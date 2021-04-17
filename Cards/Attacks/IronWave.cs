@@ -5,7 +5,7 @@ namespace StS
     public class IronWave : IroncladAttackCard
     {
         public override string Name => nameof(IronWave);
-        public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(1);
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             int dmg;

@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using static StS.Helpers;
 
 namespace StS
 {
     public abstract class Entity : IEntity
     {
-        public Entity(string name, EntityType entityType, int? hp=null, int? hpMax = null)
+        public Entity(string name, EntityType entityType, int? hp = null, int? hpMax = null)
         {
             Name = name;
             EntityType = entityType;
-            
-            if (hp != null && hpMax==null)
+
+            if (hp != null && hpMax == null)
             {
                 hpMax = hp;
             }
@@ -112,12 +113,12 @@ namespace StS
 
         public string Details()
         {
-            var statuses = string.Join(",", StatusInstances.Select(el => el.ToString()));
+            var statuses = SJ('\t', StatusInstances.Select(el => el.ToString()));
             if (statuses.Length > 0)
             {
                 statuses = " " + statuses;
             }
-            var relics = " "+SJ(Relics);
+            var relics = " " + SJ('\t', Relics);
             return $"{Name} {HP}/{HPMax} B{Block}{statuses}{relics}";
         }
 
@@ -129,7 +130,7 @@ namespace StS
         public IEntity CopyEntity(IEntity entity)
         {
             var sis = StatusInstances.Select(el => el.Copy()).ToList();
-            
+
             entity.Name = Name;
             entity.Dead = Dead;
             entity.Block = Block;

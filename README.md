@@ -6,6 +6,8 @@
 3. can this be hooked up to alphazero
 4. obviously the dream is a complete player of the entire game - simulating every choice fully
 	annoying part of this is having to manually enter the behavior patterns of every enemy
+5. make StS into a game like chess where you can share complete game states for analysis
+6. enable "duplicate StS" in a fair way, to enable true comparison of skill
 
 Questions
 ==
@@ -26,6 +28,13 @@ Stages
 
 Todos
 ==
+ - enable safe simulation of actions for pre-display of damage
+ - implement an enemy in a nice way - this is complex to reverse engineer, especially at ascension levels
+ - display intentions in console mode
+ - display simulated damage in console mode
+ - fix the whole "copy" requirement and node navigation - feels inefficient
+ - reversible play and safe undos rather than copying entire data structures
+ - representation of exact game & fight state in a single hash for sharing / replaying
  - in general how to handle random oneoff relics/statuses like frail/BTNodraw?  Really does seem easier to just patch the draw method.
  - handle reshuffle variation randomness => when you reshuffle, create a normal choice node and add a random child with key corresponding to it
  - random testing => means I need to fix the InitialBlock / blockAdjustment concept
@@ -37,8 +46,7 @@ Todos
  - don't repeatedly choose the same exact action.
  - later - identical full fight state evaluation
  - compare MC results to repeatedly playing the real fight to get the same result distributions - the only way to really validate.
- - console mode so you can "play" from cmdline. This is necessary to find bugs and generate more tests.
- - if you have A with children B and C and are calculating values, if B_v < A_v (by direct HP analysis) there is no reason to completely calculate its value; just return A as bestchild.
+  - if you have A with children B and C and are calculating values, if B_v < A_v (by direct HP analysis) there is no reason to completely calculate its value; just return A as bestchild.
  - evolve needs structure adjustments.  ef can modify itself with more work.
  - minimal example of C/RC situation and verify that all paths are considered
  - why isn't it finding all good lines?
@@ -60,6 +68,7 @@ Todos
 
 Todos Done
 ==
+ - console mode so you can "play" from cmdline. This is necessary to find bugs and generate more tests.
  - split out randomness a bit better
  - basic interactive mode with cmdline options.  normal cards - play card, potion, etc. and special mode addcard etc.
  - visualization improvements

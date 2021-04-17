@@ -14,16 +14,6 @@ namespace StS
             Rnd = new Random(seed);
         }
 
-        public static bool IsVulnerable(Entity entity)
-        {
-            var exi = entity.StatusInstances.SingleOrDefault(el => el.Status.StatusType == StatusType.Vulnerable);
-            if (exi != null)
-            {
-                return true;
-            }
-            return false;
-        }
-
         internal static Tuple<string, int> SplitCardName(string name)
         {
             //for now just detect trailing+
@@ -369,7 +359,7 @@ namespace StS
         public static bool HasNoDrawStatus(Player player)
         {
             //player is only null in the case of evolve, since that is a guaranteed pass of this situation anyway.
-            if (player != null && player.StatusInstances.Any(el => el.Status.Name == nameof(NoDrawStatus)))
+            if (player != null && player.StatusInstances.Any(el => el.Status.Name == nameof(NoDraw)))
             {
 
                 return true;

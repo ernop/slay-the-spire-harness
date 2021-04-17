@@ -9,7 +9,7 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Player;
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => upgradeCount == 0 ? 1 : 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => upgradeCount == 0 ? new EnergyCostInt(1) : new EnergyCostInt(0);
         /// <summary>
         /// because it can cause a draw.
         /// </summary>

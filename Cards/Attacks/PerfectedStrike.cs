@@ -8,7 +8,7 @@ namespace StS
     {
         public override string Name => nameof(PerfectedStrike);
         public static readonly List<string> RelatedCards = new List<string>() { "PerfectedStrike", "TwinStrike", "Strike", "PommelStrike", "WildStrike", "SwiftStrike", "SneakyStrike", "ThunderStrike", "MeteorStrike", "WindmillStrike" };
-        public override int CiCanCallEnergyCost(int upgradeCount) => 2;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(2);
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var mult = upgradeCount == 0 ? 2 : 3;

@@ -8,7 +8,7 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Player;
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(1);
 
         /// <summary>
         /// Bit annoying that targets actually covers two cases:

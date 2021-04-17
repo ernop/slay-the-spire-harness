@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using static StS.Helpers;
 
 namespace StS
@@ -8,16 +9,16 @@ namespace StS
         public override string Name => nameof(BattleTrance);
         public override TargetType TargetType => TargetType.Player;
         public override bool RandomEffects => true;
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
             var count = upgradeCount == 0 ? 3 : 4;
             ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
                 var drawn = d.DrawToHand(targets, count, true, player, ef, h);
-                h.Add($"BT Drew: {string.Join(',', drawn)}");
+                h.Add($"BT Drew: {SJ('\t', drawn)}");
             });
-            ef.PlayerEffect.Status.Add(GS(new NoDrawStatus(), 1));
+            ef.PlayerEffect.Status.Add(GS(new NoDraw(), 1));
         }
     }
 }

@@ -2,11 +2,11 @@
 
 namespace StS
 {
-    public class Intimidate : IroncladAttackCard
+    public class Intimidate : IroncladSkillCard
     {
         public override string Name => nameof(Intimidate);
-
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override TargetType TargetType => TargetType.Enemy;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
         internal override bool Exhausts(int UpgradeCount) => true;
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)

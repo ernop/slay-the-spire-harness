@@ -77,12 +77,12 @@ namespace StS.Tests
             //assert the right cards were played.
             var drawNode = node.Choices.First();
             var enlightenment = drawNode.Choices.Single(el => el.Value.Value == 1);
-            Assert.AreEqual(nameof(Enlightenment), enlightenment.FightAction.Card.Card.Name);
-            Assert.AreEqual(1, enlightenment.FightAction.Card.UpgradeCount);
+            Assert.AreEqual(nameof(Enlightenment), enlightenment.FightAction.CardInstance.Card.Name);
+            Assert.AreEqual(1, enlightenment.FightAction.CardInstance.UpgradeCount);
 
             var bash = enlightenment.Choices.Single(el => el.Value.Value == 1);
-            Assert.AreEqual(nameof(Bash), bash.FightAction.Card.Card.Name);
-            Assert.AreEqual(0, bash.FightAction.Card.UpgradeCount);
+            Assert.AreEqual(nameof(Bash), bash.FightAction.CardInstance.Card.Name);
+            Assert.AreEqual(0, bash.FightAction.CardInstance.UpgradeCount);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace StS.Tests
             var fs = new MonteCarlo(deck, enemy, player, firstHand: gsl("PommelStrike+"));
             var node = fs.SimAfterFirstDraw();
             Assert.AreEqual(1, node.Choices.Count);
-            var ps = node.Choices.First().Choices.Single(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            var ps = node.Choices.First().Choices.Single(el => el.FightAction.CardInstance?.Card.Name == nameof(PommelStrike));
             Assert.AreEqual(0, ps.Randoms.Count()); //we only draw the one reality that the deck was shuffled into.
         }
 
@@ -116,7 +116,7 @@ namespace StS.Tests
             Assert.AreEqual(1, node.Choices.Count);
             Assert.AreEqual(2, node.Choices.First().Choices.Count);
             var qq = node.Choices.First();
-            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            var psa = qq.Choices.Where(el => el.FightAction.CardInstance?.Card.Name == nameof(PommelStrike));
             Assert.AreEqual(1, psa.Count());
             var ps = psa.First();
             Assert.AreEqual(1, ps.Randoms.Count());
@@ -137,7 +137,7 @@ namespace StS.Tests
             Assert.AreEqual(1, node.Choices.Count);
             Assert.AreEqual(2, node.Choices.First().Choices.Count);
             var qq = node.Choices.First();
-            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            var psa = qq.Choices.Where(el => el.FightAction.CardInstance?.Card.Name == nameof(PommelStrike));
             Assert.AreEqual(1, psa.Count());
             var ps = psa.First();
             Assert.AreEqual(2, ps.Randoms.Count());
@@ -158,7 +158,7 @@ namespace StS.Tests
             Assert.AreEqual(1, node.Choices.Count);
             Assert.AreEqual(2, node.Choices.First().Choices.Count);
             var qq = node.Choices.First();
-            var psa = qq.Choices.Where(el => el.FightAction.Card?.Card.Name == nameof(PommelStrike));
+            var psa = qq.Choices.Where(el => el.FightAction.CardInstance?.Card.Name == nameof(PommelStrike));
             Assert.AreEqual(1, psa.Count());
             var ps = psa.First();
             var res = new List<string>();
@@ -478,7 +478,7 @@ namespace StS.Tests
             {
                 var rcount = (int)Rnd.Next(10);
                 var relics = GetRandomRelics(rcount);
-                
+
                 var ccount = (int)Rnd.Next(20) + 3;
                 var cards = GetRandomCards(ccount);
 

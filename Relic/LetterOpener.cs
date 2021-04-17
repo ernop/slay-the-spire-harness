@@ -17,7 +17,7 @@ namespace StS
             {
                 SkillCt++;
             }
-            if (SkillCt % 3 == 0)
+            if (SkillCt % 3 == 0 && SkillCt > 0)
             {
                 ef.EnemyEffect.SetInitialDamage(5);
             }

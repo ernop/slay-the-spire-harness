@@ -1,7 +1,9 @@
 ﻿using NUnit.Framework;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using static StS.AllRelics;
 using static StS.Helpers;
 
@@ -1489,9 +1491,9 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
-            Assert.AreEqual(2, initialCis[4].EnergyCost());
+            Assert.AreEqual(2, initialCis[4].EnergyCost().En);
             fight.PlayCard(initialCis[3]);
-            Assert.AreEqual(1, initialCis[4].EnergyCost());
+            Assert.AreEqual(1, initialCis[4].EnergyCost().En);
             fight.EndTurn();
             fight.EnemyMove();
             fight.StartTurn();
@@ -1532,9 +1534,9 @@ namespace StS.Tests
             var fight = new Fight(initialCis, player: player, enemy: enemy, true);
             fight.StartTurn();
 
-            Assert.AreEqual(2, initialCis[4].EnergyCost());
+            Assert.AreEqual(2, initialCis[4].EnergyCost().En);
             fight.PlayCard(initialCis[3]);
-            Assert.AreEqual(1, initialCis[4].EnergyCost());
+            Assert.AreEqual(1, initialCis[4].EnergyCost().En);
             fight.EndTurn();
             fight.EnemyMove();
             fight.StartTurn();
@@ -1544,8 +1546,8 @@ namespace StS.Tests
                 {
                     continue;
                 }
-                Assert.AreEqual(1, ci.PerFightOverrideEnergyCost);
-                Assert.AreEqual(1, ci.EnergyCost());
+                Assert.AreEqual(1, ci.PerFightOverrideEnergyCost.En);
+                Assert.AreEqual(1, ci.EnergyCost().En);
             }
             //problem: when I initialize the fight I make a copy of the cards.
         }

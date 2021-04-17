@@ -6,7 +6,7 @@ namespace StS
     {
         public override string Name => nameof(RecklessCharge);
         public override bool RandomEffects => true;
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
         public override List<int> GetKeys(Deck d, CardInstance ci)
         {
             var res = new List<int>();

@@ -10,7 +10,7 @@ namespace StS
 
         public override TargetType TargetType => TargetType.Player;
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => 0;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(0);
 
         internal override void Play(EffectSet ef, Player player, IEnemy enemy, int upgradeCount, IList<CardInstance> targets = null, Deck deck = null, long? key = null)
         {
@@ -23,7 +23,7 @@ namespace StS
                     {
                         if (ci.EnergyCost() > 1)
                         {
-                            ci.PerTurnOverrideEnergyCost = 1;
+                            ci.PerTurnOverrideEnergyCost = new EnergyCostInt(1);
                             count++;
                         }
                     }
@@ -39,7 +39,7 @@ namespace StS
                     {
                         if (ci.EnergyCost() > 1)
                         {
-                            ci.PerFightOverrideEnergyCost = 1;
+                            ci.PerFightOverrideEnergyCost = new EnergyCostInt(1);
                             count++;
                         }
 

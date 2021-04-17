@@ -1,5 +1,8 @@
 ﻿namespace StS
 {
+    /// <summary>
+    /// Todo: many relics are stateless - bit pointless to require them to have Copy states.
+    /// </summary>
     public class BagOfEyes : Relic
     {
         public override string Name => nameof(BagOfEyes);

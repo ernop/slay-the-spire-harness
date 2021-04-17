@@ -7,7 +7,7 @@ namespace StS
     {
         public override string Name => nameof(Headbutt);
 
-        public override int CiCanCallEnergyCost(int upgradeCount) => 1;
+        public override EnergyCostInt CiCanCallEnergyCost(int upgradeCount) => new EnergyCostInt(1);
 
         /// <summary>
         /// There needs to be a way to specify extra parameters to play, for things like:

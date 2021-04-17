@@ -81,7 +81,7 @@ namespace StS
         /// Answer: there actually is no BT randomness since the drawpile has a single random state.
         /// But wild strike would actually have multiple states.
         /// </summary>
-        public IList<FightAction> GetAllActions()
+        public IList<FightAction> GetAllActions(bool includeUnplayable = false)
         {
             if (!PlayerTurn)
             {
@@ -96,25 +96,35 @@ namespace StS
                     return new List<FightAction>() { _Enemies[0].GetAction(TurnNumber) };
                 }
             }
-            return GetNormalActions();
+            return GetNormalActions(includeUnplayable);
         }
 
         /// <summary>
         /// All playable cards, potions, or endturn.
         /// Complication: Some cards generate multiple actions (when they have random effects.)
         /// </summary>
-        public IList<FightAction> GetNormalActions()
+        public IList<FightAction> GetNormalActions(bool includeUnplayable)
         {
 
             var res = new List<FightAction>();
             var hand = _Deck.GetHand;
             var consideredCis = new List<string>();
             var en = _Player.Energy;
+            var includeDuplicates = includeUnplayable ? true : false;
             foreach (var ci in hand)
             {
-                if (!consideredCis.Contains(ci.ToString()) && ci.EnergyCost() <= en && ci.Playable(hand))
+                if (!includeUnplayable) //
                 {
-                    var action = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci);
+                    if (consideredCis.Contains(ci.ToString()))
+                    {
+                        continue;
+                    }
+                }
+
+                var playable = ci.EnergyCost() <= en && ci.Playable(hand);
+                if (includeUnplayable || playable)
+                {
+                    var action = new FightAction(fightActionType: FightActionEnum.PlayCard, card: ci, playable: playable);
                     res.Add(action);
                     consideredCis.Add(ci.ToString());
                 }
@@ -180,7 +190,7 @@ namespace StS
                 _Deck.ForceDrawCards(_Player, initialHand, ef, history);
             }
 
-            history.Add($"Drew:{string.Join(',', initialHand.OrderBy(el => el.ToString()))}");
+            history.Add($"Drew: {Helpers.SJ(' ', initialHand.OrderBy(el => el.ToString()))}");
 
             _Player.Energy = _Player.MaxEnergy();
             _Player.Block = 0;
@@ -221,7 +231,7 @@ namespace StS
                 throw new Exception("Calling EndTurn without firstturn started.");
             }
 
-            history.Add($"(B{_Player.Block} E{_Player.Energy})");
+            history.Add($"End turn block & energy: (B{_Player.Block} E{_Player.Energy})");
 
             var endTurnEf = new EffectSet();
 
@@ -323,7 +333,7 @@ namespace StS
         /// </summary>
         public void PlayCard(FightAction action, bool forceExhaust = false, bool newCard = false, IList<CardInstance> source = null)
         {
-            var cardInstance = action.Card;
+            var cardInstance = action.CardInstance;
             var cardTargets = action.CardTargets;
             if (!PlayerTurn) throw new Exception("Not your turn");
             //get a copy since action was generated from an earlier version.
@@ -353,7 +363,7 @@ namespace StS
                 }
 
                 var ec = cardInstance.EnergyCost();
-                _Player.Energy -= ec;
+                _Player.Energy -= ec.En;
                 _Deck.BeforePlayingCard(cardInstance);
             }
 
@@ -461,7 +471,7 @@ namespace StS
                 {
                     if (en.HP <= 0)
                     {
-                        history.Add("Enemy Died");
+                        history.Add($"{en.Name} Died at {en.HP} HP");
                         Died(en, history);
                     }
                 }
@@ -540,7 +550,7 @@ namespace StS
                 }
 
                 var usingVal = val.Select(el => (int)Math.Floor(el));
-                history.Add($"attack for {string.Join(',', usingVal)}");
+                history.Add($"{entity.Name} got attacked for {string.Join(',', usingVal)}");
                 foreach (var el in usingVal)
                 {
                     var elCopy = el;
@@ -552,11 +562,13 @@ namespace StS
                             if (elCopy > entity.Block)
                             {
                                 elCopy = elCopy - entity.Block;
+                                history.Add($"{entity.Name} blocked {entity.Block}");
                                 entity.Block = 0;
                             }
                             else
                             {
                                 entity.Block -= el;
+                                history.Add($"{entity.Name} blocked {el}");
                                 elCopy = 0;
                             }
                         }
@@ -566,7 +578,7 @@ namespace StS
                         }
                     }
                 }
-                history.Add($"{entity.Details()}");
+                //history.Add($"{entity.Details()}");
             }
         }
         public void EnemyMove(int amount, int count)
@@ -589,9 +601,9 @@ namespace StS
             {
                 throw new Exception("No enemy action?");
             }
-            if (enemyAction.Card != null)
+            if (enemyAction.CardInstance != null)
             {
-                _Attack(enemyAction.Card, history);
+                _Attack(enemyAction.CardInstance, history);
                 enemyAction.AddHistory(history);
                 AssignLastAction(enemyAction);
             }
