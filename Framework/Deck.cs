@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
+
 using static StS.Helpers;
 
 namespace StS
 {
     public class Deck
     {
+        /// <summary>
+        /// is there a player here so we can do interactive stuff? or test/ai/sim so we just pick randomly (or later, take a specified "choice").
+        /// </summary>
+        protected bool InteractiveContext { get; set; }
+
         /// <summary>
         /// if you want a certain hand to be drawn, create the deck with those cards in the drawpile, and set this.
         /// </summary>
@@ -36,15 +42,15 @@ namespace StS
 
         public event NotifyDrawCard DrawCard;
         public delegate void NotifyDrawCard(CardInstance ci, EffectSet ef);
-
-
         public Deck(IList<string> drawPile, IList<string> hand, IList<string> discardPile, IList<string> exhaustPile)
         {
+            InteractiveContext = true;
             Init(GetCis(drawPile.ToArray()), GetCis(hand.ToArray()), GetCis(discardPile.ToArray()), GetCis(exhaustPile.ToArray()));
         }
 
         public Deck(IList<CardInstance> drawPile, IList<CardInstance> hand, IList<CardInstance> discardPile, IList<CardInstance> exhaustPile)
         {
+            InteractiveContext = true;
             Init(drawPile, hand, discardPile, exhaustPile);
         }
 
@@ -63,7 +69,6 @@ namespace StS
             DiscardPile = discardPile;
             ExhaustPile = exhaustPile;
         }
-
         public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
         {
             _PreserveOrder = preserveOrder;
@@ -97,14 +102,70 @@ namespace StS
             DrawPile.Add(headbuttTarget);
         }
 
-        internal CardInstance GetRandomCardFromHand()
+        internal CardInstance GetRandomCardFromHand(Func<CardInstance, bool> filter = null)
         {
-            if (Hand.Count == 0)
+            var candidates = Hand;
+            if (filter != null)
+            {
+                candidates = Hand.Where(el => filter.Invoke(el)).ToList();
+            }
+
+            if (candidates.Count == 0)
             {
                 return null;
             }
-            var res = Hand[Helpers.Rnd.Next(Hand.Count)];
+
+            var res = candidates[Helpers.Rnd.Next(candidates.Count)];
             return res;
+        }
+
+        /// <summary>
+        /// call this when you want to prompt the player to make a choice, or make a random choice if you're in ai mode.
+        /// </summary>
+        internal CardInstance ChooseCardFromHand(Func<CardInstance, bool> filter, string prompt)
+        {
+            if (!InteractiveContext)
+            {
+                return GetRandomCardFromHand(filter);
+            }
+            var candidates = Hand;
+            if (filter != null)
+            {
+                candidates = Hand.Where(el => filter.Invoke(el)).ToList();
+            }
+
+            if (candidates.Count == 0)
+            {
+                return null;
+            }
+            var res = PromptPlayerToChooseFromCardInstances(candidates, prompt);
+
+            return res;
+        }
+
+        private CardInstance PromptPlayerToChooseFromCardInstances(IList<CardInstance> cis, string prompt)
+        {
+            if (cis.Count == 0)
+            {
+                throw new Exception();
+            }
+            var ii = 0;
+            Console.WriteLine($"Pick a card for: {prompt}");
+            while (true)
+            {
+                while (ii < cis.Count)
+                {
+                    Console.WriteLine($"{ii + 1} - {cis[ii]}");
+                    ii++;
+                }
+                var input = Console.ReadLine();
+                var ok = Int32.TryParse(input, out int res);
+                if (ok && res < cis.Count && res > 0)
+                {
+                    return cis[ii - 1];
+                }
+            }
+
         }
 
         public IList<CardInstance> BackupCards { get; private set; }

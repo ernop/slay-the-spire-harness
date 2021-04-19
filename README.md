@@ -1,6 +1,7 @@
 ﻿Goals
 ==
 
+0. make console basically work correctly adding ChooseCardFromCIs(filter, presetChoiceForTests = null) so that console can really work right.
 1. be able to simulate a battle after providing deck, [initial hand], enemy + behavior
 2. generate optimal strategy w/monte carlo
 3. can this be hooked up to alphazero

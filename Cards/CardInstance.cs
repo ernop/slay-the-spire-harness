@@ -9,11 +9,46 @@ namespace StS
     /// per-fight would include extra copies of cards like anger, for example.
     /// per-hand would have instances that were more upgraded (armaments) or had different costs (monkey paw).
     /// </summary>
-    public partial class CardInstance
+    public class CardInstance
     {
+
+        public Card Card { get; set; }
+        public EnergyCostInt PerTurnOverrideEnergyCost { get; set; } = null;
+        public EnergyCostInt PerFightOverrideEnergyCost { get; set; } = null;
+        public bool OverrideExhaust { get; set; }
+        public int Id { get; set; }
         public int UpgradeCount { get; private set; }
+
+        public CardInstance(Card card, int upgradeCount)
+        {
+            Card = card ?? throw new ArgumentNullException(nameof(card));
+            UpgradeCount = upgradeCount;
+        }
+
+        public bool Upgradeable()
+        {
+            if (Card.CardType == CardType.Status || Card.CardType == CardType.Curse)
+            {
+                //status & curse cards can't upgrade (although they can show up upgraded directly)
+                return false;
+            }
+            if (Card.MultiUpgrade)
+            {
+                return true;
+            }
+            if (UpgradeCount == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void Upgrade()
         {
+            if (!Upgradeable())
+            {
+                return;
+            }
             if (Card.MultiUpgrade)
             {
                 UpgradeCount++;
@@ -22,17 +57,6 @@ namespace StS
             {
                 UpgradeCount++;
             }
-
-        }
-        public Card Card { get; set; }
-        public EnergyCostInt PerTurnOverrideEnergyCost { get; set; } = null;
-        public EnergyCostInt PerFightOverrideEnergyCost { get; set; } = null;
-        public bool OverrideExhaust { get; set; }
-        public int Id { get; set; }
-        public CardInstance(Card card, int upgradeCount)
-        {
-            Card = card ?? throw new ArgumentNullException(nameof(card));
-            UpgradeCount = upgradeCount;
         }
 
         public bool Exhausts()

@@ -61,6 +61,7 @@ namespace StS
             cards[nameof(Warcry)] = new Warcry();
             cards[nameof(Rage)] = new Rage();
             cards[nameof(BattleTrance)] = new BattleTrance();
+            cards[nameof(Armaments)] = new Armaments();
 
             return cards;
         }

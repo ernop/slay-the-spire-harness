@@ -29,7 +29,11 @@ namespace StS
             _Player = new Player(hp: 80, relics: relics, potions: potions);
             _Enemy = new Cultist(enemyHp);
             //var hand = gsl("Strike", "Strike", "Strike", "Strike", "Strike", "Defend", "Defend", "Defend", "Defend", "Bash","WildStrike","PommelStrike+");
-            var cis = GetRandomCards(20);
+            var cis = GetRandomCards(10);
+            cis.Add(Helpers.GetCi("Armaments"));
+            cis.Add(Helpers.GetCi("Armaments"));
+            cis.Add(Helpers.GetCi("Armaments+"));
+            cis.Add(Helpers.GetCi("SearingBlow"));
             Console.WriteLine("Deck: " + SJ(separator: ' ', cis.OrderBy(el => el.Card.Name)));
             var deck = new Deck(cis);
             _Fight = new Fight(deck, _Player, _Enemy);
@@ -62,8 +66,6 @@ namespace StS
         {
             while (true)
             {
-
-
                 DisplayStatus(_Current);
 
                 var ii = 0;
@@ -129,19 +131,6 @@ namespace StS
                 }
 
             }
-        }
-
-        public enum Command
-        {
-            //meta
-            AddCard,
-            RemoveCard,
-            GainPotion,
-
-            //normal
-            PlayCard,
-            DrinkPotion,
-            EndTurn,
         }
     }
 }

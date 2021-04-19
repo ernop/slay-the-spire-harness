@@ -171,7 +171,7 @@ namespace StS.Tests
         {
             var player = new Player();
             var cis = GetCis("Entrench+", "Defend", "Footwork", "Entrench");
-            var deck = new Deck(cis);
+            var deck = new TestDeck(cis);
             var enemy = new GenericEnemy();
             var fight = new Fight(deck, player, enemy);
             fight.StartFight();
@@ -196,6 +196,89 @@ namespace StS.Tests
         {
             RunTest(name: "Strike, Strike+ works", en2: 33, cis: GetCis("Strike", "Strike+"),
                 relics: GetRelics("Vajra"));
+        }
+
+        [Test]
+        public static void Test_ArmamentsPlus()
+        {
+            var player = new Player();
+            var cis = GetCis("Armaments+", "Defend", "Defend+", "Inflame", "Footwork");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(5, player.Block);
+            foreach (var ci in fight.GetHand)
+            {
+                Assert.AreEqual(1, ci.UpgradeCount);
+            }
+            fight.PlayCard(cis[1]);
+            Assert.AreEqual(13, player.Block); //upgraded defend.
+        }
+
+        [Test]
+        public static void Test_Armaments()
+        {
+            var player = new Player();
+            var cis = GetCis("Armaments", "Defend");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(5, player.Block);
+            fight.PlayCard(cis[1]);
+            Assert.AreEqual(13, player.Block); //upgraded defend.
+        }
+
+        [Test]
+        public static void Test_Armaments2()
+        {
+            var player = new Player();
+            var cis = GetCis("Armaments", "Defend", "Defend", "Defend", "Defend");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(5, player.Block);
+
+            //play the upgraded one.
+            foreach (var ci in fight.GetHand)
+            {
+                if (ci.UpgradeCount == 1)
+                {
+                    fight.PlayCard(ci);
+                    break;
+                }
+            }
+
+            var unupgraded = fight.GetHand.Where(el => el.UpgradeCount == 0);
+            Assert.AreEqual(3, unupgraded.Count());
+
+            Assert.AreEqual(13, player.Block); //upgraded defend.
+        }
+
+
+        [Test]
+        public static void Test_Armaments_SearingBlow()
+        {
+            var player = new Player();
+            var cis = GetCis("Armaments", "SearingBlow", "Armaments+");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            fight.PlayCard(cis[2]);
+            Assert.AreEqual(5, player.Block);
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(10, player.Block);
+            Assert.AreEqual(2, cis[1].UpgradeCount);
         }
 
         [Test]
@@ -258,7 +341,7 @@ namespace StS.Tests
         {
             var player = new Player(drawAmount: 2);
             var cis = GetCis("Strike", "Bash", "WildStrike", "Bash", "PommelStrike+", "BattleTrance", "Defend", "BattleTrance");
-            var deck = new Deck(cis);
+            var deck = new TestDeck(cis);
             var enemy = new GenericEnemy();
             var fight = new Fight(deck, player, enemy);
             fight.StartFight();
@@ -278,7 +361,7 @@ namespace StS.Tests
         {
             var player = new Player(drawAmount: 2);
             var cis = gsl("Strike", "Bash", "WildStrike", "Bash", "Strike", "Defend", "Defend", "WildStrike");
-            var deck = new Deck(cis, gsl(), gsl(), gsl());
+            var deck = new TestDeck(cis, gsl(), gsl(), gsl());
             var enemy = new GenericEnemy();
 
 

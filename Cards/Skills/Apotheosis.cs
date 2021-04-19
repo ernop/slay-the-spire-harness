@@ -2,7 +2,6 @@
 
 namespace StS
 {
-
     public class Apotheosis : SkillCard
     {
         public override string Name => nameof(Apotheosis);
