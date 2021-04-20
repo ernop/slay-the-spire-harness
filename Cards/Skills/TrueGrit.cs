@@ -22,33 +22,41 @@ namespace StS
 
             ef.DeckEffect.Add((Deck d, List<string> h) =>
             {
+                //target determination:
+                // upgraded + specify
+                // upgraded + ask user
+                // upgraded + default to random (!interactiveContext)
+                // nonupgraded + specify
+                // nonupgraded + random
+                CardInstance target;
+                var spec = "";
                 if (targets == null)
                 {
-                    var target = d.GetRandomCardFromHand();
-                    d.ExhaustFromHand(target, ef);
-                    if (target == null)
+                    if (upgradeCount == 0)
                     {
-                        h.Add($"True Grit: Nothing to exhaust");
+                        target = d.GetRandomCardFromHand();
+                        spec = "Picked random card from hand";
                     }
                     else
                     {
-                        h.Add($"True Grit: Exhausted {target} by random");
+                        target = d.ChooseCardFromHand(filter: null, prompt: "Pick a card to exhaust with True Grit");
+                        spec = "Prompted to pick card from hand";
                     }
                 }
                 else
                 {
-                    if (targets.Count != 1)
-                    {
-                        throw new System.Exception();
-                    }
-                    var hand = d.GetHand;
-                    var ci = targets[0];
-                    if (!hand.Contains(ci))
-                    {
-                        throw new System.Exception();
-                    }
-                    d.ExhaustFromHand(ci, ef);
-                    h.Add($"True Grit: Exhausted {ci} by by specification.");
+                    target = targets[0];
+                    spec = "used target";
+                }
+
+                if (target == null)
+                {
+                    h.Add($"True Grit: {spec} Nothing to exhaust");
+                }
+                else
+                {
+                    h.Add($"True Grit: {spec}: {target}");
+                    d.ExhaustFromHand(target, ef, h);
                 }
             });
         }

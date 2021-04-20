@@ -11,7 +11,7 @@ namespace StS
 
         public TestDeck(IList<string> drawPile, IList<string> hand, IList<string> discardPile, IList<string> exhaustPile) : base(drawPile, hand, discardPile, exhaustPile)
         {
-            InteractiveContext = true;
+            InteractiveContext = false;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace StS
 
         public void Setup()
         {
-            SetRandom(16);
+            SetRandom(164);
             var relics = GetRandomRelics(3);
             var potions = GetRandomPotions(2);
             var enemyHp = 100;
@@ -33,9 +33,10 @@ namespace StS
             cis.Add(Helpers.GetCi("Armaments"));
             cis.Add(Helpers.GetCi("Armaments"));
             cis.Add(Helpers.GetCi("Armaments+"));
-            cis.Add(Helpers.GetCi("SearingBlow"));
+            cis.Add(Helpers.GetCi("TrueGrit"));
             Console.WriteLine("Deck: " + SJ(separator: ' ', cis.OrderBy(el => el.Card.Name)));
             var deck = new Deck(cis);
+            deck.InteractiveContext = true;
             _Fight = new Fight(deck, _Player, _Enemy);
             _Root = new FightNode(_Fight);
             _Current = _Root;

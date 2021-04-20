@@ -234,6 +234,7 @@ namespace StS
             }
             if (Random)
             {
+                //possibly unnecessary in interactive context.
                 res.Add($" R:{Key}");
             }
 

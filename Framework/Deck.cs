@@ -13,7 +13,7 @@ namespace StS
         /// <summary>
         /// is there a player here so we can do interactive stuff? or test/ai/sim so we just pick randomly (or later, take a specified "choice").
         /// </summary>
-        protected bool InteractiveContext { get; set; }
+        public bool InteractiveContext { get; set; }
 
         /// <summary>
         /// if you want a certain hand to be drawn, create the deck with those cards in the drawpile, and set this.
@@ -71,6 +71,7 @@ namespace StS
         }
         public Deck([NotNull] IList<CardInstance> cis, bool preserveOrder = false)
         {
+            InteractiveContext = true;
             _PreserveOrder = preserveOrder;
             BackupCards = cis?.Select(el => el.Copy()).ToList();
             var newList = new List<CardInstance>();
@@ -160,9 +161,9 @@ namespace StS
                 }
                 var input = Console.ReadLine();
                 var ok = Int32.TryParse(input, out int res);
-                if (ok && res < cis.Count && res > 0)
+                if (ok && res < cis.Count && res >= 0)
                 {
-                    return cis[ii - 1];
+                    return cis[res - 1];
                 }
             }
 
@@ -342,7 +343,7 @@ namespace StS
             ExhaustPile.Add(ci);
         }
 
-        public void ExhaustFromHand(CardInstance ci, EffectSet ef)
+        public void ExhaustFromHand(CardInstance ci, EffectSet ef, List<string> h)
         {
             if (ci == null)
             {
@@ -350,6 +351,7 @@ namespace StS
             }
             Hand.Remove(ci);
             Exhaust(ci, ef);
+            h.Add($"Exhausted {ci}");
         }
 
         /// <summary>
@@ -576,12 +578,14 @@ namespace StS
             var dis = DiscardPile.Select(el => el.Copy()).ToList();
             var ex = ExhaustPile.Select(el => el.Copy()).ToList();
             var d = new Deck(h, dr, dis, ex);
+
             d._PreserveOrder = _PreserveOrder;
 
             //it is pretty bad we have to copy event connections.
             d.DeckShuffle = DeckShuffle;
             d.DrawCard = DrawCard;
             d.ExhaustCard = ExhaustCard;
+            d.InteractiveContext = InteractiveContext;
 
             return d;
         }

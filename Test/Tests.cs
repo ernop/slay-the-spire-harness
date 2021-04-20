@@ -198,6 +198,8 @@ namespace StS.Tests
                 relics: GetRelics("Vajra"));
         }
 
+
+
         [Test]
         public static void Test_ArmamentsPlus()
         {
@@ -512,6 +514,61 @@ namespace StS.Tests
         [Test]
         public static void Test_TrueGrit()
         {
+            var player = new Player();
+            var cis = GetCis("TrueGrit", "Defend", "Defend+", "Inflame", "Footwork");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            var targets = new List<CardInstance>() { cis[1] };
+            fight.PlayCard(cis[0], targets);
+            Assert.AreEqual(7, player.Block);
+            Assert.AreEqual(3, deck.GetHand.Count);
+            Assert.AreEqual(1, deck.GetExhaustPile.Count);
+            Assert.IsTrue(CompareHands(deck.GetExhaustPile, GetCis("Defend"), out var msg), msg);
+        }
+
+        [Test]
+        public static void Test_TrueGrit5()
+        {
+            var player = new Player();
+            var cis = GetCis("TrueGrit+", "Defend", "Defend+", "Inflame", "Footwork");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            //specifing target.
+            var targets = new List<CardInstance>() { cis[2] };
+            fight.PlayCard(cis[0], targets);
+            Assert.AreEqual(10, player.Block);
+            Assert.AreEqual(3, deck.GetHand.Count);
+            Assert.AreEqual(1, deck.GetExhaustPile.Count);
+            Assert.IsTrue(CompareHands(deck.GetExhaustPile, GetCis("Defend+"), out var msg), msg);
+        }
+
+        [Test]
+        public static void Test_TrueGritPlus()
+        {
+            var player = new Player();
+            var cis = GetCis("TrueGrit+", "Defend", "Defend+", "Inflame", "Footwork");
+            var deck = new TestDeck(cis);
+            var enemy = new GenericEnemy();
+            var fight = new Fight(deck, player, enemy);
+            fight.StartFight();
+            fight.StartTurn();
+            var cardTargets = new List<CardInstance>();
+            fight.PlayCard(cis[0]);
+            Assert.AreEqual(10, player.Block);
+            Assert.AreEqual(3, deck.GetHand.Count);
+            Assert.AreEqual(1, deck.GetExhaustPile.Count);
+        }
+
+
+        [Test]
+        public static void Test_TrueGrit2()
+        {
             var player = new Player(relics: GetRelics("BurningBlood"));
             var enemy = new GenericEnemy(hp: 3, hpMax: 3);
             var initialCis = GetCis("Sentinel+", "TrueGrit");
@@ -525,7 +582,7 @@ namespace StS.Tests
         }
 
         [Test]
-        public static void Test_TrueGritPlus()
+        public static void Test_TrueGritPlus3()
         {
             var player = new Player(relics: GetRelics("BurningBlood"));
             var enemy = new GenericEnemy(hp: 3, hpMax: 3);
