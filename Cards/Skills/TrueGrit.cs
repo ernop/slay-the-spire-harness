@@ -40,7 +40,7 @@ namespace StS
                     else
                     {
                         target = d.ChooseCardFromHand(filter: null, prompt: "Pick a card to exhaust with True Grit");
-                        spec = "Prompted to pick card from hand";
+                        spec = "Prompted to pick card from hand.";
                     }
                 }
                 else
